@@ -1,4 +1,4 @@
-import { AllowlistState } from 'src/allowlist/state-types/allowlist-state';
+import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { AllowlistAddItemParams } from './add-item-operation.types';
 import { BadInputError } from '../../bad-input.error';

@@ -32,6 +32,7 @@ import { ItemSelectTokenIdsOperation } from './operations/item-select-token-ids/
 import { ComponentAddSpotsToAllItemWalletsOperation } from './operations/component-add-spots-to-all-item-wallets/component-add-spots-to-all-item-wallets-operation';
 import { ItemRemoveFirstNTokensOperation } from './operations/item-remove-first-n-tokens/item-remove-first-n-tokens-operation';
 import { ItemRemoveLastNTokensOperation } from './operations/item-remove-last-n-tokens/item-remove-last-n-tokens-operation';
+// Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
   /**
@@ -110,6 +111,7 @@ export class AllowlistCreator {
       ITEM_REMOVE_LAST_N_TOKENS: new ItemRemoveLastNTokensOperation(
         loggerFactoryImpl,
       ),
+      // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(opExecutors, loggerFactoryImpl);
   }

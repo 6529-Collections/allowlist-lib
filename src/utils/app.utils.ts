@@ -1,3 +1,4 @@
+import { AllowlistOperationCode } from 'src/allowlist/allowlist-operation-code';
 import { BadInputError } from './../allowlist/bad-input.error';
 // The `assertUnreachable` function takes an input `_x` of type `never` and always throws
 // an error. This function is typically used in TypeScript to assert exhaustiveness in
@@ -13,6 +14,7 @@ export const assertUnreachable = (_x: never): never => {
 export const parseTokenIds = (
   input: string | null,
   poolId: string,
+  code: AllowlistOperationCode,
 ): string[] | null => {
   if (!input) {
     return null;
@@ -24,7 +26,7 @@ export const parseTokenIds = (
   const regex = /^(\d+-\d+|\d+)(,\d+-\d+|,\d+)*$/;
   if (!regex.test(cleanedInput)) {
     throw new BadInputError(
-      `CREATE_TOKEN_POOL: TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999, poolId: ${poolId}`,
+      `${code}: TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999, id: ${poolId}`,
     );
   }
 

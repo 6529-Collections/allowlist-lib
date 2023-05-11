@@ -5,6 +5,7 @@ import { BadInputError } from '../../bad-input.error';
 import { TokenOwnership } from '../../state-types/token-ownership';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { parseTokenIds } from '../../../utils/app.utils';
+import { AllowlistOperationCode } from '../../../allowlist/allowlist-operation-code';
 
 export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   private logger: Logger;
@@ -38,7 +39,11 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         `CREATE_TOKEN_POOL: TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999, poolId: ${id}`,
       );
     }
-    const parsedTokenIds = parseTokenIds(tokenIds, id);
+    const parsedTokenIds = parseTokenIds(
+      tokenIds,
+      id,
+      AllowlistOperationCode.CREATE_TOKEN_POOL,
+    );
     const contract = transferPool.contract;
 
     const tokenToOwningWallets = transferPool.transfers.reduce(

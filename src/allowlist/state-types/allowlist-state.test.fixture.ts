@@ -1,28 +1,39 @@
 import { AllowlistPhase } from './allowlist-phase';
 import { AllowlistState } from './allowlist-state';
 import { AllowlistComponent } from './allowlist-component';
-import { AllowlistItem } from './allowlist-item';
+import { AllowlistItem, AllowlistItemToken } from './allowlist-item';
 import { DescribableEntity } from './describable-entity';
 import { TokenPool } from './token-pool';
 import { TransferPool } from '../operations/get-collection-transfers/get-collection-transfers-operation.types';
 import { WalletPool } from './wallet-pool';
 import { Transfer } from './transfer';
 import { TokenOwnership } from './token-ownership';
-import {
-  CustomTokenOwnership,
-  CustomTokenPool,
-} from './custom-token-pool';
+import { CustomTokenOwnership, CustomTokenPool } from './custom-token-pool';
+
+export function anAllowlistItemToken(params?: {
+  id?: string;
+  owner?: string;
+  since?: number;
+}): AllowlistItemToken {
+  return {
+    id: params?.id ?? aTokenOwnership().id,
+    owner: params?.owner ?? aTokenOwnership().owner,
+    since: params?.since ?? aTokenOwnership().since,
+  };
+}
 
 export function anAllowlistItem(params?: {
   id?: string;
   name?: string;
   description?: string;
+  tokens?: AllowlistItemToken[];
   _insertionOrder?: number;
 }): AllowlistItem {
   return {
     id: params?.id || 'item-1',
     name: params?.name || 'item 1',
     description: params?.description || 'item 1 description',
+    tokens: params?.tokens ?? [anAllowlistItemToken()],
     _insertionOrder: params?._insertionOrder || 0,
   };
 }
@@ -219,3 +230,4 @@ export function anAllowlistState(params?: {
     ),
   };
 }
+

@@ -27,6 +27,8 @@ import {
 } from '../logging/logging-emitter';
 import { Time } from '../time';
 import { CreateCustomTokenPoolOperation } from './operations/create-custom-token-pool/create-custom-token-pool-operation';
+import { ItemExcludeTokenIdsOperation } from './operations/item-exclude-token-ids/item-exclude-token-ids-operation';
+import { ItemSelectTokenIdsOperation } from './operations/item-select-token-ids/item-select-token-ids-operation';
 
 export class AllowlistCreator {
   /**
@@ -92,6 +94,10 @@ export class AllowlistCreator {
       ADD_COMPONENT: new AddComponentOperation(loggerFactoryImpl),
 
       ADD_ITEM: new AddItemOperation(loggerFactoryImpl),
+      ITEM_EXCLUE_TOKEN_IDS: new ItemExcludeTokenIdsOperation(
+        loggerFactoryImpl,
+      ),
+      ITEM_SELECT_TOKEN_IDS: new ItemSelectTokenIdsOperation(loggerFactoryImpl),
     };
     return new AllowlistCreator(opExecutors, loggerFactoryImpl);
   }

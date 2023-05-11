@@ -16,5 +16,7 @@ export enum AllowlistOperationCode {
   ITEM_SELECT_TOKEN_IDS = 'ITEM_SELECT_TOKEN_IDS',
   ITEM_REMOVE_FIRST_N_TOKENS = 'ITEM_REMOVE_FIRST_N_TOKENS',
   ITEM_REMOVE_LAST_N_TOKENS = 'ITEM_REMOVE_LAST_N_TOKENS',
+  ITEM_SELECT_FIRST_N_TOKENS = 'ITEM_SELECT_FIRST_N_TOKENS',
+  ITEM_SELECT_LAST_N_TOKENS = 'ITEM_SELECT_LAST_N_TOKENS',
   // Placeholder for future operations (please keep this comment here, it's used by the code generator)
 }

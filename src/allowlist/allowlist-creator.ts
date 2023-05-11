@@ -30,6 +30,8 @@ import { CreateCustomTokenPoolOperation } from './operations/create-custom-token
 import { ItemExcludeTokenIdsOperation } from './operations/item-exclude-token-ids/item-exclude-token-ids-operation';
 import { ItemSelectTokenIdsOperation } from './operations/item-select-token-ids/item-select-token-ids-operation';
 import { ComponentAddSpotsToAllItemWalletsOperation } from './operations/component-add-spots-to-all-item-wallets/component-add-spots-to-all-item-wallets-operation';
+import { ItemRemoveFirstNTokensOperation } from './operations/item-remove-first-n-tokens/item-remove-first-n-tokens-operation';
+import { ItemRemoveLastNTokensOperation } from './operations/item-remove-last-n-tokens/item-remove-last-n-tokens-operation';
 
 export class AllowlistCreator {
   /**
@@ -102,6 +104,12 @@ export class AllowlistCreator {
         loggerFactoryImpl,
       ),
       ITEM_SELECT_TOKEN_IDS: new ItemSelectTokenIdsOperation(loggerFactoryImpl),
+      ITEM_REMOVE_FIRST_N_TOKENS: new ItemRemoveFirstNTokensOperation(
+        loggerFactoryImpl,
+      ),
+      ITEM_REMOVE_LAST_N_TOKENS: new ItemRemoveLastNTokensOperation(
+        loggerFactoryImpl,
+      ),
     };
     return new AllowlistCreator(opExecutors, loggerFactoryImpl);
   }

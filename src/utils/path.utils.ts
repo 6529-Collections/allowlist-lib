@@ -53,3 +53,41 @@ export const getItemPath = (param: {
     itemId: item.id,
   };
 };
+
+export const getComponentPath = (param: {
+  state: AllowlistState;
+  componentId: string;
+}): {
+  phaseId: string | null;
+  componentId: string | null;
+} => {
+  const { state, componentId } = param;
+  const phase = Object.values(state.phases).find(
+    (phase) =>
+      !!Object.values(phase.components).find(
+        (component) => component.id === componentId,
+      ),
+  );
+  if (!phase) {
+    return {
+      phaseId: null,
+      componentId: null,
+    };
+  }
+
+  const component = Object.values(phase.components).find(
+    (component) => component.id === componentId,
+  );
+
+  if (!component) {
+    return {
+      phaseId: phase.id,
+      componentId: null,
+    };
+  }
+
+  return {
+    phaseId: phase.id,
+    componentId: component.id,
+  };
+};

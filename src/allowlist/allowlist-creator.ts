@@ -29,6 +29,7 @@ import { Time } from '../time';
 import { CreateCustomTokenPoolOperation } from './operations/create-custom-token-pool/create-custom-token-pool-operation';
 import { ItemExcludeTokenIdsOperation } from './operations/item-exclude-token-ids/item-exclude-token-ids-operation';
 import { ItemSelectTokenIdsOperation } from './operations/item-select-token-ids/item-select-token-ids-operation';
+import { ComponentAddSpotsToAllItemWalletsOperation } from './operations/component-add-spots-to-all-item-wallets/component-add-spots-to-all-item-wallets-operation';
 
 export class AllowlistCreator {
   /**
@@ -92,6 +93,9 @@ export class AllowlistCreator {
 
       ADD_PHASE: new AddPhaseOperation(loggerFactoryImpl),
       ADD_COMPONENT: new AddComponentOperation(loggerFactoryImpl),
+
+      COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS:
+        new ComponentAddSpotsToAllItemWalletsOperation(loggerFactoryImpl),
 
       ADD_ITEM: new AddItemOperation(loggerFactoryImpl),
       ITEM_EXCLUE_TOKEN_IDS: new ItemExcludeTokenIdsOperation(

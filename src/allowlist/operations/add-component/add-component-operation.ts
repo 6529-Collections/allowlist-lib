@@ -27,6 +27,7 @@ export class AddComponentOperation implements AllowlistOperationExecutor {
       name,
       description,
       items: {},
+      winners: {},
       _insertionOrder: Object.keys(state.phases[phaseId].components).length,
     };
     this.logger.info(`Created component ${name}`);

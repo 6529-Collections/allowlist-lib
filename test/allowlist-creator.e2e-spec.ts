@@ -2,7 +2,6 @@ import { AllowlistCreator } from '../src/allowlist/allowlist-creator';
 import { AllowlistOperation } from '../src/allowlist/allowlist-operation';
 import { AllowlistOperationCode } from '../src/allowlist/allowlist-operation-code';
 import { Pool } from '../src/app-types';
-import * as fs from 'fs';
 
 describe('AllowlistCreator e2e tests', () => {
   let allowlistCreator: AllowlistCreator;

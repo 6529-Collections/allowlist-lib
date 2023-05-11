@@ -6,5 +6,6 @@ export interface AllowlistComponent extends DescribableEntity {
   readonly name: string;
   readonly description: string;
   readonly items: Record<string, AllowlistItem>;
+  readonly winners: Record<string, number>;
   readonly _insertionOrder: number;
 }

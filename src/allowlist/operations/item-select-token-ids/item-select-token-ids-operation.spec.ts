@@ -91,7 +91,7 @@ describe('ItemSelectTokenIdsOperation', () => {
     );
   });
 
-  it('selects toekns for item', () => {
+  it('selects tokens for item', () => {
     op.execute({
       params: { ...params, tokenIds: '2' },
       state,

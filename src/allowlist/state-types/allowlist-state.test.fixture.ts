@@ -38,12 +38,22 @@ export function anAllowlistItem(params?: {
   };
 }
 
+export function anAllowlistWinner(params?: {
+  id?: string;
+  count?: number;
+}): Record<string, number> {
+  return {
+    [params?.id || aTokenOwnership().owner]: params?.count || 1,
+  };
+}
+
 export function anAllowlistComponent(params?: {
   id?: string;
   name?: string;
   description?: string;
-  _insertionOrder?: number;
   items?: AllowlistItem[];
+  winners?: Record<string, number>;
+  _insertionOrder?: number;
 }): AllowlistComponent {
   return {
     id: params?.id || 'component-1',
@@ -53,6 +63,7 @@ export function anAllowlistComponent(params?: {
       acc[cur.id] = cur;
       return acc;
     }, {} as Record<string, AllowlistItem>),
+    winners: params?.winners || anAllowlistWinner(),
     _insertionOrder: params?._insertionOrder || 0,
   };
 }

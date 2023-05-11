@@ -102,6 +102,16 @@ export class Time {
     return Time.now().plusWeeks(amount);
   }
 
+  public shortFormatUTC(): string {
+    const d = this.toDate();
+    const pad = (x) => x.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(
+      d.getUTCDate(),
+    )} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(
+      d.getUTCSeconds(),
+    )} (UTC)`;
+  }
+
   public diffFromNow(): Time {
     return Time.now().diff(this);
   }

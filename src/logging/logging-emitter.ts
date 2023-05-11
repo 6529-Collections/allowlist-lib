@@ -1,3 +1,5 @@
+import { Time } from '../time';
+
 export class LoggerFactory {
   constructor(private readonly listener: LogListener) {}
 
@@ -8,19 +10,23 @@ export class LoggerFactory {
 
 class ConsoleLogListener implements LogListener {
   debug(message: string) {
-    console.debug(`${new Date()} ${message}`);
+    console.debug(`[${ConsoleLogListener.timeNow()}] ${message}`);
   }
 
   error(message: string) {
-    console.error(`${new Date()} ${message}`);
+    console.error(`[${ConsoleLogListener.timeNow()}] ${message}`);
   }
 
   info(message: string) {
-    console.info(`${new Date()} ${message}`);
+    console.info(`[${ConsoleLogListener.timeNow()}] ${message}`);
   }
 
   warn(message: string) {
-    console.info(`${new Date()} ${message}`);
+    console.info(`[${ConsoleLogListener.timeNow()}] ${message}`);
+  }
+
+  private static timeNow(): string {
+    return Time.now().shortFormatUTC();
   }
 }
 
@@ -50,9 +56,10 @@ export class Logger {
 
   private log(method: (string) => void, message: string, params?: any) {
     if (params) {
-      message = `${this.name}: ${message} ${JSON.stringify(params)}`;
+      method(`${this.name}: ${message} ${JSON.stringify(params)}`);
+    } else {
+      method(`${this.name}: ${message}`);
     }
-    method(message);
   }
 }
 

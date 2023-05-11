@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "license": "UNLICENSED",
-  "repository": "https://github.com/analyticsflowee/allowlist-lib",
+  "repository": "https://github.com/6529-Collections/allowlist-api/allowlist-lib",
   "scripts": {
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

@@ -4,7 +4,7 @@ import { TokenPoolParams } from '../../state-types/token-pool';
 import { BadInputError } from '../../bad-input.error';
 import { TokenOwnership } from '../../state-types/token-ownership';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
-import { parseTokenIds } from '../../../utils/app.utils';
+import { isValidTokenIds, parseTokenIds } from '../../../utils/app.utils';
 import { AllowlistOperationCode } from '../../../allowlist/allowlist-operation-code';
 
 export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
@@ -14,6 +14,55 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     this.logger = loggerFactory.create(CreateTokenPoolOperation.name);
   }
 
+  validate(params: any): params is TokenPoolParams {
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
+    }
+
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.hasOwnProperty('transferPoolId')) {
+      throw new BadInputError('Missing transferPoolId');
+    }
+
+    if (typeof params.transferPoolId !== 'string') {
+      throw new BadInputError('Invalid transferPoolId');
+    }
+
+    if (!params.transferPoolId.length) {
+      throw new BadInputError('Invalid transferPoolId');
+    }
+
+    if (
+      params.hasOwnProperty('tokenIds') &&
+      params.tokenIds !== null &&
+      params.tokenIds !== undefined &&
+      typeof params.tokenIds !== 'string'
+    ) {
+      throw new BadInputError('Invalid tokenIds');
+    }
+
+    if (typeof params.tokenIds === 'string' && !params.tokenIds.length) {
+      throw new BadInputError('Invalid tokenIds');
+    }
+
+    if (
+      typeof params.tokenIds === 'string' &&
+      params.tokenIds.length &&
+      !isValidTokenIds(params.tokenIds)
+    ) {
+      throw new BadInputError('Invalid tokenIds');
+    }
+
+    return true;
+  }
+
   execute({
     params,
     state,
@@ -21,22 +70,14 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     params: TokenPoolParams;
     state: AllowlistState;
   }) {
+    if (!this.validate(params)) {
+      throw new BadInputError('Invalid params');
+    }
     const { id, transferPoolId, tokenIds } = params;
     const transferPool = state.transferPools[transferPoolId];
     if (!transferPool) {
       throw new BadInputError(
         `CREATE_TOKEN_POOL: Transfer pool ${transferPoolId} not found, poolId: ${id}`,
-      );
-    }
-    if (
-      !(
-        typeof tokenIds === 'string' ||
-        tokenIds === null ||
-        tokenIds === undefined
-      )
-    ) {
-      throw new BadInputError(
-        `CREATE_TOKEN_POOL: TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999, poolId: ${id}`,
       );
     }
     const parsedTokenIds = parseTokenIds(

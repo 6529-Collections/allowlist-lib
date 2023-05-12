@@ -22,59 +22,220 @@ describe('CreateWalletPoolOperation', () => {
     };
   });
 
-  it('throws error if wallets is not an array', () => {
+  it('throws if id is missing', () => {
     expect(() =>
-      op.execute({
-        params: { ...params, wallets: 123 as any },
-        state,
+      op.validate({
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
       }),
-    ).toThrow('CREATE_WALLET_POOL: Wallets must be an array');
+    ).toThrowError('Missing id');
   });
 
-  it('throws error if wallets array is empty', () => {
+  it('throws if id is not a string', () => {
     expect(() =>
-      op.execute({
-        params: { ...params, wallets: [] },
-        state,
+      op.validate({
+        id: 1,
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
       }),
-    ).toThrow('CREATE_WALLET_POOL: Wallets array must not be empty');
+    ).toThrowError('Invalid id');
   });
 
-  it('throws error if wallets array contains non-string values', () => {
+  it('throws if id is empty', () => {
     expect(() =>
-      op.execute({
-        params: { ...params, wallets: [123 as any] },
-        state,
+      op.validate({
+        id: '',
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
       }),
-    ).toThrow('CREATE_WALLET_POOL: Wallets must be an array of strings');
+    ).toThrowError('Invalid id');
   });
 
-  it('throws error if wallets array contains non-Ethereum addresses', () => {
+  it('throws if name is missing', () => {
     expect(() =>
-      op.execute({
-        params: { ...params, wallets: ['0x123'] },
-        state,
+      op.validate({
+        id: 'wp-1',
+        description: 'wp 1 description',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
       }),
-    ).toThrow(
-      'CREATE_WALLET_POOL: Wallet 0x123 is not a valid Ethereum address',
-    );
+    ).toThrowError('Missing name');
   });
 
-  it('throws error if wallets array contains duplicated values', () => {
+  it('throws if name is not a string', () => {
     expect(() =>
-      op.execute({
-        params: {
-          ...params,
-          wallets: [
-            '0x152afd373a91d0cb04132c80cf24d26f1e3fc0a9',
-            '0x152afd373a91d0cb04132c80cf24d26f1e3fc0a9',
-          ],
-        },
-        state,
+      op.validate({
+        id: 'wp-1',
+        name: 1,
+        description: 'wp 1 description',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
       }),
-    ).toThrow(
-      'CREATE_WALLET_POOL: Wallet 0x152afd373a91d0cb04132c80cf24d26f1e3fc0a9 is duplicated',
-    );
+    ).toThrowError('Invalid name');
+  });
+
+  it('throws if name is empty', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: '',
+        description: 'wp 1 description',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
+      }),
+    ).toThrowError('Invalid name');
+  });
+
+  it('throws if description is missing', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
+      }),
+    ).toThrowError('Missing description');
+  });
+
+  it('throws if description is not a string', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 1,
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
+      }),
+    ).toThrowError('Invalid description');
+  });
+
+  it('throws if description is empty', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: '',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
+      }),
+    ).toThrowError('Invalid description');
+  });
+
+  it('throws if wallets is missing', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 'wp 1 description',
+      }),
+    ).toThrowError('Missing wallets');
+  });
+
+  it('throws if wallets is not an array', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: 1,
+      }),
+    ).toThrowError('Invalid wallets');
+  });
+
+  it('throws if wallets is empty', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: [],
+      }),
+    ).toThrowError('Invalid wallets');
+  });
+
+  it('throws if wallets contains non-string values', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: [1, 2],
+      }),
+    ).toThrowError('Invalid wallets');
+  });
+
+  it('throws if wallets contains empty strings', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: ['', ''],
+      }),
+    ).toThrowError('Invalid wallets');
+  });
+
+  it('throws if wallets contains invalid addresses', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: ['0x123', '0x456'],
+      }),
+    ).toThrowError('Invalid wallets');
+  });
+
+  it('throws if wallets contains duplicate addresses', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+        ],
+      }),
+    ).toThrowError('Invalid wallets');
+  });
+
+  it('validates params', () => {
+    expect(() =>
+      op.validate({
+        id: 'wp-1',
+        name: 'wp 1',
+        description: 'wp 1 description',
+        wallets: [
+          '0xfd22004806a6846ea67ad883356be810f0428793',
+          '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
+        ],
+      }),
+    ).not.toThrow();
   });
 
   it('creates a new wallet pool', () => {

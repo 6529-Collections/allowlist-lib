@@ -9,6 +9,237 @@ import { Pool } from '../../../app-types';
 
 describe('AddItemOperation', () => {
   const op = new AddItemOperation(defaultLogFactory);
+
+  it('should throw an error if id is missing', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Missing id');
+  });
+
+  it('should throw an error if id is not a string', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 1,
+        name: 'Item 1',
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Invalid id');
+  });
+
+  it('should throw an error if id is empty', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: '',
+        name: 'Item 1',
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Invalid id');
+  });
+
+  it('should throw an error if componentId is missing', () => {
+    expect(() =>
+      op.validate({
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Missing componentId');
+  });
+
+  it('should throw an error if componentId is not a string', () => {
+    expect(() =>
+      op.validate({
+        componentId: 1,
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Invalid componentId');
+  });
+
+  it('should throw an error if componentId is empty', () => {
+    expect(() =>
+      op.validate({
+        componentId: '',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Invalid componentId');
+  });
+
+  it('should throw an error if name is missing', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Missing name');
+  });
+
+  it('should throw an error if name is not a string', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 1,
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Invalid name');
+  });
+
+  it('should throw an error if name is empty', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: '',
+        description: 'Item 1 description',
+      }),
+    ).toThrowError('Invalid name');
+  });
+
+  it('should throw an error if description is missing', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+      }),
+    ).toThrowError('Missing description');
+  });
+
+  it('should throw an error if description is not a string', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 1,
+      }),
+    ).toThrowError('Invalid description');
+  });
+
+  it('should throw an error if description is empty', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: '',
+      }),
+    ).toThrowError('Invalid description');
+  });
+
+  it('should throw an error if poolId is missing', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+        poolType: Pool.TOKEN_POOL,
+      }),
+    ).toThrowError('Missing poolId');
+  });
+
+  it('should throw an error if poolId is not a string', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+        poolId: 1,
+        poolType: Pool.TOKEN_POOL,
+      }),
+    ).toThrowError('Invalid poolId');
+  });
+
+  it('should throw an error if poolId is empty', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+        poolId: '',
+        poolType: Pool.TOKEN_POOL,
+      }),
+    ).toThrowError('Invalid poolId');
+  });
+
+  it('should throw an error if poolType is missing', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+        poolId: 'token-pool-1',
+      }),
+    ).toThrowError('Missing poolType');
+  });
+
+  it('should throw an error if poolType is not a string', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+        poolId: 'token-pool-1',
+        poolType: 1,
+      }),
+    ).toThrowError('Invalid poolType');
+  });
+
+  it('should throw an error if poolType is empty', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+        poolId: 'token-pool-1',
+        poolType: '',
+      }),
+    ).toThrowError('Invalid poolType');
+  });
+
+  it('should throw an error if poolType is not a valid pool type', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+        poolId: 'token-pool-1',
+        poolType: Pool.WALLET_POOL,
+      }),
+    ).toThrowError('Invalid poolType');
+  });
+
+  it('should validate params', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        id: 'item-1',
+        name: 'Item 1',
+        description: 'Item 1 description',
+        poolId: 'token-pool-1',
+        poolType: Pool.TOKEN_POOL,
+      }),
+    ).not.toThrowError();
+  });
+
   it('should add a new item with correct insertion order', () => {
     const state = anAllowlistState();
     op.execute({
@@ -110,6 +341,6 @@ describe('AddItemOperation', () => {
         },
         state: state,
       }),
-    ).toThrowError("Wallet pool 'wallet-pool-1' cannot be used for item");
+    ).toThrowError('Invalid poolType');
   });
 });

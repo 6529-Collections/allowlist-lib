@@ -14,6 +14,34 @@ export class ItemRemoveFirstNTokensOperation
     this.logger = loggerFactory.create(ItemRemoveFirstNTokensOperation.name);
   }
 
+  validate(params: any): params is ItemRemoveFirstNTokensParams {
+    if (!params.hasOwnProperty('itemId')) {
+      throw new BadInputError('Missing itemId');
+    }
+
+    if (typeof params.itemId !== 'string') {
+      throw new BadInputError('Invalid itemId');
+    }
+
+    if (!params.itemId.length) {
+      throw new BadInputError('Invalid itemId');
+    }
+
+    if (!params.hasOwnProperty('count')) {
+      throw new BadInputError('Missing count');
+    }
+
+    if (typeof params.count !== 'number') {
+      throw new BadInputError('Invalid count');
+    }
+
+    if (params.count < 0) {
+      throw new BadInputError('Invalid count');
+    }
+
+    return true;
+  }
+
   execute({
     params,
     state,
@@ -26,12 +54,6 @@ export class ItemRemoveFirstNTokensOperation
     if (!phaseId || !componentId) {
       throw new BadInputError(
         `ITEM_REMOVE_FIRST_N_ITEMS: Item '${itemId}' does not exist, itemId: ${itemId} `,
-      );
-    }
-
-    if (typeof count !== 'number' || count < 0) {
-      throw new BadInputError(
-        `ITEM_REMOVE_FIRST_N_ITEMS: Invalid count provided, itemId: ${itemId}`,
       );
     }
 

@@ -19,6 +19,43 @@ export class GetCollectionTransfersOperation
     this.logger = loggerFactory.create(GetCollectionTransfersOperation.name);
   }
 
+  validate(params: any): params is GetCollectionTransferRequest {
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
+    }
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
+    if (!params.hasOwnProperty('contract')) {
+      throw new BadInputError('Missing contract');
+    }
+    if (typeof params.contract !== 'string') {
+      throw new BadInputError('Invalid contract');
+    }
+    if (!params.contract.length) {
+      throw new BadInputError('Invalid contract');
+    }
+    if (!isEthereumAddress(params.contract)) {
+      throw new BadInputError('Invalid contract');
+    }
+    if (!params.hasOwnProperty('blockNo')) {
+      throw new BadInputError('Missing blockNo');
+    }
+    if (typeof params.blockNo !== 'number') {
+      throw new BadInputError('Invalid blockNo');
+    }
+    if (params.blockNo < 1) {
+      throw new BadInputError('Invalid blockNo');
+    }
+    if (!Number.isInteger(params.blockNo)) {
+      throw new BadInputError('Invalid blockNo');
+    }
+    return true;
+  }
+
   async execute({
     params,
     state,
@@ -26,22 +63,16 @@ export class GetCollectionTransfersOperation
     params: GetCollectionTransferRequest;
     state: AllowlistState;
   }) {
+    if (!this.validate(params)) {
+      throw new BadInputError('Invalid params');
+    }
     const { contract, blockNo, id } = params;
-    if (!isEthereumAddress(contract)) {
-      throw new BadInputError(
-        `GET_COLLECTION_TRANSFERS: ${contract} is not a valid Ethereum address, poolId: ${id}`,
-      );
-    }
-    if (typeof blockNo !== 'number' || blockNo < 1) {
-      throw new BadInputError(
-        `GET_COLLECTION_TRANSFERS: ${blockNo} is not a valid block number, poolId: ${id}`,
-      );
-    }
+
     const transfers = await this.transfersService.getCollectionTransfers({
       contract,
       blockNo,
     });
-    state.transferPools[params.id] = { ...params, transfers };
-    this.logger.info(`Transferpool ${params.id} created`);
+    state.transferPools[id] = { ...params, transfers };
+    this.logger.info(`Transferpool ${id} created`);
   }
 }

@@ -11,6 +11,13 @@ export const assertUnreachable = (_x: never): never => {
   throw new Error("Didn't expect to get here");
 };
 
+export const isValidTokenIds = (tokenIds: string): boolean => {
+  // Remove all whitespaces
+  const cleanedInput = tokenIds.replace(/\s+/g, '');
+  const regex = /^(\d+-\d+|\d+)(,\d+-\d+|,\d+)*$/;
+  return regex.test(cleanedInput);
+};
+
 export const parseTokenIds = (
   input: string | null,
   poolId: string,
@@ -19,16 +26,13 @@ export const parseTokenIds = (
   if (!input) {
     return null;
   }
-  // Remove all whitespaces
-  const cleanedInput = input.replace(/\s+/g, '');
 
-  // Check if the input matches the regular expression
-  const regex = /^(\d+-\d+|\d+)(,\d+-\d+|,\d+)*$/;
-  if (!regex.test(cleanedInput)) {
+  if (!isValidTokenIds(input)) {
     throw new BadInputError(
       `${code}: TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999, id: ${poolId}`,
     );
   }
+  const cleanedInput = input.replace(/\s+/g, '');
 
   // Split the input by comma and process each part
   const parts = cleanedInput.split(',');

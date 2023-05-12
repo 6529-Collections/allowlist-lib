@@ -8,6 +8,118 @@ import { CustomTokenPoolParams } from './create-custom-token-pool-operation.type
 export class CreateCustomTokenPoolOperation
   implements AllowlistOperationExecutor
 {
+  validate(params: any): params is CustomTokenPoolParams {
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
+    }
+
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.hasOwnProperty('name')) {
+      throw new BadInputError('Missing name');
+    }
+
+    if (typeof params.name !== 'string') {
+      throw new BadInputError('Invalid name');
+    }
+
+    if (!params.name.length) {
+      throw new BadInputError('Invalid name');
+    }
+
+    if (!params.hasOwnProperty('description')) {
+      throw new BadInputError('Missing description');
+    }
+
+    if (typeof params.description !== 'string') {
+      throw new BadInputError('Invalid description');
+    }
+
+    if (!params.description.length) {
+      throw new BadInputError('Invalid description');
+    }
+
+    if (!params.hasOwnProperty('tokens')) {
+      throw new BadInputError('Missing tokens');
+    }
+
+    if (!Array.isArray(params.tokens)) {
+      throw new BadInputError('Invalid tokens');
+    }
+
+    if (!params.tokens.length) {
+      throw new BadInputError('Invalid tokens');
+    }
+
+    if (!params.tokens.every((token) => typeof token === 'object')) {
+      throw new BadInputError('Invalid tokens');
+    }
+
+    const haveTokenId = params.tokens.some((token) => token.id);
+    const haveNotTokenId = params.tokens.some((token) => !token.id);
+
+    if (haveTokenId && haveNotTokenId) {
+      throw new BadInputError('Invalid tokens');
+    }
+
+    const haveTokenSince = params.tokens.some((token) => token.since);
+    const haveNotTokenSince = params.tokens.some((token) => !token.since);
+
+    if (haveTokenSince && haveNotTokenSince) {
+      throw new BadInputError('Invalid tokens');
+    }
+
+    for (const token of params.tokens) {
+      if (token.hasOwnProperty('id')) {
+        if (typeof token.id !== 'string') {
+          throw new BadInputError('Invalid tokens');
+        }
+
+        if (!token.id.length) {
+          throw new BadInputError('Invalid tokens');
+        }
+      }
+
+      if (token.hasOwnProperty('since')) {
+        if (typeof token.since !== 'number') {
+          throw new BadInputError('Invalid tokens');
+        }
+
+        if (token.since < 0) {
+          throw new BadInputError('Invalid tokens');
+        }
+
+        if (!Number.isInteger(token.since)) {
+          throw new BadInputError('Invalid tokens');
+        }
+      }
+
+      if (!token.hasOwnProperty('owner')) {
+        throw new BadInputError('Invalid tokens');
+      }
+
+      if (typeof token.owner !== 'string') {
+        throw new BadInputError('Invalid tokens');
+      }
+
+      if (!token.owner.length) {
+        throw new BadInputError('Invalid tokens');
+      }
+
+      if (!isEthereumAddress(token.owner)) {
+        throw new BadInputError('Invalid tokens');
+      }
+    }
+
+    return true;
+  }
+
   execute({
     params,
     state,
@@ -15,71 +127,10 @@ export class CreateCustomTokenPoolOperation
     params: CustomTokenPoolParams;
     state: AllowlistState;
   }) {
+    if (!this.validate(params)) {
+      throw new BadInputError('Invalid params');
+    }
     const { id, name, description, tokens } = params;
-
-    if (!Array.isArray(tokens)) {
-      throw new BadInputError(
-        `CREATE_CUSTOM_TOKEN_POOL: Custom token pool tokens must be an array, poolId: ${id}`,
-      );
-    }
-
-    if (!tokens.length) {
-      throw new BadInputError(
-        `CREATE_CUSTOM_TOKEN_POOL: Custom token pool tokens must be a non-empty array, poolId: ${id}`,
-      );
-    }
-
-    const isObjectsArray = tokens.every((token) => typeof token === 'object');
-    if (!isObjectsArray) {
-      throw new BadInputError(
-        `CREATE_CUSTOM_TOKEN_POOL: Custom token pool tokens must be an array of objects, poolId: ${id}`,
-      );
-    }
-
-    const haveTokenId = tokens.some((token) => token.id);
-    const haveNotTokenId = tokens.some((token) => !token.id);
-
-    if (haveTokenId && haveNotTokenId) {
-      throw new BadInputError(
-        `CREATE_CUSTOM_TOKEN_POOL: All tokens must have id or none of them, poolId: ${id}`,
-      );
-    }
-
-    const haveTokenSince = tokens.some((token) => token.since);
-    const haveNotTokenSince = tokens.some((token) => !token.since);
-
-    if (haveTokenSince && haveNotTokenSince) {
-      throw new BadInputError(
-        `CREATE_CUSTOM_TOKEN_POOL: All tokens must have since or none of them, poolId: ${id}`,
-      );
-    }
-
-    for (const token of tokens) {
-      if (token.id && typeof token.id !== 'string') {
-        throw new BadInputError(
-          `CREATE_CUSTOM_TOKEN_POOL: Token id must be a string, poolId: ${id}`,
-        );
-      }
-
-      if (typeof token.owner !== 'string') {
-        throw new BadInputError(
-          `CREATE_CUSTOM_TOKEN_POOL: Token owner must be a string, poolId: ${id}`,
-        );
-      }
-
-      if (!isEthereumAddress(token.owner)) {
-        throw new BadInputError(
-          `CREATE_CUSTOM_TOKEN_POOL: Token owner ${token.owner} is not a valid Ethereum address, poolId: ${id}`,
-        );
-      }
-
-      if (token.since && typeof token.since !== 'number') {
-        throw new BadInputError(
-          `CREATE_CUSTOM_TOKEN_POOL: Token since must be a number, poolId: ${id}`,
-        );
-      }
-    }
-
     state.customTokenPools[id] = {
       id,
       name,

@@ -38,6 +38,85 @@ describe('ComponentAddSpotsToAllItemWalletsOperation', () => {
     };
   });
 
+  it('throws error if componentId is missing', () => {
+    expect(() => {
+      op.validate({
+        sports: 10,
+      });
+    }).toThrow('Missing componentId');
+  });
+
+  it('throws error if componentId is not a string', () => {
+    expect(() =>
+      op.validate({
+        componentId: 1,
+        spots: 10,
+      }),
+    ).toThrow('Invalid componentId');
+  });
+
+  it('throws error if componentId is empty', () => {
+    expect(() =>
+      op.validate({
+        componentId: '',
+        spots: 10,
+      }),
+    ).toThrow('Invalid componentId');
+  });
+
+  it('throws error if spots is missing', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+      }),
+    ).toThrow('Missing spots');
+  });
+
+  it('throws error if spots is not a number', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        spots: '10',
+      }),
+    ).toThrow('Invalid spots');
+  });
+
+  it('throws error if spots is not an integer', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        spots: 10.1,
+      }),
+    ).toThrow('Invalid spots');
+  });
+
+  it('throws error if spots is negative', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        spots: -1,
+      }),
+    ).toThrow('Invalid spots');
+  });
+
+  it('throws error if spots is zero', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        spots: 0,
+      }),
+    ).toThrow('Invalid spots');
+  });
+
+  it('should validate params', () => {
+    expect(() => {
+      op.validate({
+        componentId: 'component-1',
+        spots: 10,
+      });
+    }).not.toThrow();
+  });
+
   it('throws error if component does not exist', () => {
     expect(() =>
       op.execute({
@@ -46,39 +125,6 @@ describe('ComponentAddSpotsToAllItemWalletsOperation', () => {
       }),
     ).toThrow(
       "COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS: Component 'component-2' does not exist, componentId: component-2 ",
-    );
-  });
-
-  it('throws error if spots is not defined', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, spots: undefined },
-        state,
-      }),
-    ).toThrow(
-      'COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS: Invalid spots provided, componentId: component-1',
-    );
-  });
-
-  it('throws error if spots is not a number', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, spots: 'spots' as any },
-        state,
-      }),
-    ).toThrow(
-      'COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS: Invalid spots provided, componentId: component-1',
-    );
-  });
-
-  it('throws error if spots is not a positive number', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, spots: -1 },
-        state,
-      }),
-    ).toThrow(
-      'COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS: Invalid spots provided, componentId: component-1',
     );
   });
 

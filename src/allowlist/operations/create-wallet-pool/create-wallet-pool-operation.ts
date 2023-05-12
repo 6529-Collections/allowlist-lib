@@ -12,43 +12,84 @@ export class CreateWalletPoolOperation implements AllowlistOperationExecutor {
     this.logger = loggerFactory.create(CreateWalletPoolOperation.name);
   }
 
-  execute({ params, state }: { params: WalletPool; state: AllowlistState }) {
-    const { id, name, description, wallets } = params;
-
-    if (!Array.isArray(wallets)) {
-      throw new BadInputError(
-        `CREATE_WALLET_POOL: Wallets must be an array, poolId: ${id}`,
-      );
+  validate(params: any): params is WalletPool {
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
     }
 
-    if (!wallets.length) {
-      throw new BadInputError(
-        `CREATE_WALLET_POOL: Wallets array must not be empty, poolId: ${id}`,
-      );
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.hasOwnProperty('name')) {
+      throw new BadInputError('Missing name');
+    }
+
+    if (typeof params.name !== 'string') {
+      throw new BadInputError('Invalid name');
+    }
+
+    if (!params.name.length) {
+      throw new BadInputError('Invalid name');
+    }
+
+    if (!params.hasOwnProperty('description')) {
+      throw new BadInputError('Missing description');
+    }
+
+    if (typeof params.description !== 'string') {
+      throw new BadInputError('Invalid description');
+    }
+
+    if (!params.description.length) {
+      throw new BadInputError('Invalid description');
+    }
+
+    if (!params.hasOwnProperty('wallets')) {
+      throw new BadInputError('Missing wallets');
+    }
+
+    if (!Array.isArray(params.wallets)) {
+      throw new BadInputError('Invalid wallets');
+    }
+
+    if (!params.wallets.length) {
+      throw new BadInputError('Invalid wallets');
     }
 
     const uniqueWallets = new Set();
-    for (const wallet of wallets) {
+    for (const wallet of params.wallets) {
       if (typeof wallet !== 'string') {
-        throw new BadInputError(
-          `CREATE_WALLET_POOL: Wallets must be an array of strings, poolId: ${id}`,
-        );
+        throw new BadInputError('Invalid wallets');
+      }
+
+      if (!wallet.length) {
+        throw new BadInputError('Invalid wallets');
       }
 
       if (!isEthereumAddress(wallet)) {
-        throw new BadInputError(
-          `CREATE_WALLET_POOL: Wallet ${wallet} is not a valid Ethereum address, poolId: ${id}`,
-        );
+        throw new BadInputError('Invalid wallets');
       }
 
       if (uniqueWallets.has(wallet)) {
-        throw new BadInputError(
-          `CREATE_WALLET_POOL: Wallet ${wallet} is duplicated, poolId: ${id}`,
-        );
+        throw new BadInputError('Invalid wallets');
       }
 
       uniqueWallets.add(wallet);
     }
+
+    return true;
+  }
+
+  execute({ params, state }: { params: WalletPool; state: AllowlistState }) {
+    if (!this.validate(params)) {
+      throw new BadInputError('Invalid params');
+    }
+    const { id, name, description, wallets } = params;
 
     state.walletPools[id] = {
       id,

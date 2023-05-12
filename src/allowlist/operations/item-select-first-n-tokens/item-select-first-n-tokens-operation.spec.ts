@@ -37,6 +37,58 @@ describe('ItemSelectFirstNTokensOperation', () => {
     };
   });
 
+  it('throws error if itemId is missing', () => {
+    expect(() =>
+      op.validate({
+        count: 2,
+      }),
+    ).toThrowError('Missing itemId');
+  });
+
+  it('throws error if itemId is not a string', () => {
+    expect(() =>
+      op.validate({
+        itemId: 1,
+        count: 2,
+      }),
+    ).toThrowError('Invalid itemId');
+  });
+
+  it('throws error if count is missing', () => {
+    expect(() =>
+      op.validate({
+        itemId: 'item-1',
+      }),
+    ).toThrowError('Missing count');
+  });
+
+  it('throws error if count is not a number', () => {
+    expect(() =>
+      op.validate({
+        itemId: 'item-1',
+        count: '2',
+      }),
+    ).toThrowError('Invalid count');
+  });
+
+  it('throws error if count is negative', () => {
+    expect(() =>
+      op.validate({
+        itemId: 'item-1',
+        count: -1,
+      }),
+    ).toThrowError('Invalid count');
+  });
+
+  it('validates params', () => {
+    expect(() =>
+      op.validate({
+        itemId: 'item-1',
+        count: 2,
+      }),
+    ).not.toThrow();
+  });
+
   it('throws error if item does not exist', () => {
     expect(() =>
       op.execute({
@@ -45,39 +97,6 @@ describe('ItemSelectFirstNTokensOperation', () => {
       }),
     ).toThrow(
       "ITEM_SELECT_FIRST_N_TOKENS: Item 'item-2' does not exist, itemId: item-2",
-    );
-  });
-
-  it('throws error if count is not defined', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, count: undefined },
-        state,
-      }),
-    ).toThrow(
-      'ITEM_SELECT_FIRST_N_TOKENS: Invalid count provided, itemId: item-1',
-    );
-  });
-
-  it('throws error if count is not a number', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, count: '2' as any },
-        state,
-      }),
-    ).toThrow(
-      'ITEM_SELECT_FIRST_N_TOKENS: Invalid count provided, itemId: item-1',
-    );
-  });
-
-  it('throws error if count is not a positive number', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, count: -1 },
-        state,
-      }),
-    ).toThrow(
-      'ITEM_SELECT_FIRST_N_TOKENS: Invalid count provided, itemId: item-1',
     );
   });
 

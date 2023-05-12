@@ -42,6 +42,76 @@ describe('ItemExcludeTokenIdsOperation', () => {
     };
   });
 
+  it('throws error if itemId is missing', () => {
+    expect(() =>
+      op.validate({
+        tokenIds: '1,2,3',
+      }),
+    ).toThrowError('Missing itemId');
+  });
+
+  it('throws error if itemId is not a string', () => {
+    expect(() =>
+      op.validate({
+        itemId: 1,
+        tokenIds: '1,2,3',
+      }),
+    ).toThrowError('Invalid itemId');
+  });
+
+  it('throws error if itemId is empty', () => {
+    expect(() =>
+      op.validate({
+        itemId: '',
+        tokenIds: '1,2,3',
+      }),
+    ).toThrowError('Invalid itemId');
+  });
+
+  it('throws error if tokenIds is missing', () => {
+    expect(() =>
+      op.validate({
+        itemId: 'item-1',
+      }),
+    ).toThrowError('Missing tokenIds');
+  });
+
+  it('throws error if tokenIds is not a string', () => {
+    expect(() =>
+      op.validate({
+        itemId: 'item-1',
+        tokenIds: 1,
+      }),
+    ).toThrowError('Invalid tokenIds');
+  });
+
+  it('throws error if tokenIds is empty', () => {
+    expect(() =>
+      op.validate({
+        itemId: 'item-1',
+        tokenIds: '',
+      }),
+    ).toThrowError('Invalid tokenIds');
+  });
+
+  it('throws error if itemIds is not valid', () => {
+    expect(() =>
+      op.validate({
+        itemId: 'item-1',
+        tokenIds: '1,2,3,x',
+      }),
+    ).toThrowError('Invalid tokenIds');
+  });
+
+  it('validates params', () => {
+    expect(
+      op.validate({
+        itemId: 'item-1',
+        tokenIds: '1,2,3',
+      }),
+    ).toEqual(true);
+  });
+
   it('throws error if item does not exist', () => {
     expect(() =>
       op.execute({
@@ -50,44 +120,6 @@ describe('ItemExcludeTokenIdsOperation', () => {
       }),
     ).toThrow(
       "ITEM_EXCLUDE_TOKEN_IDS: Item 'item-2' does not exist, itemId: item-2",
-    );
-  });
-
-  it('throws error if tokenIds is not defined', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, tokenIds: undefined },
-        state,
-      }),
-    ).toThrow('ITEM_EXCLUDE_TOKEN_IDS: No token ids provided, itemId: item-1');
-  });
-
-  it('throws error if tokenIds is empty', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, tokenIds: '' },
-        state,
-      }),
-    ).toThrow('ITEM_EXCLUDE_TOKEN_IDS: No token ids provided, itemId: item-1');
-  });
-
-  it('throws error if tokenIds is not a string', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, tokenIds: 123 as any },
-        state,
-      }),
-    ).toThrow('ITEM_EXCLUDE_TOKEN_IDS: No token ids provided, itemId: item-1');
-  });
-
-  it('throws error if tokenIds is not a string of comma separated numbers', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, tokenIds: '1,2,3,abc' },
-        state,
-      }),
-    ).toThrow(
-      'ITEM_EXCLUE_TOKEN_IDS: TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999, id: item-1',
     );
   });
 

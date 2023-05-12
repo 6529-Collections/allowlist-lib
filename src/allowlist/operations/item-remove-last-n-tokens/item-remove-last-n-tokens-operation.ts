@@ -1,6 +1,7 @@
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { getItemPath } from '../../../utils/path.utils';
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
+import { BadInputError } from '../../bad-input.error';
 import { AllowlistState } from '../../state-types/allowlist-state';
 import { ItemRemoveLastNTokensParams } from './item-remove-last-n-tokens.types';
 
@@ -13,6 +14,34 @@ export class ItemRemoveLastNTokensOperation
     this.logger = loggerFactory.create(ItemRemoveLastNTokensOperation.name);
   }
 
+  validate(params: any): params is ItemRemoveLastNTokensParams {
+    if (!params.hasOwnProperty('itemId')) {
+      throw new BadInputError('Missing itemId');
+    }
+
+    if (typeof params.itemId !== 'string') {
+      throw new BadInputError('Invalid itemId');
+    }
+
+    if (!params.itemId.length) {
+      throw new BadInputError('Invalid itemId');
+    }
+
+    if (!params.hasOwnProperty('count')) {
+      throw new BadInputError('Missing count');
+    }
+
+    if (typeof params.count !== 'number') {
+      throw new BadInputError('Invalid count');
+    }
+
+    if (params.count < 0) {
+      throw new BadInputError('Invalid count');
+    }
+
+    return true;
+  }
+
   execute({
     params,
     state,
@@ -20,17 +49,14 @@ export class ItemRemoveLastNTokensOperation
     params: ItemRemoveLastNTokensParams;
     state: AllowlistState;
   }) {
+    if (!this.validate(params)) {
+      throw new Error('Invalid params');
+    }
     const { itemId, count } = params;
     const { phaseId, componentId } = getItemPath({ state, itemId });
     if (!phaseId || !componentId) {
       throw new Error(
         `ITEM_REMOVE_LAST_N_TOKENS: Item '${itemId}' does not exist, itemId: ${itemId} `,
-      );
-    }
-
-    if (typeof count !== 'number' || count < 0) {
-      throw new Error(
-        `ITEM_REMOVE_LAST_N_TOKENS: Invalid count provided, itemId: ${itemId}`,
       );
     }
 

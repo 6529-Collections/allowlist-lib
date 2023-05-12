@@ -15,6 +15,37 @@ export class ComponentAddSpotsToAllItemWalletsOperation
     );
   }
 
+  validate(params: any): params is ComponentAddSpotsToAllItemWalletsParams {
+    if (!params.hasOwnProperty('componentId')) {
+      throw new Error(`Missing componentId`);
+    }
+
+    if (typeof params.componentId !== 'string') {
+      throw new Error(`Invalid componentId`);
+    }
+
+    if (!params.componentId.length) {
+      throw new Error(`Invalid componentId`);
+    }
+    if (!params.hasOwnProperty('spots')) {
+      throw new Error(`Missing spots`);
+    }
+
+    if (typeof params.spots !== 'number') {
+      throw new Error(`Invalid spots`);
+    }
+
+    if (params.spots < 1) {
+      throw new Error(`Invalid spots`);
+    }
+
+    if (!Number.isInteger(params.spots)) {
+      throw new Error(`Invalid spots`);
+    }
+
+    return true;
+  }
+
   execute({
     params,
     state,
@@ -22,6 +53,9 @@ export class ComponentAddSpotsToAllItemWalletsOperation
     params: ComponentAddSpotsToAllItemWalletsParams;
     state: AllowlistState;
   }) {
+    if (!this.validate(params)) {
+      throw new Error(`Invalid params`);
+    }
     const { componentId, spots } = params;
     const { phaseId } = getComponentPath({ state, componentId });
     if (!phaseId) {
@@ -30,11 +64,6 @@ export class ComponentAddSpotsToAllItemWalletsOperation
       );
     }
 
-    if (typeof spots !== 'number' || spots < 0) {
-      throw new Error(
-        `COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS: Invalid spots provided, componentId: ${componentId}`,
-      );
-    }
     const wallets = Object.values(
       state.phases[phaseId].components[componentId].items,
     ).flatMap((item) => item.tokens.map((token) => token.owner));

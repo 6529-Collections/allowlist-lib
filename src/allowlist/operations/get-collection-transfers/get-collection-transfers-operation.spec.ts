@@ -5,56 +5,158 @@ import { defaultLogFactory } from '../../../logging/logging-emitter';
 
 describe('GetCollectionTransfersOperation', () => {
   const op = new GetCollectionTransfersOperation({} as any, defaultLogFactory);
-  it('throws error if contract address faulty', async () => {
-    const state = anAllowlistState();
 
-    await expect(() =>
-      op.execute({
-        params: {
-          id: 'transfers-1',
-          name: 'transfers 1',
-          description: 'transfers 1 description',
-          contract: null,
-          blockNo: 100,
-        },
-        state: state,
+  it('throws if id is missing', () => {
+    expect(() =>
+      op.validate({
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+        blockNo: 1,
       }),
-    ).rejects.toThrow(
-      'GET_COLLECTION_TRANSFERS: null is not a valid Ethereum address',
-    );
-    await expect(() =>
-      op.execute({
-        params: {
-          id: 'transfers-2',
-          name: 'transfers 2',
-          description: 'transfers 2 description',
-          contract: '0x123',
-          blockNo: 100,
-        },
-        state: state,
-      }),
-    ).rejects.toThrow(
-      'GET_COLLECTION_TRANSFERS: 0x123 is not a valid Ethereum address',
-    );
+    ).toThrow('Missing id');
   });
 
-  it('throws error if block no is faulty', async () => {
-    const state = anAllowlistState();
-    const params: GetCollectionTransferRequest = {
-      id: 'transfers-2',
-      name: 'transfers 2',
-      description: 'transfers 2 description',
-      contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      blockNo: 0,
-    };
-    await expect(() =>
-      op.execute({
-        params,
-        state: state,
+  it('throws if id is not a string', () => {
+    expect(() =>
+      op.validate({
+        id: 1,
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+        blockNo: 1,
       }),
-    ).rejects.toThrow(
-      'GET_COLLECTION_TRANSFERS: 0 is not a valid block number',
-    );
+    ).toThrow('Invalid id');
+  });
+
+  it('throws if id is empty', () => {
+    expect(() =>
+      op.validate({
+        id: '',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+        blockNo: 1,
+      }),
+    ).toThrow('Invalid id');
+  });
+
+  it('throws if contract is missing', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        blockNo: 1,
+      }),
+    ).toThrow('Missing contract');
+  });
+
+  it('throws if contract is not a string', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: 1,
+        blockNo: 1,
+      }),
+    ).toThrow('Invalid contract');
+  });
+
+  it('throws if contract is empty', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '',
+        blockNo: 1,
+      }),
+    ).toThrow('Invalid contract');
+  });
+
+  it('throws if contract is not a valid ethereum address', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x',
+        blockNo: 1,
+      }),
+    ).toThrow('Invalid contract');
+  });
+
+  it('throws if blockNo is missing', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+      }),
+    ).toThrow('Missing blockNo');
+  });
+
+  it('throws if blockNo is not a number', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+        blockNo: '1',
+      }),
+    ).toThrow('Invalid blockNo');
+  });
+
+  it('throws if blockNo is negative', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+        blockNo: -1,
+      }),
+    ).toThrow('Invalid blockNo');
+  });
+
+  it('throws if blockNo is zero', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+        blockNo: 0,
+      }),
+    ).toThrow('Invalid blockNo');
+  });
+
+  it('throws if blockNo is not an integer', () => {
+    expect(() =>
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+        blockNo: 1.1,
+      }),
+    ).toThrow('Invalid blockNo');
+  });
+
+  it('validates params', () => {
+    expect(
+      op.validate({
+        id: 'transfers-1',
+        name: 'transfers 1',
+        description: 'transfers 1 description',
+        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+        blockNo: 1,
+      }),
+    ).toEqual(true);
   });
 
   it('gets transfers and adds them to state', async () => {

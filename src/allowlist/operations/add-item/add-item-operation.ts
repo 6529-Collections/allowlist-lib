@@ -51,6 +51,86 @@ export class AddItemOperation implements AllowlistOperationExecutor {
     }
   }
 
+  validate(params: any): params is AllowlistAddItemParams {
+    if (!params.hasOwnProperty('componentId')) {
+      throw new BadInputError('Missing componentId');
+    }
+
+    if (typeof params.componentId !== 'string') {
+      throw new BadInputError('Invalid componentId');
+    }
+
+    if (!params.componentId.length) {
+      throw new BadInputError('Invalid componentId');
+    }
+
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
+    }
+
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.hasOwnProperty('name')) {
+      throw new BadInputError('Missing name');
+    }
+
+    if (typeof params.name !== 'string') {
+      throw new BadInputError('Invalid name');
+    }
+
+    if (!params.name.length) {
+      throw new BadInputError('Invalid name');
+    }
+
+    if (!params.hasOwnProperty('description')) {
+      throw new BadInputError('Missing description');
+    }
+
+    if (typeof params.description !== 'string') {
+      throw new BadInputError('Invalid description');
+    }
+
+    if (!params.description.length) {
+      throw new BadInputError('Invalid description');
+    }
+
+    if (!params.hasOwnProperty('poolId')) {
+      throw new BadInputError('Missing poolId');
+    }
+
+    if (typeof params.poolId !== 'string') {
+      throw new BadInputError('Invalid poolId');
+    }
+
+    if (!params.poolId.length) {
+      throw new BadInputError('Invalid poolId');
+    }
+
+    if (!params.hasOwnProperty('poolType')) {
+      throw new BadInputError('Missing poolType');
+    }
+
+    if (typeof params.poolType !== 'string') {
+      throw new BadInputError('Invalid poolType');
+    }
+
+    if (
+      ![Pool.TOKEN_POOL, Pool.CUSTOM_TOKEN_POOL].includes(
+        params.poolType as Pool,
+      )
+    ) {
+      throw new BadInputError('Invalid poolType');
+    }
+
+    return true;
+  }
+
   execute({
     params,
     state,
@@ -58,6 +138,9 @@ export class AddItemOperation implements AllowlistOperationExecutor {
     params: AllowlistAddItemParams;
     state: AllowlistState;
   }) {
+    if (!this.validate(params)) {
+      throw new BadInputError('Invalid params');
+    }
     const { componentId, id, name, description, poolId, poolType } = params;
     const phase = Object.values(state.phases).find(
       (phase) => !!phase.components[componentId],

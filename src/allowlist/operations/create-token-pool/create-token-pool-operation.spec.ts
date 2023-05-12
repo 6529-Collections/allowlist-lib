@@ -26,6 +26,148 @@ describe('CreateTokenPoolOperation', () => {
     };
   });
 
+  it('throws if id is missing', () => {
+    expect(() =>
+      op.validate({
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: '10,20-30,40',
+        transferPoolId: aTransferPool().id,
+      }),
+    ).toThrowError('Missing id');
+  });
+
+  it('throws if id is not a string', () => {
+    expect(() =>
+      op.validate({
+        id: 1,
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: '10,20-30,40',
+        transferPoolId: aTransferPool().id,
+      }),
+    ).toThrowError('Invalid id');
+  });
+
+  it('throws if id is empty', () => {
+    expect(() =>
+      op.validate({
+        id: '',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: '10,20-30,40',
+        transferPoolId: aTransferPool().id,
+      }),
+    ).toThrowError('Invalid id');
+  });
+
+  it('throws if tokenIds is present but not a string or null or undefined', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: 1,
+        transferPoolId: aTransferPool().id,
+      }),
+    ).toThrowError('Invalid tokenIds');
+  });
+
+  it('throws if tokenIds is a empty string', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: '',
+        transferPoolId: aTransferPool().id,
+      }),
+    ).toThrowError('Invalid tokenIds');
+  });
+
+  it('throws if tokenIds is a string with invalid format', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: '1,2,3,x',
+        transferPoolId: aTransferPool().id,
+      }),
+    ).toThrowError('Invalid tokenIds');
+  });
+
+  it('throws if transferPoolId is missing', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+      }),
+    ).toThrowError('Missing transferPoolId');
+  });
+
+  it('throws if transferPoolId is not a string', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        transferPoolId: 1,
+      }),
+    ).toThrowError('Invalid transferPoolId');
+  });
+
+  it('throws if transferPoolId is empty', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        transferPoolId: '',
+      }),
+    ).toThrowError('Invalid transferPoolId');
+  });
+
+  it('validates if tokenIds is null', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        transferPoolId: aTransferPool().id,
+      }),
+    ).not.toThrow();
+  });
+
+  it('validates if tokenIds is undefined', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: undefined,
+        transferPoolId: aTransferPool().id,
+      }),
+    ).not.toThrow();
+  });
+
+  it('validates if tokenIds is a string with valid format', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: '1,2,3-5,6',
+        transferPoolId: aTransferPool().id,
+      }),
+    ).not.toThrow();
+  });
+
   it('throws error if token pool with given ID is missing', () => {
     expect(() =>
       op.execute({
@@ -33,17 +175,6 @@ describe('CreateTokenPoolOperation', () => {
         state,
       }),
     ).toThrow('CREATE_TOKEN_POOL: Transfer pool 456 not found');
-  });
-
-  it('throws error if token IDs is faulty', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, tokenIds: 'x' },
-        state,
-      }),
-    ).toThrow(
-      'CREATE_TOKEN_POOL: TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999',
-    );
   });
 
   it('parses 0 transactions and forms an empty token pool', () => {

@@ -11,6 +11,37 @@ export class CreateAllowlistOperation implements AllowlistOperationExecutor {
     this.logger = loggerFactory.create(CreateAllowlistOperation.name);
   }
 
+  validate(params: any): params is DescribableEntity {
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
+    }
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
+    if (!params.hasOwnProperty('name')) {
+      throw new BadInputError('Missing name');
+    }
+    if (typeof params.name !== 'string') {
+      throw new BadInputError('Invalid name');
+    }
+    if (!params.name.length) {
+      throw new BadInputError('Invalid name');
+    }
+    if (!params.hasOwnProperty('description')) {
+      throw new BadInputError('Missing description');
+    }
+    if (typeof params.description !== 'string') {
+      throw new BadInputError('Invalid description');
+    }
+    if (!params.description.length) {
+      throw new BadInputError('Invalid description');
+    }
+    return true;
+  }
+
   execute({
     params,
     state,
@@ -21,7 +52,15 @@ export class CreateAllowlistOperation implements AllowlistOperationExecutor {
     if (state.allowlist) {
       throw new BadInputError('Allowlist already exists');
     }
-    state.allowlist = params;
+
+    if (!this.validate(params)) {
+      throw new BadInputError('Invalid params');
+    }
+    state.allowlist = {
+      id: params.id,
+      name: params.name,
+      description: params.description,
+    };
     this.logger.info(`Created allowlist ${params.name}`);
   }
 }

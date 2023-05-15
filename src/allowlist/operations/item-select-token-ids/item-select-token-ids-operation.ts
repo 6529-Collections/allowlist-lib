@@ -14,7 +14,7 @@ export class ItemSelectTokenIdsOperation implements AllowlistOperationExecutor {
     this.logger = loggerFactory.create(ItemSelectTokenIdsOperation.name);
   }
 
-  validate(params: any): params is ItemSelectTokenIdsParams {
+  public validate(params: any): params is ItemSelectTokenIdsParams {
     if (!params.hasOwnProperty('itemId')) {
       throw new BadInputError('Missing itemId');
     }

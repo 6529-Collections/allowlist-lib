@@ -166,4 +166,11 @@ export class AllowlistCreator {
     );
     return state;
   }
+
+  public validateOperation(params: {
+    code: AllowlistOperationCode;
+    params: any;
+  }) {
+    return this.operationExecutors[params.code].validate(params.params);
+  }
 }

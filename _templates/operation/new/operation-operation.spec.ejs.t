@@ -18,7 +18,9 @@ describe('<%= operationName %>Operation', () => {
     params = {};
   });
 
-  it('should be defined', () => {
-    expect(true).toBeDefined();
+  it('validates params', () => {
+    expect(
+      op.validate({}),
+    ).toEqual(true);
   });
 });

@@ -14,6 +14,10 @@ export class <%= operationName %>Operation implements AllowlistOperationExecutor
     this.logger = loggerFactory.create(<%= operationName %>Operation.name);
   }
 
+  validate(params: any): params is <%= operationName %>Params {
+    return false;
+  }
+
   execute({
     params,
     state,
@@ -21,6 +25,9 @@ export class <%= operationName %>Operation implements AllowlistOperationExecutor
     params: <%= operationName %>Params;
     state: AllowlistState;
   }) {
+    if (!this.validate(params)) {
+      throw new Error('Invalid params');
+    }
     this.logger.info('Executed <%= operationName %> operation');
   }
 }

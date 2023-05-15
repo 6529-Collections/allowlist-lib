@@ -157,7 +157,6 @@ export class AllowlistCreator {
       if (params.hasOwnProperty('id')) {
         validateNewDescribableEntity({ params, code, _uniqueIds });
       }
-
       await this.operationExecutors[code].execute({ params, state });
     }
     this.logger.info(

@@ -1,11 +1,11 @@
 import { AllowlistState } from './../../state-types/allowlist-state';
 import { Logger, LoggerFactory } from './../../../logging/logging-emitter';
-import { AllowlistOperationExecutor } from 'src/allowlist/allowlist-operation-executor';
 import { BadInputError } from '../../../allowlist/bad-input.error';
 import { isValidTokenIds, parseTokenIds } from '../../../utils/app.utils';
 import { ItemExcludeTokenIdsParams } from './item-exclude-token-ids.types';
 import { AllowlistOperationCode } from '../../../allowlist/allowlist-operation-code';
 import { getItemPath } from '../../../utils/path.utils';
+import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 
 export class ItemExcludeTokenIdsOperation
   implements AllowlistOperationExecutor

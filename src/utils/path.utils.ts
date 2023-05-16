@@ -1,4 +1,4 @@
-import { AllowlistState } from 'src/allowlist/state-types/allowlist-state';
+import { AllowlistState } from '../allowlist/state-types/allowlist-state';
 
 export const getItemPath = (param: {
   state: AllowlistState;

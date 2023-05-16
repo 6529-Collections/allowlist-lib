@@ -2,10 +2,10 @@ import { getItemPath } from './../../../utils/path.utils';
 import { ItemSelectTokenIdsParams } from './item-select-token-ids.types';
 import { Logger, LoggerFactory } from './../../../logging/logging-emitter';
 import { AllowlistOperationExecutor } from '../../../allowlist/allowlist-operation-executor';
-import { AllowlistState } from 'src/allowlist/state-types/allowlist-state';
 import { isValidTokenIds, parseTokenIds } from '../../../utils/app.utils';
 import { AllowlistOperationCode } from '../../allowlist-operation-code';
 import { BadInputError } from '../../bad-input.error';
+import { AllowlistState } from '../../state-types/allowlist-state';
 
 export class ItemSelectTokenIdsOperation implements AllowlistOperationExecutor {
   private readonly logger: Logger;

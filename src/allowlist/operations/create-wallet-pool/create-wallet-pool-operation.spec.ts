@@ -1,8 +1,8 @@
-import { AllowlistState } from 'src/allowlist/state-types/allowlist-state';
 import { CreateWalletPoolOperation } from './create-wallet-pool-operation';
 import { WalletPool } from '../../state-types/wallet-pool';
 import { anAllowlistState } from '../../../allowlist/state-types/allowlist-state.test.fixture';
 import { defaultLogFactory } from '../../../logging/logging-emitter';
+import { AllowlistState } from '../../state-types/allowlist-state';
 
 describe('CreateWalletPoolOperation', () => {
   const op = new CreateWalletPoolOperation(defaultLogFactory);

@@ -1,4 +1,4 @@
-import { AllowlistOperationCode } from 'src/allowlist/allowlist-operation-code';
+import { AllowlistOperationCode } from '../allowlist/allowlist-operation-code';
 import { BadInputError } from './../allowlist/bad-input.error';
 // The `assertUnreachable` function takes an input `_x` of type `never` and always throws
 // an error. This function is typically used in TypeScript to assert exhaustiveness in

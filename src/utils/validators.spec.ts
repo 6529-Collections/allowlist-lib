@@ -1,4 +1,4 @@
-import { DescribableEntity } from 'src/allowlist/state-types/describable-entity';
+import { DescribableEntity } from '../allowlist/state-types/describable-entity';
 import { validateNewDescribableEntity } from './validators';
 
 describe('Validators', () => {

@@ -1,8 +1,9 @@
-import { AllowlistState } from 'src/allowlist/state-types/allowlist-state';
+
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { AllowlistAddComponentParams } from './add-component-operation.types';
 import { BadInputError } from '../../bad-input.error';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
+import { AllowlistState } from '../../state-types/allowlist-state';
 
 export class AddComponentOperation implements AllowlistOperationExecutor {
   private readonly logger: Logger;

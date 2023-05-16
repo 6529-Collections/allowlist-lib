@@ -26,11 +26,11 @@ export class TransfersService {
       blockNo,
     );
 
-    const startingBlock = await this.getSavedTransfersLastBlockNoOrZero(
+    const newestSavedBlock = await this.getSavedTransfersLastBlockNoOrZero(
       contract,
     );
 
-    if (startingBlock >= blockNo) {
+    if (newestSavedBlock >= blockNo) {
       this.logger.info(
         `All transfers for ${contract} were found from local storage`,
       );
@@ -38,12 +38,12 @@ export class TransfersService {
     }
     this.logger.info(
       `${
-        blockNo - startingBlock
+        blockNo - (newestSavedBlock + 1)
       } blocks worth of transfers for ${contract} were not found from local storage. Downloading those from Etherscan...`,
     );
     const newTransfers = await this.etherscan.getContractTransfers({
       contractAddress: contract,
-      startingBlock: startingBlock,
+      startingBlock: newestSavedBlock + 1,
       toBlock: blockNo,
     });
     this.logger.info(
@@ -51,10 +51,7 @@ export class TransfersService {
     );
 
     await this.transfersStorage.saveContractTransfers(contract, newTransfers);
-    const allTransfers = sortTransfers([
-      ...savedTransfers,
-      ...newTransfers.filter((t) => t.blockNumber > startingBlock),
-    ]);
+    const allTransfers = sortTransfers([...savedTransfers, ...newTransfers]);
     this.logger.info(`All transfers for ${contract} saved`);
     return allTransfers;
   }

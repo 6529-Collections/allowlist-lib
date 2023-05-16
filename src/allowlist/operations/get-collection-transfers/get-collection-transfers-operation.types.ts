@@ -1,5 +1,5 @@
-import { DescribableEntity } from 'src/allowlist/state-types/describable-entity';
-import { Transfer } from 'src/allowlist/state-types/transfer';
+import { DescribableEntity } from '../../state-types/describable-entity';
+import { Transfer } from '../../state-types/transfer';
 
 export interface GetCollectionTransferRequest extends DescribableEntity {
   readonly contract: string;

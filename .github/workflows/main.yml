@@ -31,5 +31,13 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
           title: "allowlist-lib CI pipeline is broken!!!"
-          content: "<@everyone>"
+          content: "@everyone"
           color: 0xff0000
+      - name: Notify about success
+        uses: sarisia/actions-status-discord@v1
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          title: "allowlist-lib CI pipeline is OK"
+          color: 0x00ff00

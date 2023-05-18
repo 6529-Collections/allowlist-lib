@@ -31,5 +31,5 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
           title: "allowlist-lib CI pipeline is broken!!!"
-          content: "<@GelatoGenesis#8225>"
+          content: "<@829983830625484864>"
           color: 0xff0000

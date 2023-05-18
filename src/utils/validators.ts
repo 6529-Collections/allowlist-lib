@@ -6,6 +6,15 @@ export function isNonEmptyString(value: any): boolean {
   return typeof value === 'string' && !!value?.length;
 }
 
+export const isNotTooLongString = (value: string): boolean => {
+  return value.length <= 255;
+};
+
+export const isSuitableForUrl = (value: string): boolean => {
+  const subUrlRegex = /^[a-z0-9_-]+$/;
+  return subUrlRegex.test(value);
+};
+
 export function validateNewDescribableEntity(param: {
   params: DescribableEntity;
   code: AllowlistOperationCode;
@@ -18,6 +27,23 @@ export function validateNewDescribableEntity(param: {
       `${code}: id must be a non-empty string, id: ${id}`,
     );
   }
+
+  if (id.includes(' ')) {
+    throw new BadInputError(`${code}: id must not contain spaces, id: ${id}`);
+  }
+
+  if (!isNotTooLongString(id)) {
+    throw new BadInputError(
+      `${code}: id must not be longer than 255 characters, id: ${id}`,
+    );
+  }
+
+  if (!isSuitableForUrl(id)) {
+    throw new BadInputError(
+      `${code}: id must only contain lowercase letters, numbers, underscores and dashes, id: ${id}`,
+    );
+  }
+
   if (!isNonEmptyString(name)) {
     throw new BadInputError(
       `${code}: name must be a non-empty string, id: ${id}`,

@@ -30,5 +30,6 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          title: "allowlist-lib build is broken in master <@GelatoGenesis#8225>"
+          title: "allowlist-lib CI pipeline is broken!!!"
+          content: "<@GelatoGenesis#8225>"
           color: 0xff0000

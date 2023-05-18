@@ -6,7 +6,10 @@ import {
   EtherscanApiTokensRawResponse,
   EtherscanApiTokensRawResponseResult,
 } from './etherscan.types';
-import { sortTransfers, Transfer } from '../allowlist/state-types/transfer';
+import {
+  sortAndLowercaseTransfers,
+  Transfer,
+} from '../allowlist/state-types/transfer';
 import { assertUnreachable } from '../utils/app.utils';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
 
@@ -392,7 +395,7 @@ export class EtherscanService {
           toBlock: toBlock.toString(),
           transferType: 'single',
         });
-        return sortTransfers(transfers);
+        return sortAndLowercaseTransfers(transfers);
       case ContractSchema.ERC1155:
         const [singleTransfers, batchTransfers] = await Promise.all([
           this.getTransfers({
@@ -411,7 +414,10 @@ export class EtherscanService {
             transferType: 'batch',
           }),
         ]);
-        return sortTransfers([...singleTransfers, ...batchTransfers]);
+        return sortAndLowercaseTransfers([
+          ...singleTransfers,
+          ...batchTransfers,
+        ]);
       default:
         assertUnreachable(contractSchema);
         break;

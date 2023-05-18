@@ -1,4 +1,7 @@
-import { sortTransfers, Transfer } from '../allowlist/state-types/transfer';
+import {
+  sortAndLowercaseTransfers,
+  Transfer,
+} from '../allowlist/state-types/transfer';
 import { EtherscanService } from './etherscan.service';
 import { TransfersStorage } from './transfers.storage';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
@@ -34,7 +37,9 @@ export class TransfersService {
       this.logger.info(
         `All transfers for ${contract} were found from local storage`,
       );
-      return savedTransfers.filter((t) => t.blockNumber <= blockNo);
+      return sortAndLowercaseTransfers(
+        savedTransfers.filter((t) => t.blockNumber <= blockNo),
+      );
     }
     this.logger.info(
       `${
@@ -51,7 +56,10 @@ export class TransfersService {
     );
 
     await this.transfersStorage.saveContractTransfers(contract, newTransfers);
-    const allTransfers = sortTransfers([...savedTransfers, ...newTransfers]);
+    const allTransfers = sortAndLowercaseTransfers([
+      ...savedTransfers,
+      ...newTransfers,
+    ]);
     this.logger.info(`All transfers for ${contract} saved`);
     return allTransfers;
   }

@@ -1,5 +1,8 @@
 import { TransfersStorage } from './transfers.storage';
-import { sortTransfers, Transfer } from '../allowlist/state-types/transfer';
+import {
+  Transfer,
+  sortAndLowercaseTransfers,
+} from '../allowlist/state-types/transfer';
 import * as fs from 'fs';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
 import { Time } from '../time';
@@ -26,7 +29,7 @@ export class JsonFilesTransfersStorage implements TransfersStorage {
     const transfers: Transfer[] = JSON.parse(
       fs.readFileSync(`${this.conf.rootFolder}${contract}.json`, 'utf8'),
     );
-    const latestTransfer = sortTransfers(transfers).at(-1);
+    const latestTransfer = sortAndLowercaseTransfers(transfers).at(-1);
     this.logger.debug(`getLatestTransferBlockNo took ${now.diffFromNow()}`);
     return latestTransfer?.blockNumber ?? 0;
   }
@@ -39,7 +42,7 @@ export class JsonFilesTransfersStorage implements TransfersStorage {
     const transfers: Transfer[] = JSON.parse(
       fs.readFileSync(`${this.conf.rootFolder}${contract}.json`, 'utf8'),
     ).filter((t: Transfer) => t.blockNumber <= blockNo);
-    const sortedTransfers = sortTransfers(transfers);
+    const sortedTransfers = sortAndLowercaseTransfers(transfers);
     this.logger.debug(`getContractTransfersOrdered took ${now.diffFromNow()}`);
     return sortedTransfers;
   }
@@ -53,7 +56,10 @@ export class JsonFilesTransfersStorage implements TransfersStorage {
       const savedTransfers: Transfer[] = JSON.parse(
         fs.readFileSync(`${this.conf.rootFolder}${contract}.json`, 'utf8'),
       );
-      const allTransfers = sortTransfers([...savedTransfers, ...transfers]);
+      const allTransfers = sortAndLowercaseTransfers([
+        ...savedTransfers,
+        ...transfers,
+      ]);
       fs.writeFileSync(
         `${this.conf.rootFolder}${contract}.json`,
         JSON.stringify(allTransfers),

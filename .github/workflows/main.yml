@@ -24,3 +24,13 @@ jobs:
         run: yarn test
       - name: Run e2e tests
         run: yarn test:e2e
+  notify-about-failure:
+    - name: Notify about failure
+      uses: sarisia/actions-status-discord@v1
+      if: failure()
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          nodetail: true
+          title: "allowlist-lib build is broken in master"
+          color: 0xff0000

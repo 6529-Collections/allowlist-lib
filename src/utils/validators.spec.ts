@@ -148,7 +148,4 @@ describe('Validators', () => {
       }),
     ).toThrow('code: description must be a non-empty string, id: id');
   });
-  it('fails', () => {
-    throw 'not implemented';
-  });
 });

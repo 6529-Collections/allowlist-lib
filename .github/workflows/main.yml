@@ -29,6 +29,7 @@ jobs:
         if: failure()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          with:
-            title: "allowlist-lib build is broken in master"
-            color: 0xff0000
+        with:
+          nodetail: true
+          title: "allowlist-lib build is broken in master"
+          color: 0xff0000

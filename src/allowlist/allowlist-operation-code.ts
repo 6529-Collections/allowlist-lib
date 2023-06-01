@@ -20,3 +20,21 @@ export enum AllowlistOperationCode {
   ITEM_SELECT_LAST_N_TOKENS = 'ITEM_SELECT_LAST_N_TOKENS',
   // Placeholder for future operations (please keep this comment here, it's used by the code generator)
 }
+
+export enum AllowlistOperationType {
+  OVERALL = 'OVERALL',
+  TRANSFER_POOLS = 'TRANSFER_POOLS',
+  TRANSFER_POOL = 'TRANSFER_POOL',
+  TOKEN_POOLS = 'TOKEN_POOLS',
+  TOKEN_POOL = 'TOKEN_POOL',
+  CUSTOM_POOLS = 'CUSTOM_POOLS',
+  CUSTOM_POOL = 'CUSTOM_POOL',
+  WALLET_POOLS = 'WALLET_POOLS',
+  WALLET_POOL = 'WALLET_POOL',
+  PHASES = 'PHASES',
+  PHASE = 'PHASE',
+  COMPONENTS = 'COMPONENTS',
+  COMPONENT = 'COMPONENT',
+  ITEMS = 'ITEMS',
+  ITEM = 'ITEM',
+}

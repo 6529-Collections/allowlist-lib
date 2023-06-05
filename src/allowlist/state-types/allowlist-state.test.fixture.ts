@@ -9,6 +9,7 @@ import { WalletPool } from './wallet-pool';
 import { Transfer } from './transfer';
 import { TokenOwnership } from './token-ownership';
 import { CustomTokenOwnership, CustomTokenPool } from './custom-token-pool';
+import { Pool } from '../../app-types';
 
 export function anAllowlistItemToken(params?: {
   id?: string;
@@ -26,6 +27,8 @@ export function anAllowlistItem(params?: {
   id?: string;
   name?: string;
   description?: string;
+  poolId?: string;
+  poolType?: Pool;
   tokens?: AllowlistItemToken[];
   _insertionOrder?: number;
 }): AllowlistItem {
@@ -33,6 +36,8 @@ export function anAllowlistItem(params?: {
     id: params?.id || 'item-1',
     name: params?.name || 'item 1',
     description: params?.description || 'item 1 description',
+    poolId: params?.poolId || aTokenPool().id,
+    poolType: params?.poolType || Pool.TOKEN_POOL,
     tokens: params?.tokens ?? [anAllowlistItemToken()],
     _insertionOrder: params?._insertionOrder || 0,
   };

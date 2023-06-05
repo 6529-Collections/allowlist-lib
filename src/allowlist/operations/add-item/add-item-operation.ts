@@ -155,6 +155,8 @@ export class AddItemOperation implements AllowlistOperationExecutor {
       id,
       name,
       description,
+      poolId,
+      poolType,
       tokens,
       _insertionOrder: Object.keys(
         state.phases[phaseId].components[componentId].items,

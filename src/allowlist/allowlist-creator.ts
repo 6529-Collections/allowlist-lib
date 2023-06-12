@@ -143,8 +143,12 @@ export class AllowlistCreator {
     loggerFactory: LoggerFactory,
     private readonly onBeforeOperation?: (
       operation: AllowlistOperation,
+      allowlistId: string,
     ) => void,
-    private readonly onAfterOperation?: (operation: AllowlistOperation) => void,
+    private readonly onAfterOperation?: (
+      operation: AllowlistOperation,
+      allowlistId: string,
+    ) => void,
   ) {
     this.logger = loggerFactory.create(AllowlistCreator.name);
   }
@@ -163,11 +167,12 @@ export class AllowlistCreator {
     ) {
       throw new BadInputError('First operation must be CREATE_ALLOWLIST');
     }
+    const allowlistId = createAllowlistOperation.params?.id;
     const state = createAllowlistState();
     const _uniqueIds = new Set<string>();
     for (const operation of operations) {
       if (this.onBeforeOperation) {
-        await this.onBeforeOperation(operation);
+        await this.onBeforeOperation(operation, allowlistId);
       }
       const { code, params } = operation;
       if (params.hasOwnProperty('id')) {
@@ -175,7 +180,7 @@ export class AllowlistCreator {
       }
       await this.operationExecutors[code].execute({ params, state });
       if (this.onAfterOperation) {
-        await this.onAfterOperation(operation);
+        await this.onAfterOperation(operation, allowlistId);
       }
     }
     this.logger.info(

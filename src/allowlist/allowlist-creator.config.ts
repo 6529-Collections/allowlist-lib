@@ -11,8 +11,14 @@ export interface AllowlistCreatorConfig {
   readonly etherscanApiKey: string;
   readonly storage?: StorageImplementations;
   readonly loggerFactory?: LoggerFactory;
-  readonly onBeforeOperation?: (operation: AllowlistOperation) => void;
-  readonly onAfterOperation?: (operation: AllowlistOperation) => void;
+  readonly onBeforeOperation?: (
+    operation: AllowlistOperation,
+    allowlistId: string,
+  ) => void;
+  readonly onAfterOperation?: (
+    operation: AllowlistOperation,
+    allowlistId: string,
+  ) => void;
 }
 
 export class LocalFileSystemStorageImplementations

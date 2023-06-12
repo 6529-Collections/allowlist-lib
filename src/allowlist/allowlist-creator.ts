@@ -63,11 +63,15 @@ export class AllowlistCreator {
    * @param etherscanApiKey The API key for Etherscan.
    * @param storage The storage implementations to use.
    * @param loggerFactory Logger implementation to use. If not provided, it will use the default console logger.
+   * @param onBeforeOperation function which will be invoked before each operation (optional).
+   * @param onAfterOperation function which will be invoked after each operation (optional).
    */
   public static getInstance({
     etherscanApiKey,
     storage,
     loggerFactory,
+    onBeforeOperation,
+    onAfterOperation,
   }: AllowlistCreatorConfig): AllowlistCreator {
     const loggerFactoryImpl = loggerFactory || defaultLogFactory;
     const etherscanService = new EtherscanService(
@@ -121,7 +125,12 @@ export class AllowlistCreator {
       ),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
-    return new AllowlistCreator(opExecutors, loggerFactoryImpl);
+    return new AllowlistCreator(
+      opExecutors,
+      loggerFactoryImpl,
+      onBeforeOperation,
+      onAfterOperation,
+    );
   }
 
   private readonly logger: Logger;
@@ -132,6 +141,10 @@ export class AllowlistCreator {
       AllowlistOperationExecutor
     >,
     loggerFactory: LoggerFactory,
+    private readonly onBeforeOperation?: (
+      operation: AllowlistOperation,
+    ) => void,
+    private readonly onAfterOperation?: (operation: AllowlistOperation) => void,
   ) {
     this.logger = loggerFactory.create(AllowlistCreator.name);
   }
@@ -153,11 +166,17 @@ export class AllowlistCreator {
     const state = createAllowlistState();
     const _uniqueIds = new Set<string>();
     for (const operation of operations) {
+      if (this.onBeforeOperation) {
+        await this.onBeforeOperation(operation);
+      }
       const { code, params } = operation;
       if (params.hasOwnProperty('id')) {
         validateNewDescribableEntity({ params, code, _uniqueIds });
       }
       await this.operationExecutors[code].execute({ params, state });
+      if (this.onAfterOperation) {
+        await this.onAfterOperation(operation);
+      }
     }
     this.logger.info(
       `Executed ${

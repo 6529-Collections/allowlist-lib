@@ -1,6 +1,7 @@
 import { TransfersStorage } from '../services/transfers.storage';
 import { JsonFilesTransfersStorage } from '../services/json-files-transfers-storage';
 import { LoggerFactory } from '../logging/logging-emitter';
+import { AllowlistOperation } from './allowlist-operation';
 
 export interface StorageImplementations {
   readonly transfersStorage: TransfersStorage;
@@ -10,6 +11,8 @@ export interface AllowlistCreatorConfig {
   readonly etherscanApiKey: string;
   readonly storage?: StorageImplementations;
   readonly loggerFactory?: LoggerFactory;
+  readonly onBeforeOperation?: (operation: AllowlistOperation) => void;
+  readonly onAfterOperation?: (operation: AllowlistOperation) => void;
 }
 
 export class LocalFileSystemStorageImplementations

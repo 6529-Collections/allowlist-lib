@@ -13,6 +13,12 @@ describe('AllowlistCreator e2e tests', () => {
     }
     allowlistCreator = AllowlistCreator.getInstance({
       etherscanApiKey: etherscanApiKey,
+      onAfterOperation: (operation: AllowlistOperation) => {
+        console.log('after', operation);
+      },
+      onBeforeOperation: (operation: AllowlistOperation) => {
+        console.log('before', operation);
+      },
     });
   });
 

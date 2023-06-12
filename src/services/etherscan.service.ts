@@ -369,6 +369,9 @@ export class EtherscanService {
           latestUniqueKey = thisUniqueKey;
         }
         fromBlock = parseInt(logs.result.at(-1).blockNumber, 16);
+        this.logger.info(
+          `Reached block ${fromBlock} with contract ${contractAddress}`,
+        );
       } else {
         throw new BadInputError(logs);
       }

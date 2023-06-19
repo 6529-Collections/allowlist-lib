@@ -223,4 +223,32 @@ describe('AllowlistCreator e2e tests', () => {
     },
     60 * 60 * 1000,
   );
+
+  it(
+    'TEST',
+    async () => {
+      const operations: AllowlistOperation[] = [
+        {
+          code: AllowlistOperationCode.CREATE_ALLOWLIST,
+          params: {
+            id: 'allowlist-1',
+            name: 'MEME CARD 95 DISTRIBUTION',
+            description: 'Allowlist for meme card 95 distribution',
+          },
+        },
+        {
+          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
+          params: {
+            id: 'transfer-pool-1',
+            name: 'x',
+            description: 'x',
+            contract: '0x2A46f2fFD99e19a89476E2f62270e0a35bBf0756',
+            blockNo: 17185669,
+          },
+        },
+      ];
+      await allowlistCreator.execute(operations);
+    },
+    60 * 60 * 1000,
+  );
 });

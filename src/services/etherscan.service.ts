@@ -44,6 +44,7 @@ export class EtherscanService {
     contractAddress: string;
   }): Promise<ContractSchema | null> {
     const { contractAddress } = param;
+    const erc721InterfaceIdOld = '0xd31b620d';
     const erc721InterfaceId = '0x80ac58cd';
     const erc1155InterfaceId = '0xd9b67a26';
     const hexTrue =
@@ -67,6 +68,16 @@ export class EtherscanService {
       );
       if (erc1155SupportsInterface.data.result === hexTrue) {
         return ContractSchema.ERC1155;
+      }
+
+      const erc721SupportsInterfaceOld = await axios.get(
+        this.getEtherscanApiSupportsInterfaceUrl({
+          contractAddress,
+          interfaceId: erc721InterfaceIdOld,
+        }),
+      );
+      if (erc721SupportsInterfaceOld.data.result === hexTrue) {
+        return ContractSchema.ERC721;
       }
     } catch (error) {
       throw new BadInputError('Invalid contract address');

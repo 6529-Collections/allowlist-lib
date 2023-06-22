@@ -1,5 +1,6 @@
 export enum ContractSchema {
   ERC721 = 'ERC721',
+  ERC721Old = 'ERC721Old',
   ERC1155 = 'ERC1155',
 }
 

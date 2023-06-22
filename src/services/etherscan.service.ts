@@ -44,7 +44,7 @@ export class EtherscanService {
     contractAddress: string;
   }): Promise<ContractSchema | null> {
     const { contractAddress } = param;
-    // const erc721InterfaceIdOld = '0xd31b620d';
+    const erc721InterfaceIdOld = '0xd31b620d';
     const erc721InterfaceId = '0x80ac58cd';
     const erc1155InterfaceId = '0xd9b67a26';
     const hexTrue =
@@ -70,15 +70,15 @@ export class EtherscanService {
         return ContractSchema.ERC1155;
       }
 
-      // const erc721SupportsInterfaceOld = await axios.get(
-      //   this.getEtherscanApiSupportsInterfaceUrl({
-      //     contractAddress,
-      //     interfaceId: erc721InterfaceIdOld,
-      //   }),
-      // );
-      // if (erc721SupportsInterfaceOld.data.result === hexTrue) {
-      //   return ContractSchema.ERC721;
-      // }
+      const erc721SupportsInterfaceOld = await axios.get(
+        this.getEtherscanApiSupportsInterfaceUrl({
+          contractAddress,
+          interfaceId: erc721InterfaceIdOld,
+        }),
+      );
+      if (erc721SupportsInterfaceOld.data.result === hexTrue) {
+        return ContractSchema.ERC721Old;
+      }
     } catch (error) {
       throw new BadInputError('Invalid contract address');
     }
@@ -129,6 +129,10 @@ export class EtherscanService {
               '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62',
           };
         }
+      case ContractSchema.ERC721Old:
+        return {
+          topic0: ERC721TransferTopic,
+        };
       default:
         assertUnreachable(contractSchema);
     }
@@ -158,12 +162,17 @@ export class EtherscanService {
     return `${contract}-${tokenID}-${blockNumber}-${transactionHash}-${logIndex}`;
   }
 
-  private convertERC721Transfers(
-    transfers: EtherscanApiTokensRawResponseResult[],
-  ): EtherscanApiTokenTransferResponse[] {
+  private convertERC721Transfers({
+    transfers,
+    schema,
+  }: {
+    transfers: EtherscanApiTokensRawResponseResult[];
+    schema: ContractSchema.ERC721 | ContractSchema.ERC721Old;
+  }): EtherscanApiTokenTransferResponse[] {
     return transfers.map((transfer) => {
-      console.log(transfer)
-      const tokenID = BigInt(transfer.topics[3]).toString();
+      const tokenID = BigInt(
+        schema === ContractSchema.ERC721 ? transfer.topics[3] : transfer.data,
+      ).toString();
       const blockNumber = parseInt(transfer.blockNumber);
       const logIndex = this.smartParseInt(transfer.logIndex);
       const transactionHash = transfer.transactionHash;
@@ -306,7 +315,11 @@ export class EtherscanService {
     const { transfers, contractSchema, transferType } = param;
     switch (contractSchema) {
       case ContractSchema.ERC721:
-        return this.convertERC721Transfers(transfers);
+      case ContractSchema.ERC721Old:
+        return this.convertERC721Transfers({
+          transfers,
+          schema: contractSchema,
+        });
       case ContractSchema.ERC1155:
         if (transferType === 'batch') {
           return this.convertERC1155BatchTransfers(transfers);
@@ -433,6 +446,15 @@ export class EtherscanService {
           ...singleTransfers,
           ...batchTransfers,
         ]);
+      case ContractSchema.ERC721Old:
+        const erc721OldTransfers = await this.getTransfers({
+          contractAddress,
+          contractSchema,
+          startingBlock: startingBlock.toString(),
+          toBlock: toBlock.toString(),
+          transferType: 'single',
+        });
+        return sortAndLowercaseTransfers(erc721OldTransfers);
       default:
         assertUnreachable(contractSchema);
         break;

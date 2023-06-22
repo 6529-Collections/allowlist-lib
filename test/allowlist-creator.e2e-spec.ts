@@ -243,7 +243,7 @@ describe('AllowlistCreator e2e tests', () => {
             name: 'x',
             description: 'x',
             contract: '0x2A46f2fFD99e19a89476E2f62270e0a35bBf0756',
-            blockNo: 17185669,
+            blockNo: 17533880,
           },
         },
       ];

@@ -64,6 +64,7 @@ export class AllowlistCreator {
    *
    * @param etherscanApiKey The API key for Etherscan.
    * @param seizeApiPath Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
+   * @param seizeApiKey Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
    * @param storage The storage implementations to use.
    * @param loggerFactory Logger implementation to use. If not provided, it will use the default console logger.
    * @param onBeforeOperation function which will be invoked before each operation (optional).
@@ -71,6 +72,7 @@ export class AllowlistCreator {
    */
   public static getInstance({
     seizeApiPath,
+    seizeApiKey,
     etherscanApiKey,
     storage,
     loggerFactory,
@@ -79,7 +81,7 @@ export class AllowlistCreator {
   }: AllowlistCreatorConfig): AllowlistCreator {
     const loggerFactoryImpl = loggerFactory || defaultLogFactory;
     const http = new Http(loggerFactoryImpl);
-    const tdhApi = new TdhApiService(http, seizeApiPath);
+    const tdhApi = new TdhApiService(http, seizeApiPath, seizeApiKey);
     const etherscanService = new EtherscanService(
       { apiKey: etherscanApiKey },
       loggerFactoryImpl,

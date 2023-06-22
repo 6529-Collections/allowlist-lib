@@ -8,9 +8,15 @@ export class Http {
     this.logger = loggerFactory.create('Http');
   }
 
-  async get<T>({ endpoint }: { endpoint: string }): Promise<T> {
+  async get<T>({
+    endpoint,
+    headers,
+  }: {
+    endpoint: string;
+    headers?: Record<string, string>;
+  }): Promise<T> {
     try {
-      const apiResponse = await axios.get<T>(endpoint);
+      const apiResponse = await axios.get<T>(endpoint, { headers });
       if (+`${apiResponse.status}`.at(0) !== 2) {
         throw new Error(`NOT-OK HTTP Status: ${apiResponse.status}`);
       }

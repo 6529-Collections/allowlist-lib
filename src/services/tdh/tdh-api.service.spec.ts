@@ -30,7 +30,7 @@ describe('TdhApiService', () => {
       'utf8',
     );
     const mockHttp = new MockHttp({
-      'https://www.example.com/api/uploads': {
+      'https://www.example.com/api/uploads?block=17531453&page_size=1': {
         data: [
           {
             date: '20230622',
@@ -49,14 +49,18 @@ describe('TdhApiService', () => {
           },
         ],
       },
-      'https://www.example.com/api/consolidated_uploads': {
-        data: [
-          {
-            date: '20230622',
-            block: 17531451,
-            tdh: 'https://www.example.com/consolidated_upload.csv',
-          },
-        ],
+      'https://www.example.com/api/consolidated_uploads?block=17531453&page_size=1':
+        {
+          data: [
+            {
+              date: '20230622',
+              block: 17531451,
+              tdh: 'https://www.example.com/consolidated_upload.csv',
+            },
+          ],
+        },
+      'https://www.example.com/api/uploads?block=1&page_size=1': {
+        data: [],
       },
       'https://www.example.com/upload.csv': tdhUploadContents,
       'https://www.example.com/consolidated_upload.csv':

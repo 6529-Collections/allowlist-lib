@@ -4,7 +4,11 @@ import { Time } from '../../time';
 import { Http } from '../http';
 
 export class TdhApiService {
-  constructor(private readonly http: Http, private readonly apiUri: string) {}
+  constructor(
+    private readonly http: Http,
+    private readonly apiUri: string,
+    private readonly apiToken?: string,
+  ) {}
 
   async getUploadsForBlock(blockId: number): Promise<TdhInfo[]> {
     const rawData = await this.getDataForBlock({ path: '/uploads', blockId });
@@ -163,8 +167,13 @@ export class TdhApiService {
     path: string;
     blockId: number;
   }): Promise<any[]> {
+    let headers = undefined;
+    if (this.apiToken) {
+      headers = { 'x-6529-auth': this.apiToken };
+    }
     const apiResponseData = await this.http.get<TdhInfoApiResponse>({
-      endpoint: `${this.apiUri}${path}`,
+      endpoint: `${this.apiUri}${path}?block=${blockId}&page_size=1`,
+      headers,
     });
     const tdh = this.getClosestTdh(apiResponseData, blockId);
     if (!tdh) {

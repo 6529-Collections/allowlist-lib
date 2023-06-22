@@ -34,6 +34,8 @@ import { ItemRemoveFirstNTokensOperation } from './operations/item-remove-first-
 import { ItemRemoveLastNTokensOperation } from './operations/item-remove-last-n-tokens/item-remove-last-n-tokens-operation';
 import { ItemSelectFirstNTokensOperation } from './operations/item-select-first-n-tokens/item-select-first-n-tokens-operation';
 import { ItemSelectLastNTokensOperation } from './operations/item-select-last-n-tokens/item-select-last-n-tokens-operation';
+import { TdhApiService } from '../services/tdh/tdh-api.service';
+import { Http } from '../services/http';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -61,12 +63,14 @@ export class AllowlistCreator {
    * ```
    *
    * @param etherscanApiKey The API key for Etherscan.
+   * @param seizeApiPath Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
    * @param storage The storage implementations to use.
    * @param loggerFactory Logger implementation to use. If not provided, it will use the default console logger.
    * @param onBeforeOperation function which will be invoked before each operation (optional).
    * @param onAfterOperation function which will be invoked after each operation (optional).
    */
   public static getInstance({
+    seizeApiPath,
     etherscanApiKey,
     storage,
     loggerFactory,
@@ -74,6 +78,8 @@ export class AllowlistCreator {
     onAfterOperation,
   }: AllowlistCreatorConfig): AllowlistCreator {
     const loggerFactoryImpl = loggerFactory || defaultLogFactory;
+    const http = new Http(loggerFactoryImpl);
+    const tdhApi = new TdhApiService(http, seizeApiPath);
     const etherscanService = new EtherscanService(
       { apiKey: etherscanApiKey },
       loggerFactoryImpl,

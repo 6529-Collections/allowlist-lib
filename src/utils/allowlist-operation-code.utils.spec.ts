@@ -120,6 +120,7 @@ describe('AllowlistOperationCodeUtils', () => {
   it('should return correct codes for COMPONENT', () => {
     expect(getCodesForType(AllowlistOperationType.COMPONENT)).toEqual([
       AllowlistOperationCode.COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS,
+      AllowlistOperationCode.COMPONENT_ADD_SPOTS_TO_WALLETS_EXCLUDING_CERTAIN_COMPONENTS,
     ]);
 
     opertatinTypesToCheck = opertatinTypesToCheck.filter(

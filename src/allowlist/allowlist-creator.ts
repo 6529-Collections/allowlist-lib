@@ -36,6 +36,7 @@ import { ItemSelectFirstNTokensOperation } from './operations/item-select-first-
 import { ItemSelectLastNTokensOperation } from './operations/item-select-last-n-tokens/item-select-last-n-tokens-operation';
 import { TdhApiService } from '../services/tdh/tdh-api.service';
 import { Http } from '../services/http';
+import { ComponentAddSpotsToWalletsExcludingCertainComponentsOperation } from './operations/component-add-spots-to-wallets-excluding-certain-components/component-add-spots-to-wallets-excluding-certain-components-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -131,6 +132,10 @@ export class AllowlistCreator {
       ITEM_SELECT_LAST_N_TOKENS: new ItemSelectLastNTokensOperation(
         loggerFactoryImpl,
       ),
+      COMPONENT_ADD_SPOTS_TO_WALLETS_EXCLUDING_CERTAIN_COMPONENTS:
+        new ComponentAddSpotsToWalletsExcludingCertainComponentsOperation(
+          loggerFactoryImpl,
+        ),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

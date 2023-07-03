@@ -80,7 +80,7 @@ export function anAllowlistPhase(params?: {
   components?: AllowlistComponent[];
 }): AllowlistPhase {
   return {
-    id: params?.description || 'phase-1',
+    id: params?.id || 'phase-1',
     name: params?.name || 'Phase 1',
     description: params?.description || 'Phase 1 description',
     components: (params?.components || [anAllowlistComponent()]).reduce(
@@ -216,7 +216,7 @@ export function anAllowlistState(params?: {
   transferPools?: TransferPool[];
   walletPools?: WalletPool[];
 }): AllowlistState {
-  return {
+  return structuredClone({
     allowlist: params?.allowlist || anAllowList(),
     tokenPools: (params?.tokenPools || [aTokenPool()]).reduce((acc, cur) => {
       acc[cur.id] = cur;
@@ -244,5 +244,5 @@ export function anAllowlistState(params?: {
       },
       {} as Record<string, TransferPool>,
     ),
-  };
+  });
 }

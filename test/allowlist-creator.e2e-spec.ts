@@ -225,26 +225,74 @@ describe('AllowlistCreator e2e tests', () => {
     60 * 60 * 1000,
   );
 
-  it.skip(
+  it(
     'TEST',
     async () => {
       const operations: AllowlistOperation[] = [
         {
           code: AllowlistOperationCode.CREATE_ALLOWLIST,
           params: {
-            id: 'allowlist-1',
-            name: 'MEME CARD 95 DISTRIBUTION',
-            description: 'Allowlist for meme card 95 distribution',
+            id: '1a6b76ec-04eb-4ec0-b586-e09216249b3d',
+            name: 'Memes card 104',
+            description: 'Distribution plan for memes card 104',
           },
         },
         {
           code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
           params: {
-            id: 'transfer-pool-1',
-            name: 'x',
-            description: 'x',
-            contract: '0x2A46f2fFD99e19a89476E2f62270e0a35bBf0756',
-            blockNo: 17533880,
+            id: '649d6a69f71376e8ec977160',
+            name: 'Memes',
+            description: 'Memes',
+            contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+            blockNo: 17584647,
+          },
+        },
+        {
+          code: AllowlistOperationCode.CREATE_TOKEN_POOL,
+          params: {
+            id: '649d6a6959550fad3b2b145c',
+            name: 'Memes',
+            description: 'Memes',
+            transferPoolId: '649d6a69f71376e8ec977160',
+          },
+        },
+        {
+          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
+          params: {
+            id: '649d6ab3ee2da738d4c8a87b',
+            name: 'memes SZN3',
+            description: 'memes SZN3',
+            contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+            blockNo: 17584647,
+          },
+        },
+        {
+          code: AllowlistOperationCode.CREATE_TOKEN_POOL,
+          params: {
+            id: '649d6ab30c3481364e8cece1',
+            name: 'memes SZN3',
+            description: 'memes SZN3',
+            transferPoolId: '649d6ab3ee2da738d4c8a87b',
+            tokenIds: '87-117',
+          },
+        },
+        {
+          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
+          params: {
+            id: '649d6acebb567c8af34e4b3e',
+            name: '6529 Gradient',
+            description: '6529 Gradient',
+            contract: '0x0c58ef43ff3032005e472cb5709f8908acb00205',
+            blockNo: 17584647,
+          },
+        },
+        {
+          code: AllowlistOperationCode.CREATE_TOKEN_POOL,
+          params: {
+            id: '649d6ace893311b47d5ec670',
+            name: '6529 Gradient',
+            description: '6529 Gradient',
+            transferPoolId: '649d6acebb567c8af34e4b3e',
           },
         },
       ];

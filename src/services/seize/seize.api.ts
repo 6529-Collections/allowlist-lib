@@ -2,13 +2,64 @@ import { CommonTdhInfo, ConsolidatedTdhInfo, TdhInfo } from './tdh-info';
 import { parse } from 'csv-parse';
 import { Time } from '../../time';
 import { Http } from '../http';
+import { SeizeApiPage } from './seize-api-page';
+import { ConsolidationMappingPage } from './consolidation-mapping';
+import { DelegateMappingPage } from './delegation-mapping';
 
-export class TdhApiService {
+export class SeizeApi {
   constructor(
     private readonly http: Http,
     private readonly apiUri: string,
     private readonly apiToken?: string,
   ) {}
+
+  async getConsolidations({
+    block,
+    limit,
+    page,
+  }: {
+    block: number;
+    limit: number;
+    page: number;
+  }): Promise<ConsolidationMappingPage> {
+    let headers = undefined;
+    if (this.apiToken) {
+      headers = { 'x-6529-auth': this.apiToken };
+    }
+    const endpoint = `${this.apiUri}/consolidations?block=${block}&page=${page}&page_size=${limit}`;
+    return this.http.get<ConsolidationMappingPage>({
+      endpoint,
+      headers,
+    });
+  }
+
+  async getDelegations({
+    block,
+    limit,
+    page,
+    collections,
+    useCases,
+  }: {
+    block: number;
+    collections: string[];
+    useCases: string[];
+    limit: number;
+    page: number;
+  }): Promise<DelegateMappingPage> {
+    let headers = undefined;
+    if (this.apiToken) {
+      headers = { 'x-6529-auth': this.apiToken };
+    }
+    const endpoint = `${
+      this.apiUri
+    }/delegations?block=${block}&page_size=${limit}&page=${page}&collection=${collections.join(
+      ',',
+    )}&use_case=${useCases.join(',')}`;
+    return this.http.get<DelegateMappingPage>({
+      endpoint,
+      headers,
+    });
+  }
 
   async getUploadsForBlock(blockId: number): Promise<TdhInfo[]> {
     const rawData = await this.getDataForBlock({ path: '/uploads', blockId });
@@ -210,13 +261,8 @@ export class TdhApiService {
   }
 }
 
-interface TdhInfoApiResponse {
-  readonly count: number;
-  readonly page: number;
-  readonly next: string | null;
-  data: {
-    readonly date: string;
-    readonly block: number;
-    readonly tdh: string;
-  }[];
-}
+type TdhInfoApiResponse = SeizeApiPage<{
+  readonly date: string;
+  readonly block: number;
+  readonly tdh: string;
+}>;

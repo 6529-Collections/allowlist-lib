@@ -34,7 +34,7 @@ import { ItemRemoveFirstNTokensOperation } from './operations/item-remove-first-
 import { ItemRemoveLastNTokensOperation } from './operations/item-remove-last-n-tokens/item-remove-last-n-tokens-operation';
 import { ItemSelectFirstNTokensOperation } from './operations/item-select-first-n-tokens/item-select-first-n-tokens-operation';
 import { ItemSelectLastNTokensOperation } from './operations/item-select-last-n-tokens/item-select-last-n-tokens-operation';
-import { TdhApiService } from '../services/tdh/tdh-api.service';
+import { SeizeApi } from '../services/seize/seize.api';
 import { Http } from '../services/http';
 import { ComponentAddSpotsToWalletsExcludingCertainComponentsOperation } from './operations/component-add-spots-to-wallets-excluding-certain-components/component-add-spots-to-wallets-excluding-certain-components-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
@@ -82,7 +82,7 @@ export class AllowlistCreator {
   }: AllowlistCreatorConfig): AllowlistCreator {
     const loggerFactoryImpl = loggerFactory || defaultLogFactory;
     const http = new Http(loggerFactoryImpl);
-    const tdhApi = new TdhApiService(http, seizeApiPath, seizeApiKey);
+    const seizeApi = new SeizeApi(http, seizeApiPath, seizeApiKey);
     const etherscanService = new EtherscanService(
       { apiKey: etherscanApiKey },
       loggerFactoryImpl,

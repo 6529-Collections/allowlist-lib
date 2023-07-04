@@ -7,7 +7,6 @@ import {
   anAllowlistItem,
   anAllowlistPhase,
   anAllowlistState,
-  anAllowlistWinner,
 } from '../../../allowlist/state-types/allowlist-state.test.fixture';
 import { anAllowlistLargeItemTokens } from '../../state-types/allowlist-state.test.fixture.large';
 import { getComponentPath } from '../../../utils/path.utils';
@@ -29,6 +28,7 @@ describe('ComponentAddSpotsToWalletsExcludingCertainComponentsOperation', () => 
               id: 'component-1',
               items: [
                 anAllowlistItem({
+                  id: 'item-1',
                   tokens: anAllowlistLargeItemTokens().slice(0, 10),
                 }),
               ],
@@ -43,6 +43,7 @@ describe('ComponentAddSpotsToWalletsExcludingCertainComponentsOperation', () => 
               id: 'component-2',
               items: [
                 anAllowlistItem({
+                  id: 'item-2',
                   tokens: anAllowlistLargeItemTokens().slice(5, 15),
                 }),
               ],
@@ -60,6 +61,7 @@ describe('ComponentAddSpotsToWalletsExcludingCertainComponentsOperation', () => 
               id: 'component-3',
               items: [
                 anAllowlistItem({
+                  id: 'item-3',
                   tokens: anAllowlistLargeItemTokens().slice(10, 20),
                 }),
               ],
@@ -74,6 +76,7 @@ describe('ComponentAddSpotsToWalletsExcludingCertainComponentsOperation', () => 
               id: 'component-4',
               items: [
                 anAllowlistItem({
+                  id: 'item-4',
                   tokens: anAllowlistLargeItemTokens().slice(15, 25),
                 }),
               ],
@@ -83,6 +86,7 @@ describe('ComponentAddSpotsToWalletsExcludingCertainComponentsOperation', () => 
               id: 'component-5',
               items: [
                 anAllowlistItem({
+                  id: 'item-5',
                   tokens: anAllowlistLargeItemTokens(),
                 }),
               ],

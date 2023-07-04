@@ -49,6 +49,9 @@ export class ItemRemoveFirstNTokensOperation
     params: ItemRemoveFirstNTokensParams;
     state: AllowlistState;
   }) {
+    if (!this.validate(params)) {
+      throw new BadInputError('Invalid params');
+    }
     const { itemId, count } = params;
     const { phaseId, componentId } = getItemPath({ state, itemId });
     if (!phaseId || !componentId) {

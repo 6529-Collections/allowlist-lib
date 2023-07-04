@@ -34,6 +34,14 @@ export const ALLOWLIST_OPERATION_CODE_TO_TYPE: Record<
     AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_SELECT_LAST_N_TOKENS]:
     AllowlistOperationType.ITEM,
+  [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_TOTAL_TOKENS_COUNT]:
+    AllowlistOperationType.ITEM,
+  [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT]:
+    AllowlistOperationType.ITEM,
+  [AllowlistOperationCode.ITEM_REMOVE_FIRST_N_WALLETS]:
+    AllowlistOperationType.ITEM,
+  [AllowlistOperationCode.ITEM_SELECT_FIRST_N_WALLETS]:
+    AllowlistOperationType.ITEM,
 };
 
 export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
@@ -109,6 +117,22 @@ export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
       description:
         'Add spots to all item wallets in a component excluding certain components',
     },
+  [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_TOTAL_TOKENS_COUNT]: {
+    title: 'Sort Wallets by Total Tokens Count',
+    description: 'Sort wallets by total tokens count in an item',
+  },
+  [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT]: {
+    title: 'Sort Wallets by Unique Tokens Count',
+    description: 'Sort wallets by unique tokens count in an item',
+  },
+  [AllowlistOperationCode.ITEM_REMOVE_FIRST_N_WALLETS]: {
+    title: 'Remove First N Wallets',
+    description: 'Remove first N wallets from an item',
+  },
+  [AllowlistOperationCode.ITEM_SELECT_FIRST_N_WALLETS]: {
+    title: 'Select First N Wallets',
+    description: 'Select first N wallets from an item',
+  },
 };
 
 export const getCodesForType = (type: AllowlistOperationType) => {

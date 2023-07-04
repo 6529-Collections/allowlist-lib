@@ -37,6 +37,10 @@ import { ItemSelectLastNTokensOperation } from './operations/item-select-last-n-
 import { SeizeApi } from '../services/seize/seize.api';
 import { Http } from '../services/http';
 import { ComponentAddSpotsToWalletsExcludingCertainComponentsOperation } from './operations/component-add-spots-to-wallets-excluding-certain-components/component-add-spots-to-wallets-excluding-certain-components-operation';
+import { ItemSortWalletsByTotalTokensCountOperation } from './operations/item-sort-wallets-by-total-tokens-count/item-sort-wallets-by-total-tokens-count-operation';
+import { ItemSortWalletsByUniqueTokensCountOperation } from './operations/item-sort-wallets-by-unique-tokens-count/item-sort-wallets-by-unique-tokens-count-operation';
+import { ItemRemoveFirstNWalletsOperation } from './operations/item-remove-first-n-wallets/item-remove-first-n-wallets-operation';
+import { ItemSelectFirstNWalletsOperation } from './operations/item-select-first-n-wallets/item-select-first-n-wallets-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -136,6 +140,11 @@ export class AllowlistCreator {
         new ComponentAddSpotsToWalletsExcludingCertainComponentsOperation(
           loggerFactoryImpl,
         ),
+      ITEM_SORT_WALLETS_BY_TOTAL_TOKENS_COUNT:
+        new ItemSortWalletsByTotalTokensCountOperation(loggerFactoryImpl),
+      ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT: new ItemSortWalletsByUniqueTokensCountOperation(loggerFactoryImpl),
+      ITEM_REMOVE_FIRST_N_WALLETS: new ItemRemoveFirstNWalletsOperation(loggerFactoryImpl),
+      ITEM_SELECT_FIRST_N_WALLETS: new ItemSelectFirstNWalletsOperation(loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

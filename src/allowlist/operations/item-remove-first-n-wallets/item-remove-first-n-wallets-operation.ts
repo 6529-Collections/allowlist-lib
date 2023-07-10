@@ -61,9 +61,9 @@ export class ItemRemoveFirstNWalletsOperation
       );
     }
 
-    const { tokens, firstNWallets } = state.phases[phaseId].components[
-      componentId
-    ].items[itemId].tokens.reduce<{
+    const { tokens } = state.phases[phaseId].components[componentId].items[
+      itemId
+    ].tokens.reduce<{
       firstNWallets: Set<string>;
       tokens: AllowlistItemToken[];
     }>(
@@ -78,12 +78,6 @@ export class ItemRemoveFirstNWalletsOperation
       },
       { tokens: [], firstNWallets: new Set() },
     );
-
-    if (firstNWallets.size < count) {
-      throw new BadInputError(
-        `ITEM_REMOVE_FIRST_N_WALLETS: Item '${itemId}' does not have ${count} wallets`,
-      );
-    }
 
     state.phases[phaseId].components[componentId].items[itemId].tokens = tokens;
     this.logger.info(

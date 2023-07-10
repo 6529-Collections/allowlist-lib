@@ -60,15 +60,6 @@ export class ItemRemoveLastNTokensOperation
       );
     }
 
-    if (
-      count >
-      state.phases[phaseId].components[componentId].items[itemId].tokens.length
-    ) {
-      throw new Error(
-        `ITEM_REMOVE_LAST_N_TOKENS: Count must be less than or equal to the number of tokens in the item, itemId: ${itemId}`,
-      );
-    }
-
     state.phases[phaseId].components[componentId].items[itemId].tokens =
       state.phases[phaseId].components[componentId].items[itemId].tokens.slice(
         0,

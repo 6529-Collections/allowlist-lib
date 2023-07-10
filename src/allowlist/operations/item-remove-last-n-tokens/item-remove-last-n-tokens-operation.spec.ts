@@ -100,17 +100,6 @@ describe('ItemRemoveLastNTokensOperation', () => {
     );
   });
 
-  it('throws error if count is greater than item tokens length', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, count: 100 },
-        state,
-      }),
-    ).toThrow(
-      'ITEM_REMOVE_LAST_N_TOKENS: Count must be less than or equal to the number of tokens in the item, itemId: item-1',
-    );
-  });
-
   it('removes the last n tokens from the item', () => {
     op.execute({
       params,

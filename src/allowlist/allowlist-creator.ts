@@ -143,10 +143,16 @@ export class AllowlistCreator {
         ),
       ITEM_SORT_WALLETS_BY_TOTAL_TOKENS_COUNT:
         new ItemSortWalletsByTotalTokensCountOperation(loggerFactoryImpl),
-      ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT: new ItemSortWalletsByUniqueTokensCountOperation(loggerFactoryImpl),
-      ITEM_REMOVE_FIRST_N_WALLETS: new ItemRemoveFirstNWalletsOperation(loggerFactoryImpl),
-      ITEM_SELECT_FIRST_N_WALLETS: new ItemSelectFirstNWalletsOperation(loggerFactoryImpl),
-      ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS: new ItemRemoveWalletsFromCertainComponentsOperation(loggerFactoryImpl),
+      ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT:
+        new ItemSortWalletsByUniqueTokensCountOperation(loggerFactoryImpl),
+      ITEM_REMOVE_FIRST_N_WALLETS: new ItemRemoveFirstNWalletsOperation(
+        loggerFactoryImpl,
+      ),
+      ITEM_SELECT_FIRST_N_WALLETS: new ItemSelectFirstNWalletsOperation(
+        loggerFactoryImpl,
+      ),
+      ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS:
+        new ItemRemoveWalletsFromCertainComponentsOperation(loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

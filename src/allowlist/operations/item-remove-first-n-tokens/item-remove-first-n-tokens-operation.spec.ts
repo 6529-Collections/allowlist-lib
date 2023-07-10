@@ -100,17 +100,6 @@ describe('ItemRemoveFirstNTokensOperation', () => {
     );
   });
 
-  it('throws error if count is greater than the number of tokens', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, count: 100 },
-        state,
-      }),
-    ).toThrow(
-      'ITEM_REMOVE_FIRST_N_ITEMS: Count must be less than or equal to the number of tokens in the item, itemId: item-1',
-    );
-  });
-
   it('removes the first n tokens from the item', () => {
     op.execute({
       params,

@@ -100,17 +100,6 @@ describe('ItemSelectFirstNTokensOperation', () => {
     );
   });
 
-  it('throws error if count is greater than item tokens', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, count: 100 },
-        state,
-      }),
-    ).toThrow(
-      'ITEM_SELECT_FIRST_N_TOKENS: Count must be less than or equal to the number of tokens in the item, itemId: item-1',
-    );
-  });
-
   it('select first n tokens from item', () => {
     op.execute({
       params,

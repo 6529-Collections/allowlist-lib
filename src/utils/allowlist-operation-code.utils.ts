@@ -23,6 +23,8 @@ export const ALLOWLIST_OPERATION_CODE_TO_TYPE: Record<
     AllowlistOperationType.COMPONENT,
   [AllowlistOperationCode.COMPONENT_ADD_SPOTS_TO_WALLETS_EXCLUDING_CERTAIN_COMPONENTS]:
     AllowlistOperationType.COMPONENT,
+  [AllowlistOperationCode.COMPONENT_SELECT_RANDOM_WALLETS]:
+    AllowlistOperationType.COMPONENT,
   [AllowlistOperationCode.ADD_ITEM]: AllowlistOperationType.ITEMS,
   [AllowlistOperationCode.ITEM_EXCLUE_TOKEN_IDS]: AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_SELECT_TOKEN_IDS]: AllowlistOperationType.ITEM,
@@ -119,6 +121,11 @@ export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
       description:
         'Add spots to all item wallets in a component excluding certain components',
     },
+
+  [AllowlistOperationCode.COMPONENT_SELECT_RANDOM_WALLETS]: {
+    title: 'Select Random Wallets',
+    description: 'Select random wallets from a component',
+  },
   [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_TOTAL_TOKENS_COUNT]: {
     title: 'Sort Wallets by Total Tokens Count',
     description: 'Sort wallets by total tokens count in an item',

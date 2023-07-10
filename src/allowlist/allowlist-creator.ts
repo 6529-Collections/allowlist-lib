@@ -42,6 +42,7 @@ import { ItemSortWalletsByUniqueTokensCountOperation } from './operations/item-s
 import { ItemRemoveFirstNWalletsOperation } from './operations/item-remove-first-n-wallets/item-remove-first-n-wallets-operation';
 import { ItemSelectFirstNWalletsOperation } from './operations/item-select-first-n-wallets/item-select-first-n-wallets-operation';
 import { ItemRemoveWalletsFromCertainComponentsOperation } from './operations/item-remove-wallets-from-certain-components/item-remove-wallets-from-certain-components-operation';
+import { ComponentSelectRandomWalletsOperation } from './operations/component-select-random-wallets/component-select-random-wallets-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -153,6 +154,7 @@ export class AllowlistCreator {
       ),
       ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS:
         new ItemRemoveWalletsFromCertainComponentsOperation(loggerFactoryImpl),
+      COMPONENT_SELECT_RANDOM_WALLETS: new ComponentSelectRandomWalletsOperation(loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

@@ -1,5 +1,7 @@
 import { AllowlistOperationCode } from '../allowlist/allowlist-operation-code';
 import { BadInputError } from './../allowlist/bad-input.error';
+import * as seedrandom from 'seedrandom';
+
 // The `assertUnreachable` function takes an input `_x` of type `never` and always throws
 // an error. This function is typically used in TypeScript to assert exhaustiveness in
 
@@ -59,3 +61,30 @@ export const parseTokenIds = (
   // Convert the result set to an array and return it
   return Array.from(resultSet).map((it) => it.toString());
 };
+
+export function pickRandomItemsWithSeed({
+  array,
+  count,
+  seed,
+}: {
+  array: any[];
+  count: number;
+  seed: string;
+}) {
+  const rng = seedrandom(seed); // Create a seeded random number generator
+  const indices = new Set<number>(); // Use a Set to ensure unique indices
+
+  // Generate x unique random indices between 0 and n-1
+  while (indices.size < count) {
+    const index = Math.floor(rng() * array.length);
+    indices.add(index);
+  }
+
+  // Use the generated indices to select the corresponding items from the array
+  const result = [];
+  for (const index of indices) {
+    result.push(array[index]);
+  }
+
+  return result;
+}

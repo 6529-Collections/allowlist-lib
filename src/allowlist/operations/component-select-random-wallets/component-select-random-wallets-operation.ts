@@ -79,11 +79,9 @@ export class ComponentSelectRandomWalletsOperation
       );
     }
     const allWallets = new Set(
-      Object.values(state.phases[phaseId].components).flatMap((component) =>
-        Object.values(component.items).flatMap((item) =>
-          item.tokens.flatMap((token) => token.owner),
-        ),
-      ),
+      Object.values(
+        state.phases[phaseId].components[componentId].items,
+      ).flatMap((item) => item.tokens.flatMap((token) => token.owner)),
     );
 
     const selectedWallets = new Set(
@@ -102,11 +100,6 @@ export class ComponentSelectRandomWalletsOperation
       state.phases[phaseId].components[componentId].items[itemKey].tokens =
         tokens.filter((token) => selectedWallets.has(token.owner));
     }
-
-    console.log(
-      JSON.stringify(state.phases[phaseId].components[componentId], null, 2),
-    );
-
     this.logger.info('Executed ComponentSelectRandomWallets operation');
   }
 }

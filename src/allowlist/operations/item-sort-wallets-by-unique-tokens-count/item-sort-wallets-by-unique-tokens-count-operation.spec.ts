@@ -76,9 +76,6 @@ describe('ItemSortWalletsByUniqueTokensCountOperation', () => {
       params,
       state,
     });
-    console.log(
-      state.phases['phase-1'].components['component-1'].items['item-1'].tokens,
-    );
     expect(
       state.phases['phase-1'].components['component-1'].items['item-1'].tokens,
     ).toEqual([

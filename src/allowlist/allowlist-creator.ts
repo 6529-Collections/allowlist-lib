@@ -43,6 +43,7 @@ import { ItemRemoveFirstNWalletsOperation } from './operations/item-remove-first
 import { ItemSelectFirstNWalletsOperation } from './operations/item-select-first-n-wallets/item-select-first-n-wallets-operation';
 import { ItemRemoveWalletsFromCertainComponentsOperation } from './operations/item-remove-wallets-from-certain-components/item-remove-wallets-from-certain-components-operation';
 import { ComponentSelectRandomWalletsOperation } from './operations/component-select-random-wallets/component-select-random-wallets-operation';
+import { ItemSortWalletsByMemesTdhOperation } from './operations/item-sort-wallets-by-memes-tdh/item-sort-wallets-by-memes-tdh-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -154,7 +155,12 @@ export class AllowlistCreator {
       ),
       ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS:
         new ItemRemoveWalletsFromCertainComponentsOperation(loggerFactoryImpl),
-      COMPONENT_SELECT_RANDOM_WALLETS: new ComponentSelectRandomWalletsOperation(loggerFactoryImpl),
+      COMPONENT_SELECT_RANDOM_WALLETS:
+        new ComponentSelectRandomWalletsOperation(loggerFactoryImpl),
+      ITEM_SORT_WALLETS_BY_MEMES_TDH: new ItemSortWalletsByMemesTdhOperation(
+        seizeApi,
+        loggerFactoryImpl,
+      ),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

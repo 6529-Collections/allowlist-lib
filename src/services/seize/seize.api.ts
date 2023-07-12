@@ -85,7 +85,7 @@ export class SeizeApi {
 
   private mapCommon(rawColumn: any): CommonTdhInfo {
     return {
-      wallet: rawColumn.wallet,
+      wallet: rawColumn.wallet.toLowerCase(),
       memes: JSON.parse(rawColumn.memes),
       memes_ranks: JSON.parse(rawColumn.memes_ranks),
       gradients: JSON.parse(rawColumn.gradients_ranks),
@@ -237,7 +237,7 @@ export class SeizeApi {
   }
 
   private getClosestTdh(apiResponseData: TdhInfoApiResponse, blockId: number) {
-    return apiResponseData.data
+    return structuredClone(apiResponseData.data)
       .sort((a, b) => a.block - b.block)
       .filter((a) => a.block <= blockId)
       .at(-1)?.tdh;

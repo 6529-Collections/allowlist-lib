@@ -26,6 +26,7 @@ export enum AllowlistOperationCode {
   ITEM_SELECT_FIRST_N_WALLETS = 'ITEM_SELECT_FIRST_N_WALLETS',
   ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS = 'ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS',
 
+  ITEM_SORT_WALLETS_BY_MEMES_TDH = 'ITEM_SORT_WALLETS_BY_MEMES_TDH',
   // Placeholder for future operations (please keep this comment here, it's used by the code generator)
 }
 

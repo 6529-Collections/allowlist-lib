@@ -35,7 +35,7 @@ export const sortAndLowercaseTransfers = (transfers: Transfer[]): Transfer[] =>
  * // => [{ blockNumber: 1, transactionIndex: 1, logIndex: 1 }, { blockNumber: 1, transactionIndex: 1, logIndex: 2 }]
  */
 export const sortTransfers = (transfers: Transfer[]): Transfer[] =>
-  transfers.sort((a, b) => {
+  structuredClone(transfers).sort((a, b) => {
     if (a.blockNumber !== b.blockNumber) {
       return a.blockNumber - b.blockNumber;
     }

@@ -9,3 +9,7 @@ export enum Pool {
   CUSTOM_TOKEN_POOL = 'CUSTOM_TOKEN_POOL',
   WALLET_POOL = 'WALLET_POOL',
 }
+
+export type Mutable<T, K extends keyof T> = Omit<T, K> & {
+  -readonly [P in K]: T[P];
+};

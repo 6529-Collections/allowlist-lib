@@ -166,9 +166,6 @@ describe('ItemRemoveWalletsFromCertainComponentsOperation', () => {
 
   it('removes the wallets from item', () => {
     op.execute({ params, state });
-    console.log(
-      state.phases['phase-2'].components['component-3'].items['item-3'].tokens,
-    );
     const expectedTokens = [
       {
         id: '1',

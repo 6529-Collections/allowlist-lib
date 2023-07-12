@@ -40,6 +40,8 @@ export const ALLOWLIST_OPERATION_CODE_TO_TYPE: Record<
     AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT]:
     AllowlistOperationType.ITEM,
+  [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_MEMES_TDH]:
+    AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_REMOVE_FIRST_N_WALLETS]:
     AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_SELECT_FIRST_N_WALLETS]:
@@ -133,6 +135,10 @@ export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
   [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT]: {
     title: 'Sort Wallets by Unique Tokens Count',
     description: 'Sort wallets by unique tokens count in an item',
+  },
+  [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_MEMES_TDH]: {
+    title: 'Sort Wallets by Memes TDH',
+    description: 'Sort wallets by memes TDH in an item',
   },
   [AllowlistOperationCode.ITEM_REMOVE_FIRST_N_WALLETS]: {
     title: 'Remove First N Wallets',

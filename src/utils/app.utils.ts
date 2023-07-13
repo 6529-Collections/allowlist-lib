@@ -1,5 +1,5 @@
 import { AllowlistOperationCode } from '../allowlist/allowlist-operation-code';
-import { BadInputError } from './../allowlist/bad-input.error';
+import { BadInputError } from '../allowlist/bad-input.error';
 import * as seedrandom from 'seedrandom';
 
 // The `assertUnreachable` function takes an input `_x` of type `never` and always throws

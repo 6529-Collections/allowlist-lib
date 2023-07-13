@@ -11,8 +11,13 @@ describe('AllowlistCreator e2e tests', () => {
     if (!etherscanApiKey) {
       throw new Error('Environment variable ETHERSCAN_API_KEY is not defined');
     }
+    const alchemyApiKey = process.env.ALCHEMY_API_KEY;
+    if (!alchemyApiKey) {
+      throw new Error('Environment variable ALCHEMY_API_KEY is not defined');
+    }
     allowlistCreator = AllowlistCreator.getInstance({
       etherscanApiKey: etherscanApiKey,
+      alchemyApiKey: alchemyApiKey,
       seizeApiPath: 'https://api.seize.io/api',
       seizeApiKey: process.env.SEIZE_API_KEY,
       onAfterOperation: (operation: AllowlistOperation) => {

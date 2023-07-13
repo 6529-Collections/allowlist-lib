@@ -45,6 +45,8 @@ import { ItemRemoveWalletsFromCertainComponentsOperation } from './operations/it
 import { ComponentSelectRandomWalletsOperation } from './operations/component-select-random-wallets/component-select-random-wallets-operation';
 import { ItemSortWalletsByMemesTdhOperation } from './operations/item-sort-wallets-by-memes-tdh/item-sort-wallets-by-memes-tdh-operation';
 import { TransferPoolConsolidateWalletsOperation } from './operations/transfer-pool-consolidate-wallets/transfer-pool-consolidate-wallets-operation';
+import { AlchemyService } from '../services/alchemy.service';
+import { Network } from 'alchemy-sdk';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -72,6 +74,7 @@ export class AllowlistCreator {
    * ```
    *
    * @param etherscanApiKey The API key for Etherscan.
+   * @param alchemyApiKey The API key for Alchemy.
    * @param seizeApiPath Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
    * @param seizeApiKey Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
    * @param storage The storage implementations to use.
@@ -83,11 +86,18 @@ export class AllowlistCreator {
     seizeApiPath,
     seizeApiKey,
     etherscanApiKey,
+    alchemyApiKey,
     storage,
     loggerFactory,
     onBeforeOperation,
     onAfterOperation,
   }: AllowlistCreatorConfig): AllowlistCreator {
+    const alchemy = new AlchemyService({
+      apiKey: alchemyApiKey,
+      network: Network.ETH_MAINNET,
+      maxRetries: 5,
+      batchRequests: false,
+    });
     const loggerFactoryImpl = loggerFactory || defaultLogFactory;
     const http = new Http(loggerFactoryImpl);
     const seizeApi = new SeizeApi(http, seizeApiPath, seizeApiKey);

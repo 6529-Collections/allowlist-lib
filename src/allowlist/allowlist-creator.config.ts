@@ -9,6 +9,7 @@ export interface StorageImplementations {
 
 export interface AllowlistCreatorConfig {
   readonly etherscanApiKey: string;
+  readonly alchemyApiKey: string;
   readonly seizeApiPath: string;
   readonly seizeApiKey?: string;
   readonly storage?: StorageImplementations;

@@ -1,14 +1,12 @@
 import { AllowlistState } from '../../state-types/allowlist-state';
 import { TokenPoolParams } from '../../state-types/token-pool';
-import {
-  anAllowlistState,
-  aTransferPool,
-} from '../../state-types/allowlist-state.test.fixture';
+import { anAllowlistState } from '../../state-types/allowlist-state.test.fixture';
 import { defaultLogFactory } from '../../../logging/logging-emitter';
 import { AlchemyService } from '../../../services/alchemy.service';
 import { CollectionOwner } from '../../../services/collection-owner';
 import { CreateTokenPoolOperation } from './create-token-pool-operation';
 import { Alchemy } from 'alchemy-sdk';
+import { TransfersService } from '../../../services/transfers.service';
 
 class MockAlchemyService extends AlchemyService {
   async getCollectionOwnersInBlock({
@@ -34,6 +32,7 @@ describe('CreateTokenPoolOperation', () => {
   const op = new CreateTokenPoolOperation(
     defaultLogFactory,
     new MockAlchemyService(undefined as Alchemy),
+    undefined as TransfersService,
   );
 
   let state: AllowlistState;

@@ -135,6 +135,7 @@ export class AllowlistCreator {
       CREATE_TOKEN_POOL: new CreateTokenPoolOperation(
         loggerFactoryImpl,
         alchemyService,
+        transfersService,
       ),
       CREATE_TOKEN_POOL_RAW: new CreateTokenPoolRawOperation(loggerFactoryImpl),
       CREATE_CUSTOM_TOKEN_POOL: new CreateCustomTokenPoolOperation(),

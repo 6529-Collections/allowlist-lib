@@ -1,6 +1,6 @@
 import { AllowlistState } from '../../state-types/allowlist-state';
-import { CreateTokenPoolRawOperation } from './create-token-pool-raw-operation';
-import { TokenPoolRawParams } from '../../state-types/token-pool';
+import { CreateTokenPoolOperation } from './create-token-pool-operation';
+import { TokenPoolParams } from '../../state-types/token-pool';
 import * as fs from 'fs';
 import { Transfer } from '../../state-types/transfer';
 import {
@@ -9,11 +9,11 @@ import {
 } from '../../state-types/allowlist-state.test.fixture';
 import { defaultLogFactory } from '../../../logging/logging-emitter';
 
-describe('CreateTokenPoolRawOperation', () => {
-  const op = new CreateTokenPoolRawOperation(defaultLogFactory);
+describe('CreateTokenPoolOperation', () => {
+  const op = new CreateTokenPoolOperation(defaultLogFactory);
 
   let state: AllowlistState;
-  let params: TokenPoolRawParams;
+  let params: TokenPoolParams;
 
   beforeEach(() => {
     state = anAllowlistState();

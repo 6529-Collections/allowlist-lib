@@ -75,7 +75,6 @@ export class TransferPoolConsolidateWalletsOperation
     const consolidations = await this.seizeApi.getAllConsolidations({
       block: params.consolidationBlockNumber,
     });
-
     const consolidationsMap = consolidations.reduce<Record<string, string>>(
       (acc, curr) => {
         for (const wallet of curr.wallets) {

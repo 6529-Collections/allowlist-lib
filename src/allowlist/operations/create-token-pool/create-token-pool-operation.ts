@@ -1,9 +1,6 @@
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { AllowlistState } from '../../state-types/allowlist-state';
-import {
-  TokenPoolParams,
-  TokenPoolRawParams,
-} from '../../state-types/token-pool';
+import { TokenPoolParams } from '../../state-types/token-pool';
 import { BadInputError } from '../../bad-input.error';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { isValidTokenIds, parseTokenIds } from '../../../utils/app.utils';

@@ -14,4 +14,5 @@ export interface TokenPoolParams extends DescribableEntity {
 
 export interface TokenPool extends DescribableEntity {
   readonly tokens: TokenOwnership[];
+  readonly tokenIds?: string;
 }

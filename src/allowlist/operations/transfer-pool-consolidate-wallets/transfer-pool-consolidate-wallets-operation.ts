@@ -4,10 +4,6 @@ import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { SeizeApi } from '../../../services/seize/seize.api';
-import {
-  Transfer,
-  sortAndLowercaseTransfers,
-} from '../../state-types/transfer';
 
 export class TransferPoolConsolidateWalletsOperation
   implements AllowlistOperationExecutor
@@ -75,7 +71,6 @@ export class TransferPoolConsolidateWalletsOperation
     const consolidations = await this.seizeApi.getAllConsolidations({
       block: params.consolidationBlockNumber,
     });
-
     const consolidationsMap = consolidations.reduce<Record<string, string>>(
       (acc, curr) => {
         for (const wallet of curr.wallets) {
@@ -85,40 +80,6 @@ export class TransferPoolConsolidateWalletsOperation
       },
       {},
     );
-
-    const x = state.transferPools[params.transferPoolId].transfers.filter(
-      (transfer) =>
-        consolidationsMap.hasOwnProperty(transfer.to) ||
-        consolidationsMap.hasOwnProperty(transfer.from),
-    );
-    const y = state.transferPools[params.transferPoolId].transfers.filter(
-      (transfer) =>
-        !consolidationsMap.hasOwnProperty(transfer.to) &&
-        !consolidationsMap.hasOwnProperty(transfer.from),
-    );
-
-    // console.log(
-    //   JSON.stringify(
-    //     sortAndLowercaseTransfers([
-    //       ...x
-    //         .filter(
-    //           (transfer) =>
-    //             ![transfer.to, transfer.from].includes(
-    //               '0x0000000000000000000000000000000000000000',
-    //             ),
-    //         )
-    //         .slice(0, 10),
-    //       ...y
-    //         .filter(
-    //           (transfer) =>
-    //             ![transfer.to, transfer.from].includes(
-    //               '0x0000000000000000000000000000000000000000',
-    //             ),
-    //         )
-    //         .slice(0, 10),
-    //     ]),
-    //   ),
-    // );
 
     state.transferPools[params.transferPoolId].transfers = state.transferPools[
       params.transferPoolId

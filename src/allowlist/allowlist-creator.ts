@@ -44,6 +44,7 @@ import { ItemSelectFirstNWalletsOperation } from './operations/item-select-first
 import { ItemRemoveWalletsFromCertainComponentsOperation } from './operations/item-remove-wallets-from-certain-components/item-remove-wallets-from-certain-components-operation';
 import { ComponentSelectRandomWalletsOperation } from './operations/component-select-random-wallets/component-select-random-wallets-operation';
 import { ItemSortWalletsByMemesTdhOperation } from './operations/item-sort-wallets-by-memes-tdh/item-sort-wallets-by-memes-tdh-operation';
+import { TransferPoolConsolidateWalletsOperation } from './operations/transfer-pool-consolidate-wallets/transfer-pool-consolidate-wallets-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -161,6 +162,11 @@ export class AllowlistCreator {
         seizeApi,
         loggerFactoryImpl,
       ),
+      TRANSFER_POOL_CONSOLIDATE_WALLETS:
+        new TransferPoolConsolidateWalletsOperation(
+          seizeApi,
+          loggerFactoryImpl,
+        ),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

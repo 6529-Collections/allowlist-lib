@@ -27,6 +27,7 @@ export enum AllowlistOperationCode {
   ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS = 'ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS',
 
   ITEM_SORT_WALLETS_BY_MEMES_TDH = 'ITEM_SORT_WALLETS_BY_MEMES_TDH',
+  TRANSFER_POOL_CONSOLIDATE_WALLETS = 'TRANSFER_POOL_CONSOLIDATE_WALLETS',
   // Placeholder for future operations (please keep this comment here, it's used by the code generator)
 }
 

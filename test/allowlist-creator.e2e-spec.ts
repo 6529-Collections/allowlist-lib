@@ -228,7 +228,7 @@ describe('AllowlistCreator e2e tests', () => {
     60 * 60 * 1000,
   );
 
-  it.skip(
+  it(
     'TEST',
     async () => {
       const operations: AllowlistOperation[] = [
@@ -247,7 +247,14 @@ describe('AllowlistCreator e2e tests', () => {
             name: 'The memes',
             description: 'Transfers of the memes',
             contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-            blockNo: 17185669,
+            blockNo: 17684111,
+          },
+        },
+        {
+          code: AllowlistOperationCode.TRANSFER_POOL_CONSOLIDATE_WALLETS,
+          params: {
+            transferPoolId: 'transfer-pool-1',
+            consolidationBlockNumber: 17684111,
           },
         },
         {
@@ -292,7 +299,7 @@ describe('AllowlistCreator e2e tests', () => {
           code: AllowlistOperationCode.ITEM_SORT_WALLETS_BY_MEMES_TDH,
           params: {
             itemId: 'item-1',
-            tdhBlockNumber: 17676050,
+            tdhBlockNumber: 17684111,
           },
         },
       ];

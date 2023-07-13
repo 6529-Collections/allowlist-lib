@@ -11,6 +11,8 @@ export const ALLOWLIST_OPERATION_CODE_TO_TYPE: Record<
   [AllowlistOperationCode.CREATE_ALLOWLIST]: AllowlistOperationType.OVERALL,
   [AllowlistOperationCode.GET_COLLECTION_TRANSFERS]:
     AllowlistOperationType.TRANSFER_POOLS,
+  [AllowlistOperationCode.TRANSFER_POOL_CONSOLIDATE_WALLETS]:
+    AllowlistOperationType.TRANSFER_POOL,
   [AllowlistOperationCode.CREATE_TOKEN_POOL]:
     AllowlistOperationType.TOKEN_POOLS,
   [AllowlistOperationCode.CREATE_CUSTOM_TOKEN_POOL]:
@@ -64,6 +66,10 @@ export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
   [AllowlistOperationCode.GET_COLLECTION_TRANSFERS]: {
     title: 'Get Collection Transfers',
     description: 'Get all transfers for a collection',
+  },
+  [AllowlistOperationCode.TRANSFER_POOL_CONSOLIDATE_WALLETS]: {
+    title: 'Consolidate Wallets',
+    description: 'Consolidate wallets in a transfer pool',
   },
   [AllowlistOperationCode.CREATE_TOKEN_POOL]: {
     title: 'Create Token Pool',

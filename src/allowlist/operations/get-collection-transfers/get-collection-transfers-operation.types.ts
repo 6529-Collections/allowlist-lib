@@ -7,5 +7,5 @@ export interface GetCollectionTransferRequest extends DescribableEntity {
 }
 
 export interface TransferPool extends GetCollectionTransferRequest {
-  readonly transfers: Transfer[];
+  transfers: Transfer[];
 }

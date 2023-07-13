@@ -51,10 +51,18 @@ export class SeizeApi {
     if (limit) {
       endpoint += `&page_size=${limit}`;
     }
-    return this.http.get<ConsolidationMappingPage>({
+    const result = await this.http.get<ConsolidationMappingPage>({
       endpoint,
       headers,
     });
+    return {
+      ...result,
+      data: result.data.map((item) => ({
+        ...item,
+        wallets: item.wallets.map((wallet) => wallet.toLowerCase()),
+        primary: item.primary.toLowerCase(),
+      })),
+    };
   }
 
   async getAllDelegations({

@@ -31,7 +31,9 @@ describe('AllowlistOperationCodeUtils', () => {
   });
 
   it('should return correct codes for TRANSFER_POOL', () => {
-    expect(getCodesForType(AllowlistOperationType.TRANSFER_POOL)).toEqual([]);
+    expect(getCodesForType(AllowlistOperationType.TRANSFER_POOL)).toEqual([
+      AllowlistOperationCode.TRANSFER_POOL_CONSOLIDATE_WALLETS,
+    ]);
     opertatinTypesToCheck = opertatinTypesToCheck.filter(
       (t) => t !== AllowlistOperationType.TRANSFER_POOL,
     );

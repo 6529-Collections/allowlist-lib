@@ -78,16 +78,18 @@ export class ComponentSelectRandomWalletsOperation
         `COMPONENT_SELECT_RANDOM_WALLETS: Component '${componentId}' does not exist, componentId: ${componentId}`,
       );
     }
-    const allWallets = new Set(
-      Object.values(
-        state.phases[phaseId].components[componentId].items,
-      ).flatMap((item) => item.tokens.flatMap((token) => token.owner)),
+    const allWallets = Array.from(
+      new Set(
+        Object.values(
+          state.phases[phaseId].components[componentId].items,
+        ).flatMap((item) => item.tokens.flatMap((token) => token.owner)),
+      ),
     );
 
     const selectedWallets = new Set(
       pickRandomItemsWithSeed({
-        array: Array.from(allWallets),
-        count,
+        array: allWallets,
+        count: allWallets.length < count ? allWallets.length : count,
         seed,
       }),
     );

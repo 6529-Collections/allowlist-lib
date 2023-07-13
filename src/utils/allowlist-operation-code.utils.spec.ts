@@ -42,6 +42,7 @@ describe('AllowlistOperationCodeUtils', () => {
   it('should return correct codes for TOKEN_POOLS', () => {
     expect(getCodesForType(AllowlistOperationType.TOKEN_POOLS)).toEqual([
       AllowlistOperationCode.CREATE_TOKEN_POOL,
+      AllowlistOperationCode.CREATE_TOKEN_POOL_RAW,
     ]);
     opertatinTypesToCheck = opertatinTypesToCheck.filter(
       (t) => t !== AllowlistOperationType.TOKEN_POOLS,

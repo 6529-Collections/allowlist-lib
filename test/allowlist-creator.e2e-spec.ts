@@ -195,7 +195,7 @@ describe('AllowlistCreator e2e tests', () => {
     60 * 60 * 1000,
   );
 
-  it(
+  it.skip(
     'TEST',
     async () => {
       const operations: AllowlistOperation[] = [

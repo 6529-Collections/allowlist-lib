@@ -3,8 +3,11 @@ import { parse } from 'csv-parse';
 import { Time } from '../../time';
 import { Http } from '../http';
 import { SeizeApiPage } from './seize-api-page';
-import { ConsolidationMappingPage } from './consolidation-mapping';
-import { DelegateMappingPage } from './delegation-mapping';
+import {
+  ConsolidationMapping,
+  ConsolidationMappingPage,
+} from './consolidation-mapping';
+import { DelegateMapping, DelegateMappingPage } from './delegation-mapping';
 
 export class SeizeApi {
   constructor(
@@ -13,24 +16,72 @@ export class SeizeApi {
     private readonly apiToken?: string,
   ) {}
 
+  async getAllConsolidations({
+    block,
+  }: {
+    block: number;
+  }): Promise<ConsolidationMapping[]> {
+    const result: ConsolidationMapping[] = [];
+    for (let page = 1; ; page++) {
+      const resultPage = await this.getConsolidations({ block, page });
+      result.push(...resultPage.data);
+      if (resultPage.next) {
+        page++;
+      } else {
+        break;
+      }
+    }
+    return result;
+  }
+
   async getConsolidations({
     block,
     limit,
     page,
   }: {
     block: number;
-    limit: number;
+    limit?: number;
     page: number;
   }): Promise<ConsolidationMappingPage> {
     let headers = undefined;
     if (this.apiToken) {
       headers = { 'x-6529-auth': this.apiToken };
     }
-    const endpoint = `${this.apiUri}/consolidations?block=${block}&page=${page}&page_size=${limit}`;
+    let endpoint = `${this.apiUri}/consolidations?block=${block}&page=${page}`;
+    if (limit) {
+      endpoint += `&page_size=${limit}`;
+    }
     return this.http.get<ConsolidationMappingPage>({
       endpoint,
       headers,
     });
+  }
+
+  async getAllDelegations({
+    block,
+    collections,
+    useCases,
+  }: {
+    block: number;
+    collections: string[];
+    useCases: string[];
+  }): Promise<DelegateMapping[]> {
+    const result: DelegateMapping[] = [];
+    for (let page = 1; ; page++) {
+      const resultPage = await this.getDelegations({
+        block,
+        page,
+        collections,
+        useCases,
+      });
+      result.push(...resultPage.data);
+      if (resultPage.next) {
+        page++;
+      } else {
+        break;
+      }
+    }
+    return result;
   }
 
   async getDelegations({
@@ -43,18 +94,21 @@ export class SeizeApi {
     block: number;
     collections: string[];
     useCases: string[];
-    limit: number;
+    limit?: number;
     page: number;
   }): Promise<DelegateMappingPage> {
     let headers = undefined;
     if (this.apiToken) {
       headers = { 'x-6529-auth': this.apiToken };
     }
-    const endpoint = `${
+    let endpoint = `${
       this.apiUri
-    }/delegations?block=${block}&page_size=${limit}&page=${page}&collection=${collections.join(
+    }/delegations?block=${block}&page=${page}&collection=${collections.join(
       ',',
     )}&use_case=${useCases.join(',')}`;
+    if (limit) {
+      endpoint += `&page_size=${limit}`;
+    }
     return this.http.get<DelegateMappingPage>({
       endpoint,
       headers,

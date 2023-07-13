@@ -103,7 +103,7 @@ describe('Seize API Delegations', () => {
 
   beforeAll(() => {
     const mockHttp = new MockHttp({
-      'https://www.example.com/api/delegations?block=17531453&page_size=5&page=1&collection=c1,c2&use_case=1,2':
+      'https://www.example.com/api/delegations?block=17531453&page=1&collection=c1,c2&use_case=1,2&page_size=5':
         {
           data: [
             {

@@ -1,17 +1,12 @@
 import {
   Alchemy,
-  AlchemyConfig,
   AlchemySettings,
   GetOwnersForContractWithTokenBalancesOptions,
 } from 'alchemy-sdk';
 import { CollectionOwner } from './collection-owner';
 
 export class AlchemyService {
-  private readonly alchemy: Alchemy;
-
-  constructor(config: AlchemySettings) {
-    this.alchemy = new Alchemy(config);
-  }
+  constructor(private readonly alchemy: Alchemy) {}
 
   async getCollectionOwnersInBlock({
     contract,
@@ -40,7 +35,9 @@ export class AlchemyService {
         (owner) => ({
           ownerAddress: owner.ownerAddress,
           tokens: owner.tokenBalances.map((token) => ({
-            tokenId: +token.tokenId,
+            tokenId: BigInt(
+              `0x${token.tokenId.replace('0x', '').substring(0, 64)}`,
+            ).toString(),
             balance: token.balance,
           })),
         }),

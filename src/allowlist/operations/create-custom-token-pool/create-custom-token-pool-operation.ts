@@ -68,13 +68,6 @@ export class CreateCustomTokenPoolOperation
       throw new BadInputError('Invalid tokens');
     }
 
-    const haveTokenSince = params.tokens.some((token) => token.since);
-    const haveNotTokenSince = params.tokens.some((token) => !token.since);
-
-    if (haveTokenSince && haveNotTokenSince) {
-      throw new BadInputError('Invalid tokens');
-    }
-
     for (const token of params.tokens) {
       if (token.hasOwnProperty('id')) {
         if (typeof token.id !== 'string') {
@@ -82,20 +75,6 @@ export class CreateCustomTokenPoolOperation
         }
 
         if (!token.id.length) {
-          throw new BadInputError('Invalid tokens');
-        }
-      }
-
-      if (token.hasOwnProperty('since')) {
-        if (typeof token.since !== 'number') {
-          throw new BadInputError('Invalid tokens');
-        }
-
-        if (token.since < 0) {
-          throw new BadInputError('Invalid tokens');
-        }
-
-        if (!Number.isInteger(token.since)) {
           throw new BadInputError('Invalid tokens');
         }
       }
@@ -138,7 +117,6 @@ export class CreateCustomTokenPoolOperation
       tokens: tokens.map((token, i) => ({
         id: token.id ?? (i + 1).toString(),
         owner: token.owner,
-        since: token.since ?? new Date().getTime(),
       })),
     };
   }

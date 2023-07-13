@@ -4,7 +4,6 @@ import { DescribableEntity } from './describable-entity';
 export interface AllowlistItemToken {
   readonly id: string;
   readonly owner: string;
-  readonly since: number;
 }
 
 export interface AllowlistItem extends DescribableEntity {

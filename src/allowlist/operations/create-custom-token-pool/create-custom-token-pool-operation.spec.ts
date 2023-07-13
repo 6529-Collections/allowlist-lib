@@ -1,9 +1,6 @@
-import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
+import { AllowlistState } from '../../state-types/allowlist-state';
 import { CreateCustomTokenPoolOperation } from './create-custom-token-pool-operation';
-import {
-  aCustomTokenPool,
-  anAllowlistState,
-} from '../../../allowlist/state-types/allowlist-state.test.fixture';
+import { anAllowlistState } from '../../state-types/allowlist-state.test.fixture';
 import { CustomTokenPoolParams } from './create-custom-token-pool-operation.types';
 
 describe('CreateCustomTokenPoolOperation', () => {
@@ -22,12 +19,10 @@ describe('CreateCustomTokenPoolOperation', () => {
         {
           id: '1',
           owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-          since: 1683565041531,
         },
         {
           id: '2',
           owner: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
-          since: 1683565041531,
         },
       ],
     };
@@ -182,31 +177,8 @@ describe('CreateCustomTokenPoolOperation', () => {
           {
             id: '1',
             owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-            since: 1683565041531,
           },
           {
-            owner: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
-            since: 1683565041531,
-          },
-        ],
-      }),
-    ).toThrowError('Invalid tokens');
-  });
-
-  it('throws if some token have since and some not', () => {
-    expect(() =>
-      op.validate({
-        id: 'ctp-2',
-        name: 'ctp 2',
-        description: 'ctp 2 description',
-        tokens: [
-          {
-            id: '1',
-            owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-            since: 1683565041531,
-          },
-          {
-            id: '2',
             owner: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
           },
         ],
@@ -224,7 +196,6 @@ describe('CreateCustomTokenPoolOperation', () => {
           {
             id: 1,
             owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-            since: 1683565041531,
           },
         ],
       }),
@@ -241,58 +212,6 @@ describe('CreateCustomTokenPoolOperation', () => {
           {
             id: '',
             owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-            since: 1683565041531,
-          },
-        ],
-      }),
-    ).toThrowError('Invalid tokens');
-  });
-
-  it('throws if token since is not number', () => {
-    expect(() =>
-      op.validate({
-        id: 'ctp-2',
-        name: 'ctp 2',
-        description: 'ctp 2 description',
-        tokens: [
-          {
-            id: '1',
-            owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-            since: '1683565041531',
-          },
-        ],
-      }),
-    ).toThrowError('Invalid tokens');
-  });
-
-  it('throws if token since is negative number', () => {
-    expect(() =>
-      op.validate({
-        id: 'ctp-2',
-        name: 'ctp 2',
-        description: 'ctp 2 description',
-        tokens: [
-          {
-            id: '1',
-            owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-            since: -1,
-          },
-        ],
-      }),
-    ).toThrowError('Invalid tokens');
-  });
-
-  it('throws if token since is not integer number', () => {
-    expect(() =>
-      op.validate({
-        id: 'ctp-2',
-        name: 'ctp 2',
-        description: 'ctp 2 description',
-        tokens: [
-          {
-            id: '1',
-            owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-            since: 1.1,
           },
         ],
       }),
@@ -308,7 +227,6 @@ describe('CreateCustomTokenPoolOperation', () => {
         tokens: [
           {
             id: '1',
-            since: 1683565041531,
           },
         ],
       }),
@@ -325,7 +243,6 @@ describe('CreateCustomTokenPoolOperation', () => {
           {
             id: '1',
             owner: 1,
-            since: 1683565041531,
           },
         ],
       }),
@@ -342,7 +259,6 @@ describe('CreateCustomTokenPoolOperation', () => {
           {
             id: '1',
             owner: '',
-            since: 1683565041531,
           },
         ],
       }),
@@ -359,7 +275,6 @@ describe('CreateCustomTokenPoolOperation', () => {
           {
             id: '1',
             owner: '0x',
-            since: 1683565041531,
           },
         ],
       }),
@@ -375,12 +290,10 @@ describe('CreateCustomTokenPoolOperation', () => {
         {
           id: '1',
           owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-          since: 1683565041531,
         },
         {
           id: '2',
           owner: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
-          since: 1683565041531,
         },
       ],
     };
@@ -399,11 +312,9 @@ describe('CreateCustomTokenPoolOperation', () => {
         tokens: [
           {
             owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-            since: 1683565041531,
           },
           {
             owner: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
-            since: 1683565041531,
           },
         ],
       },
@@ -415,12 +326,10 @@ describe('CreateCustomTokenPoolOperation', () => {
         {
           id: '1',
           owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-          since: 1683565041531,
         },
         {
           id: '2',
           owner: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',
-          since: 1683565041531,
         },
       ],
     });

@@ -14,12 +14,10 @@ import { Pool } from '../../app-types';
 export function anAllowlistItemToken(params?: {
   id?: string;
   owner?: string;
-  since?: number;
 }): AllowlistItemToken {
   return {
     id: params?.id ?? aTokenOwnership().id,
     owner: params?.owner ?? aTokenOwnership().owner,
-    since: params?.since ?? aTokenOwnership().since,
   };
 }
 
@@ -150,22 +148,18 @@ export const aTokenOwnership: (param?: {
   id?: string;
   contract?: string;
   owner?: string;
-  since?: number;
 }) => TokenOwnership = (param) => ({
   id: param?.id ?? '10',
   contract: param?.contract ?? '0x33fd426905f149f8376e227d0c9d3340aad17af1',
   owner: param?.owner ?? '0x152afd373a91d0cb04132c80cf24d26f1e3fc0a9',
-  since: param?.since ?? 100,
 });
 
 export const aCustomTokenOwnership: (param?: {
   id?: string;
   owner?: string;
-  since?: number;
 }) => CustomTokenOwnership = (param) => ({
   id: param?.id ?? '10',
   owner: param?.owner ?? '0x152afd373a91d0cb04132c80cf24d26f1e3fc0a9',
-  since: param?.since ?? 100,
 });
 
 export const aTokenPool: (param?: {

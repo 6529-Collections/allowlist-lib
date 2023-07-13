@@ -1,19 +1,43 @@
 import { AllowlistState } from '../../state-types/allowlist-state';
-import { CreateTokenPoolRawOperation } from './create-token-pool-raw-operation';
-import { TokenPoolRawParams } from '../../state-types/token-pool';
-import * as fs from 'fs';
-import { Transfer } from '../../state-types/transfer';
+import { TokenPoolParams } from '../../state-types/token-pool';
 import {
   anAllowlistState,
   aTransferPool,
 } from '../../state-types/allowlist-state.test.fixture';
 import { defaultLogFactory } from '../../../logging/logging-emitter';
+import { AlchemyService } from '../../../services/alchemy.service';
+import { CollectionOwner } from '../../../services/collection-owner';
+import { CreateTokenPoolOperation } from './create-token-pool-operation';
+import { Alchemy } from 'alchemy-sdk';
 
-describe('CreateTokenPoolRawOperation', () => {
-  const op = new CreateTokenPoolRawOperation(defaultLogFactory);
+class MockAlchemyService extends AlchemyService {
+  async getCollectionOwnersInBlock({
+    contract,
+    block,
+  }: {
+    contract: string;
+    block?: number;
+  }): Promise<CollectionOwner[]> {
+    return [
+      {
+        ownerAddress: '0x123',
+        tokens: [
+          { tokenId: '1', balance: 1 },
+          { tokenId: '2', balance: 2 },
+        ],
+      },
+    ];
+  }
+}
+
+describe('CreateTokenPoolOperation', () => {
+  const op = new CreateTokenPoolOperation(
+    defaultLogFactory,
+    new MockAlchemyService(undefined as Alchemy),
+  );
 
   let state: AllowlistState;
-  let params: TokenPoolRawParams;
+  let params: TokenPoolParams;
 
   beforeEach(() => {
     state = anAllowlistState();
@@ -22,7 +46,8 @@ describe('CreateTokenPoolRawOperation', () => {
       name: 'tp 2',
       description: 'tp 2 description',
       tokenIds: '10,20-30,40',
-      transferPoolId: aTransferPool().id,
+      contract: '0x123',
+      blockNo: 123,
     };
   });
 
@@ -32,7 +57,8 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: '10,20-30,40',
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).toThrowError('Missing id');
   });
@@ -44,7 +70,8 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: '10,20-30,40',
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).toThrowError('Invalid id');
   });
@@ -56,7 +83,8 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: '10,20-30,40',
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).toThrowError('Invalid id');
   });
@@ -68,7 +96,8 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: 1,
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -80,7 +109,8 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: '',
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -92,7 +122,8 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: '1,2,3,x',
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -104,8 +135,9 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: null,
+        blockNo: 123,
       }),
-    ).toThrowError('Missing transferPoolId');
+    ).toThrowError('Missing contract');
   });
 
   it('throws if transferPoolId is not a string', () => {
@@ -115,9 +147,10 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: null,
-        transferPoolId: 1,
+        contract: 123,
+        blockNo: 123,
       }),
-    ).toThrowError('Invalid transferPoolId');
+    ).toThrowError('Invalid contract');
   });
 
   it('throws if transferPoolId is empty', () => {
@@ -127,9 +160,10 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: null,
-        transferPoolId: '',
+        contract: '',
+        blockNo: 123,
       }),
-    ).toThrowError('Invalid transferPoolId');
+    ).toThrowError('Invalid contract');
   });
 
   it('validates if tokenIds is null', () => {
@@ -139,7 +173,8 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: null,
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).not.toThrow();
   });
@@ -151,7 +186,8 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: undefined,
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).not.toThrow();
   });
@@ -163,87 +199,49 @@ describe('CreateTokenPoolRawOperation', () => {
         name: 'tp 2',
         description: 'tp 2 description',
         tokenIds: '1,2,3-5,6',
-        transferPoolId: aTransferPool().id,
+        contract: '0x123',
+        blockNo: 123,
       }),
     ).not.toThrow();
   });
 
-  it('throws error if token pool with given ID is missing', () => {
-    expect(() =>
-      op.execute({
-        params: { ...params, transferPoolId: '456' },
-        state,
-      }),
-    ).toThrow('CREATE_TOKEN_POOL: Transfer pool 456 not found');
-  });
-
-  it('parses 0 transactions and forms an empty token pool', () => {
-    state = anAllowlistState({
-      transferPools: [aTransferPool({ transfers: [] })],
+  it('creates a token pool ', async () => {
+    const state = anAllowlistState();
+    await op.execute({
+      params: {
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: '1,2,3-5,6',
+        contract: '0x123',
+        blockNo: 123,
+      },
+      state: state,
     });
-    op.execute({
-      params,
-      state,
+    expect(state.tokenPools['tp-2']).toStrictEqual({
+      blockNo: 123,
+      contract: '0x123',
+      description: 'tp 2 description',
+      id: 'tp-2',
+      name: 'tp 2',
+      tokenIds: '1,2,3-5,6',
+      tokens: [
+        {
+          contract: '0x123',
+          id: '1',
+          owner: '0x123',
+        },
+        {
+          contract: '0x123',
+          id: '2',
+          owner: '0x123',
+        },
+        {
+          contract: '0x123',
+          id: '2',
+          owner: '0x123',
+        },
+      ],
     });
-    expect(state.tokenPools['tp-2'].tokens).toEqual([]);
-  });
-
-  it('parses transactions and creates a state', () => {
-    const transfers = JSON.parse(
-      fs.readFileSync(
-        `mock-data/0x0c58ef43ff3032005e472cb5709f8908acb00205-small.json`,
-        'utf8',
-      ),
-    ).filter((transfer: Transfer) => transfer.blockNumber <= Infinity);
-    state = anAllowlistState({
-      transferPools: [aTransferPool({ transfers: transfers })],
-    });
-    const mockedParams = { ...params, tokenIds: '2-3,5' };
-    op.execute({
-      params: mockedParams,
-      state,
-    });
-    expect(state.tokenPools['tp-2'].tokens).toEqual([
-      {
-        id: '2',
-        owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      },
-      {
-        id: '3',
-        owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      },
-      {
-        id: '5',
-        owner: '0xfd22004806a6846ea67ad883356be810f0428794',
-        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      },
-      {
-        id: '5',
-        owner: '0xfd22004806a6846ea67ad883356be810f0428794',
-        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      },
-      {
-        id: '5',
-        owner: '0xfd22004806a6846ea67ad883356be810f0428794',
-        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      },
-      {
-        id: '5',
-        owner: '0xfd22004806a6846ea67ad883356be810f0428794',
-        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      },
-      {
-        id: '5',
-        owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      },
-      {
-        id: '5',
-        owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-        contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-      },
-    ]);
   });
 });

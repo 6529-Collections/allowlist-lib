@@ -1,9 +1,8 @@
-import { DescribableEntity } from '../../../allowlist/state-types/describable-entity';
+import { DescribableEntity } from '../../state-types/describable-entity';
 
 export interface CustomTokenPoolParamsToken {
   readonly owner: string;
   readonly id?: string;
-  readonly since?: number;
 }
 
 export interface CustomTokenPoolParams extends DescribableEntity {

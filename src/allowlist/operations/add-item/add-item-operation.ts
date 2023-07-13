@@ -29,7 +29,6 @@ export class AddItemOperation implements AllowlistOperationExecutor {
         return state.tokenPools[poolId].tokens.map((token) => ({
           id: token.id,
           owner: token.owner,
-          since: token.since,
         }));
       case Pool.CUSTOM_TOKEN_POOL:
         if (!state.customTokenPools[poolId]) {
@@ -40,7 +39,6 @@ export class AddItemOperation implements AllowlistOperationExecutor {
         return state.customTokenPools[poolId].tokens.map((token) => ({
           id: token.id,
           owner: token.owner,
-          since: token.since,
         }));
       case Pool.WALLET_POOL:
         throw new BadInputError(

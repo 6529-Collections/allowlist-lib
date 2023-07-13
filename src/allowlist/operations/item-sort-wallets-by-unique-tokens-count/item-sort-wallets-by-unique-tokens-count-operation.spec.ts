@@ -82,32 +82,26 @@ describe('ItemSortWalletsByUniqueTokensCountOperation', () => {
       {
         id: '1',
         owner: '0xc3c9737cce778d7583f31ae7c4f2ab8782ed51e5',
-        since: 1627987200,
       },
       {
         id: '2',
         owner: '0xc3c9737cce778d7583f31ae7c4f2ab8782ed51e5',
-        since: 1627987200,
       },
       {
         id: '1',
         owner: '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
-        since: 1627987200,
       },
       {
         id: '1',
         owner: '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
-        since: 1627987200,
       },
       {
         id: '1',
         owner: '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
-        since: 1627987200,
       },
       {
         id: '1',
         owner: '0xfd22004806a6846ea67ad883356be810f0428793',
-        since: 1627987200,
       },
     ]);
   });

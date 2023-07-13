@@ -1,20 +1,27 @@
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { AllowlistState } from '../../state-types/allowlist-state';
-import { TokenPoolRawParams } from '../../state-types/token-pool';
+import {
+  TokenPoolParams,
+  TokenPoolRawParams,
+} from '../../state-types/token-pool';
 import { BadInputError } from '../../bad-input.error';
-import { TokenOwnership } from '../../state-types/token-ownership';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { isValidTokenIds, parseTokenIds } from '../../../utils/app.utils';
 import { AllowlistOperationCode } from '../../allowlist-operation-code';
+import { AlchemyService } from '../../../services/alchemy.service';
+import { CollectionOwner } from '../../../services/collection-owner';
 
-export class CreateTokenPoolRawOperation implements AllowlistOperationExecutor {
+export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   private logger: Logger;
 
-  constructor(loggerFactory: LoggerFactory) {
-    this.logger = loggerFactory.create(CreateTokenPoolRawOperation.name);
+  constructor(
+    loggerFactory: LoggerFactory,
+    private readonly alchemyService: AlchemyService,
+  ) {
+    this.logger = loggerFactory.create(CreateTokenPoolOperation.name);
   }
 
-  validate(params: any): params is TokenPoolRawParams {
+  validate(params: any): params is TokenPoolParams {
     if (!params.hasOwnProperty('id')) {
       throw new BadInputError('Missing id');
     }
@@ -27,16 +34,32 @@ export class CreateTokenPoolRawOperation implements AllowlistOperationExecutor {
       throw new BadInputError('Invalid id');
     }
 
-    if (!params.hasOwnProperty('transferPoolId')) {
-      throw new BadInputError('Missing transferPoolId');
+    if (!params.hasOwnProperty('contract')) {
+      throw new BadInputError('Missing contract');
     }
 
-    if (typeof params.transferPoolId !== 'string') {
-      throw new BadInputError('Invalid transferPoolId');
+    if (typeof params.contract !== 'string') {
+      throw new BadInputError('Invalid contract');
     }
 
-    if (!params.transferPoolId.length) {
-      throw new BadInputError('Invalid transferPoolId');
+    if (!params.contract.length) {
+      throw new BadInputError('Invalid contract');
+    }
+
+    if (!params.hasOwnProperty('contract')) {
+      throw new BadInputError('Missing contract');
+    }
+
+    if (params.blockNo === undefined || params.blockNo === null) {
+      throw new BadInputError('Invalid blockNo');
+    }
+
+    if (typeof params.blockNo !== 'number') {
+      throw new BadInputError('Invalid blockNo');
+    }
+
+    if (params.blockNo < 0) {
+      throw new BadInputError('Invalid blockNo');
     }
 
     if (
@@ -63,70 +86,46 @@ export class CreateTokenPoolRawOperation implements AllowlistOperationExecutor {
     return true;
   }
 
-  execute({
+  async execute({
     params,
     state,
   }: {
-    params: TokenPoolRawParams;
+    params: TokenPoolParams;
     state: AllowlistState;
   }) {
     if (!this.validate(params)) {
       throw new BadInputError('Invalid params');
     }
-    const { id, transferPoolId, tokenIds } = params;
-    const transferPool = state.transferPools[transferPoolId];
-    if (!transferPool) {
-      throw new BadInputError(
-        `CREATE_TOKEN_POOL: Transfer pool ${transferPoolId} not found, poolId: ${id}`,
-      );
-    }
+    const { id, contract, tokenIds, blockNo } = params;
     const parsedTokenIds = parseTokenIds(
       tokenIds,
       id,
       AllowlistOperationCode.CREATE_TOKEN_POOL,
     );
-    const contract = transferPool.contract;
-
-    const tokenToOwningWallets = transferPool.transfers.reduce(
-      (acc, transfer) => {
-        if (
-          parsedTokenIds === null ||
-          parsedTokenIds.includes(transfer.tokenID)
-        ) {
-          if (!acc[transfer.tokenID]) {
-            acc[transfer.tokenID] = [];
-          }
-          const amount = transfer.amount;
-          for (let i = 0; i < amount; i++) {
-            acc[transfer.tokenID].push({
-              wallet: transfer.to,
-            });
-          }
-          let amountLeft = amount;
-          for (let i = acc[transfer.tokenID].length - 1; i >= 0; i--) {
-            const owner = acc[transfer.tokenID][i];
-            if (owner.wallet === transfer.from) {
-              acc[transfer.tokenID].splice(i, 1);
-              amountLeft--;
-              if (amountLeft === 0) {
-                break;
-              }
-            }
-          }
-        }
-        return acc;
-      },
-      {} as Record<string, { wallet: string }[]>,
-    );
-    const tokenOwnerships: TokenOwnership[] = Object.entries(
-      tokenToOwningWallets,
-    ).flatMap(([tokenId, tokenOwnerships]) =>
-      tokenOwnerships.map(({ wallet }) => ({
-        id: tokenId,
-        owner: wallet,
+    const collectionOwners =
+      await this.alchemyService.getCollectionOwnersInBlock({
         contract,
-      })),
-    );
+        block: blockNo,
+      });
+    const tokenOwnerships = collectionOwners
+      .map<CollectionOwner>((owner) => ({
+        ...owner,
+        tokens: owner.tokens.filter(
+          (token) =>
+            !tokenIds?.length || parsedTokenIds.includes(token.tokenId),
+        ),
+      }))
+      .filter((owner) => owner.tokens.length > 0)
+      .map((owner) =>
+        owner.tokens.map((token) =>
+          Array.from({ length: token.balance }, () => ({
+            id: token.tokenId,
+            owner: owner.ownerAddress,
+            contract,
+          })),
+        ),
+      )
+      .flat(2);
     state.tokenPools[id] = { ...params, tokens: tokenOwnerships };
     this.logger.info(`Tokenpool ${id} created`);
   }

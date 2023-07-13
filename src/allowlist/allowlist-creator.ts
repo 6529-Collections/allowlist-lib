@@ -15,7 +15,7 @@ import { EtherscanService } from '../services/etherscan.service';
 import { TransfersService } from '../services/transfers.service';
 import { CreateAllowlistOperation } from './operations/create-allowlist/create-allowlist-operation';
 import { GetCollectionTransfersOperation } from './operations/get-collection-transfers/get-collection-transfers-operation';
-import { CreateTokenPoolOperation } from './operations/create-token-pool/create-token-pool-operation';
+import { CreateTokenPoolRawOperation } from './operations/create-token-pool/create-token-pool-raw-operation';
 import { AddPhaseOperation } from './operations/add-phase/add-phase-operation';
 import { AddComponentOperation } from './operations/add-component/add-component-operation';
 import { AddItemOperation } from './operations/add-item/add-item-operation';
@@ -46,7 +46,8 @@ import { ComponentSelectRandomWalletsOperation } from './operations/component-se
 import { ItemSortWalletsByMemesTdhOperation } from './operations/item-sort-wallets-by-memes-tdh/item-sort-wallets-by-memes-tdh-operation';
 import { TransferPoolConsolidateWalletsOperation } from './operations/transfer-pool-consolidate-wallets/transfer-pool-consolidate-wallets-operation';
 import { AlchemyService } from '../services/alchemy.service';
-import { Network } from 'alchemy-sdk';
+import { Alchemy, Network } from 'alchemy-sdk';
+import { CreateTokenPoolOperation } from './operations/create-token-pool/create-token-pool-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -74,7 +75,8 @@ export class AllowlistCreator {
    * ```
    *
    * @param etherscanApiKey The API key for Etherscan.
-   * @param alchemyApiKey The API key for Alchemy.
+   * @param alchemyApiKey The API key for Alchemy. This is only mandatory if you won't provide Alchemy SDK instance via property `alchemy`.
+   * @param alchemy Alchemy SDK instance. This is only mandatory if you won't provide Alchemy API key via property `alchemyApiKey`.
    * @param seizeApiPath Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
    * @param seizeApiKey Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
    * @param storage The storage implementations to use.
@@ -87,17 +89,24 @@ export class AllowlistCreator {
     seizeApiKey,
     etherscanApiKey,
     alchemyApiKey,
+    alchemy,
     storage,
     loggerFactory,
     onBeforeOperation,
     onAfterOperation,
   }: AllowlistCreatorConfig): AllowlistCreator {
-    const alchemy = new AlchemyService({
-      apiKey: alchemyApiKey,
-      network: Network.ETH_MAINNET,
-      maxRetries: 5,
-      batchRequests: false,
-    });
+    if (!alchemyApiKey && !alchemy) {
+      throw new Error(
+        'You must provide either an Alchemy API key or an Alchemy instance.',
+      );
+    }
+    const alchemyInstance =
+      alchemy ||
+      new Alchemy({
+        apiKey: alchemyApiKey,
+        network: Network.ETH_MAINNET,
+      });
+    const alchemyService = new AlchemyService(alchemyInstance);
     const loggerFactoryImpl = loggerFactory || defaultLogFactory;
     const http = new Http(loggerFactoryImpl);
     const seizeApi = new SeizeApi(http, seizeApiPath, seizeApiKey);
@@ -123,7 +132,11 @@ export class AllowlistCreator {
         loggerFactoryImpl,
       ),
 
-      CREATE_TOKEN_POOL: new CreateTokenPoolOperation(loggerFactoryImpl),
+      CREATE_TOKEN_POOL: new CreateTokenPoolOperation(
+        loggerFactoryImpl,
+        alchemyService,
+      ),
+      CREATE_TOKEN_POOL_RAW: new CreateTokenPoolRawOperation(loggerFactoryImpl),
       CREATE_CUSTOM_TOKEN_POOL: new CreateCustomTokenPoolOperation(),
       CREATE_WALLET_POOL: new CreateWalletPoolOperation(loggerFactoryImpl),
 

@@ -2,6 +2,7 @@ import { TransfersStorage } from '../services/transfers.storage';
 import { JsonFilesTransfersStorage } from '../services/json-files-transfers-storage';
 import { LoggerFactory } from '../logging/logging-emitter';
 import { AllowlistOperation } from './allowlist-operation';
+import { Alchemy } from 'alchemy-sdk';
 
 export interface StorageImplementations {
   readonly transfersStorage: TransfersStorage;
@@ -9,7 +10,8 @@ export interface StorageImplementations {
 
 export interface AllowlistCreatorConfig {
   readonly etherscanApiKey: string;
-  readonly alchemyApiKey: string;
+  readonly alchemyApiKey?: string;
+  readonly alchemy?: Alchemy;
   readonly seizeApiPath: string;
   readonly seizeApiKey?: string;
   readonly storage?: StorageImplementations;

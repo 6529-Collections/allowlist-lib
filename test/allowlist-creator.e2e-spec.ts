@@ -17,21 +17,19 @@ describe('AllowlistCreator e2e tests', () => {
     }
     allowlistCreator = AllowlistCreator.getInstance({
       etherscanApiKey: etherscanApiKey,
-      alchemyApiKey: alchemyApiKey,
+      alchemyApiKey: process.env.ALCHEMY_API_KEY,
       seizeApiPath: 'https://api.seize.io/api',
       seizeApiKey: process.env.SEIZE_API_KEY,
-      onAfterOperation: (operation: AllowlistOperation) => {
-        // console.log('after', operation);
+      onAfterOperation: () => {
         return;
       },
-      onBeforeOperation: (operation: AllowlistOperation) => {
-        // console.log('before', operation);
+      onBeforeOperation: () => {
         return;
       },
     });
   });
 
-  it.skip(
+  it(
     'works',
     async () => {
       const operations: AllowlistOperation[] = [
@@ -44,52 +42,13 @@ describe('AllowlistCreator e2e tests', () => {
           },
         },
         {
-          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
-          params: {
-            id: 'transfer-pool-1',
-            name: 'The memes',
-            description: 'Transfers of the memes',
-            contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-            blockNo: 17185669,
-          },
-        },
-        {
-          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
-          params: {
-            id: 'transfer-pool-2',
-            name: 'Gradient',
-            description: 'Transfers of the gradient',
-            contract: '0x0c58ef43ff3032005e472cb5709f8908acb00205',
-            blockNo: 17185669,
-          },
-        },
-        {
-          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
-          params: {
-            id: 'transfer-pool-3',
-            name: 'raw',
-            description: 'Transfers of the raw',
-            contract: '0x07e24ee32163da59297b5341bef8f8a2eead271e',
-            blockNo: 17185669,
-          },
-        },
-        {
-          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
-          params: {
-            id: 'transfer-pool-4',
-            name: 'Foundation',
-            description: 'Foundation',
-            contract: '0x3b3ee1931dc30c1957379fac9aba94d1c48a5405',
-            blockNo: 17185669,
-          },
-        },
-        {
           code: AllowlistOperationCode.CREATE_TOKEN_POOL,
           params: {
             id: 'token-pool-1',
             name: '6529 Meme Cards 1 to 94',
             description: 'Meme Cards 1 to 94',
-            transferPoolId: 'transfer-pool-1',
+            contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+            blockNo: 17185669,
             tokenIds: '1-94',
           },
         },
@@ -99,7 +58,8 @@ describe('AllowlistCreator e2e tests', () => {
             id: 'token-pool-2',
             name: 'Gradient',
             description: 'Gradient Cards',
-            transferPoolId: 'transfer-pool-2',
+            contract: '0x0c58ef43ff3032005e472cb5709f8908acb00205',
+            blockNo: 17185669,
           },
         },
         {
@@ -108,7 +68,8 @@ describe('AllowlistCreator e2e tests', () => {
             id: 'token-pool-3',
             name: 'raw',
             description: 'raw Cards',
-            transferPoolId: 'transfer-pool-3',
+            contract: '0x07e24ee32163da59297b5341bef8f8a2eead271e',
+            blockNo: 17185669,
           },
         },
         {
@@ -118,7 +79,8 @@ describe('AllowlistCreator e2e tests', () => {
             name: '65291/1s',
             description: '65291/1s',
             tokenIds: '113532',
-            transferPoolId: 'transfer-pool-4',
+            contract: '0x3b3ee1931dc30c1957379fac9aba94d1c48a5405',
+            blockNo: 17185669,
           },
         },
         {
@@ -246,30 +208,14 @@ describe('AllowlistCreator e2e tests', () => {
           },
         },
         {
-          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
-          params: {
-            id: 'transfer-pool-1',
-            name: 'The memes',
-            description: 'Transfers of the memes',
-            contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-            blockNo: 17684111,
-          },
-        },
-        {
-          code: AllowlistOperationCode.TRANSFER_POOL_CONSOLIDATE_WALLETS,
-          params: {
-            transferPoolId: 'transfer-pool-1',
-            consolidationBlockNumber: 17684111,
-          },
-        },
-        {
           code: AllowlistOperationCode.CREATE_TOKEN_POOL,
           params: {
             id: 'token-pool-1',
             name: '6529 Meme Cards 1 to 94',
             description: 'Meme Cards 1 to 94',
-            transferPoolId: 'transfer-pool-1',
             tokenIds: '1-94',
+            contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
+            blockNo: 17684111,
           },
         },
         {
@@ -305,6 +251,13 @@ describe('AllowlistCreator e2e tests', () => {
           params: {
             itemId: 'item-1',
             tdhBlockNumber: 17684111,
+          },
+        },
+        {
+          code: AllowlistOperationCode.COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS,
+          params: {
+            componentId: 'component-1',
+            spots: 1,
           },
         },
       ];

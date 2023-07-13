@@ -1,4 +1,4 @@
 export interface CollectionOwner {
   readonly ownerAddress: string;
-  readonly tokens: { tokenId: number; balance: number }[];
+  readonly tokens: { tokenId: string; balance: number }[];
 }

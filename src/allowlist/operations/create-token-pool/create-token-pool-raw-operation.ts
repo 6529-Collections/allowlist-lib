@@ -1,20 +1,20 @@
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { AllowlistState } from '../../state-types/allowlist-state';
-import { TokenPoolParams } from '../../state-types/token-pool';
+import { TokenPoolRawParams } from '../../state-types/token-pool';
 import { BadInputError } from '../../bad-input.error';
 import { TokenOwnership } from '../../state-types/token-ownership';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { isValidTokenIds, parseTokenIds } from '../../../utils/app.utils';
 import { AllowlistOperationCode } from '../../allowlist-operation-code';
 
-export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
+export class CreateTokenPoolRawOperation implements AllowlistOperationExecutor {
   private logger: Logger;
 
   constructor(loggerFactory: LoggerFactory) {
-    this.logger = loggerFactory.create(CreateTokenPoolOperation.name);
+    this.logger = loggerFactory.create(CreateTokenPoolRawOperation.name);
   }
 
-  validate(params: any): params is TokenPoolParams {
+  validate(params: any): params is TokenPoolRawParams {
     if (!params.hasOwnProperty('id')) {
       throw new BadInputError('Missing id');
     }
@@ -67,7 +67,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     params,
     state,
   }: {
-    params: TokenPoolParams;
+    params: TokenPoolRawParams;
     state: AllowlistState;
   }) {
     if (!this.validate(params)) {

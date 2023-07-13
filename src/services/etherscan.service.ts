@@ -12,12 +12,14 @@ import {
 } from '../allowlist/state-types/transfer';
 import { assertUnreachable } from '../utils/app.utils';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
+import { TransfersStorage } from './transfers.storage';
 
 export class EtherscanService {
   private readonly logger: Logger;
 
   constructor(
     private readonly config: { apiKey: string },
+    private readonly transfersStorage: TransfersStorage,
     loggerFactory: LoggerFactory,
   ) {
     this.logger = loggerFactory.create(EtherscanService.name);
@@ -350,6 +352,7 @@ export class EtherscanService {
     let latestUniqueKey = '';
     const uniqueKeys = new Set<string>();
     const transfers: Transfer[] = [];
+    let savedToBlock = +startingBlock;
     while (true) {
       const logs = await this.getEtherscanLogsRaw({
         contractAddress,
@@ -394,13 +397,35 @@ export class EtherscanService {
           latestUniqueKey = thisUniqueKey;
         }
         fromBlock = parseInt(logs.result.at(-1).blockNumber, 16);
+        const transfersToSave = sortAndLowercaseTransfers(
+          transfers.filter(
+            (transfer) =>
+              transfer.blockNumber > savedToBlock &&
+              transfer.blockNumber <= fromBlock - 1,
+          ),
+        );
+        savedToBlock = transfersToSave.at(-1)?.blockNumber || savedToBlock;
+        await this.transfersStorage.saveContractTransfers(
+          contractAddress,
+          transfersToSave,
+        );
         this.logger.info(
-          `Reached block ${fromBlock} with contract ${contractAddress}`,
+          `Reached block ${fromBlock} with contract ${contractAddress}. Saved ${transfersToSave.length} transfers.`,
         );
       } else {
         throw new BadInputError(logs);
       }
     }
+    const transfersToSave = sortAndLowercaseTransfers(
+      transfers.filter((transfer) => transfer.blockNumber > savedToBlock),
+    );
+    await this.transfersStorage.saveContractTransfers(
+      contractAddress,
+      transfersToSave,
+    );
+    this.logger.info(
+      `Reached block ${fromBlock} with contract ${contractAddress}. Saved ${transfersToSave.length} transfers.`,
+    );
     return transfers;
   }
 

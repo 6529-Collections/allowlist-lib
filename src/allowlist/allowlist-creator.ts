@@ -91,13 +91,14 @@ export class AllowlistCreator {
     const loggerFactoryImpl = loggerFactory || defaultLogFactory;
     const http = new Http(loggerFactoryImpl);
     const seizeApi = new SeizeApi(http, seizeApiPath, seizeApiKey);
-    const etherscanService = new EtherscanService(
-      { apiKey: etherscanApiKey },
-      loggerFactoryImpl,
-    );
     const storageImpls =
       storage ||
       new LocalFileSystemStorageImplementations({}, loggerFactoryImpl);
+    const etherscanService = new EtherscanService(
+      { apiKey: etherscanApiKey },
+      storageImpls.transfersStorage,
+      loggerFactoryImpl,
+    );
     const transfersService = new TransfersService(
       storageImpls.transfersStorage,
       etherscanService,

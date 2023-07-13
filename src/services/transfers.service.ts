@@ -52,10 +52,9 @@ export class TransfersService {
       toBlock: blockNo,
     });
     this.logger.info(
-      `${newTransfers.length} transactions for ${contract} downloaded from Etherscan. Saving those...`,
+      `${newTransfers.length} transactions for ${contract} downloaded from Etherscan.`,
     );
 
-    await this.transfersStorage.saveContractTransfers(contract, newTransfers);
     const allTransfers = sortAndLowercaseTransfers([
       ...savedTransfers,
       ...newTransfers,

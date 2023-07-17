@@ -48,6 +48,7 @@ import { TransferPoolConsolidateWalletsOperation } from './operations/transfer-p
 import { AlchemyService } from '../services/alchemy.service';
 import { Alchemy, Network } from 'alchemy-sdk';
 import { CreateTokenPoolOperation } from './operations/create-token-pool/create-token-pool-operation';
+import { ComponentSelectRandomPercentageWalletsOperation } from './operations/component-select-random-percentage-wallets/component-select-random-percentage-wallets-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -191,6 +192,7 @@ export class AllowlistCreator {
           seizeApi,
           loggerFactoryImpl,
         ),
+      COMPONENT_SELECT_RANDOM_PERCENTAGE_WALLETS: new ComponentSelectRandomPercentageWalletsOperation(loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

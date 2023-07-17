@@ -96,29 +96,6 @@ export class TransferPoolConsolidateWalletsOperation
         !consolidationsMap.hasOwnProperty(transfer.from),
     );
 
-    // console.log(
-    //   JSON.stringify(
-    //     sortAndLowercaseTransfers([
-    //       ...x
-    //         .filter(
-    //           (transfer) =>
-    //             ![transfer.to, transfer.from].includes(
-    //               '0x0000000000000000000000000000000000000000',
-    //             ),
-    //         )
-    //         .slice(0, 10),
-    //       ...y
-    //         .filter(
-    //           (transfer) =>
-    //             ![transfer.to, transfer.from].includes(
-    //               '0x0000000000000000000000000000000000000000',
-    //             ),
-    //         )
-    //         .slice(0, 10),
-    //     ]),
-    //   ),
-    // );
-
     state.transferPools[params.transferPoolId].transfers = state.transferPools[
       params.transferPoolId
     ].transfers.map((transfer) => ({

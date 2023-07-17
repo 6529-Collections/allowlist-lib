@@ -978,7 +978,6 @@ export const anAllowlistRandomMemes100Tokens = (): AllowlistItemToken[] => [
   },
 ];
 
-
 export const anAllowlistLargeTransfers = (): Transfer[] => [
   {
     contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',

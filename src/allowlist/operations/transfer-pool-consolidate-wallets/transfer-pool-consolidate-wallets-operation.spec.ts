@@ -98,9 +98,6 @@ describe('TransferPoolConsolidateWalletsOperation', () => {
 
   it('consolidates wallets', async () => {
     await op.execute({ params, state });
-    console.log(
-      JSON.stringify(state.transferPools[params.transferPoolId].transfers),
-    );
     expect(state.transferPools[params.transferPoolId].transfers).toEqual(
       anAllowlistLargeTransfers(),
     );

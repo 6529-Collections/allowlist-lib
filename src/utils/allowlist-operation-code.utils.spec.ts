@@ -125,6 +125,7 @@ describe('AllowlistOperationCodeUtils', () => {
       AllowlistOperationCode.COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS,
       AllowlistOperationCode.COMPONENT_ADD_SPOTS_TO_WALLETS_EXCLUDING_CERTAIN_COMPONENTS,
       AllowlistOperationCode.COMPONENT_SELECT_RANDOM_WALLETS,
+      AllowlistOperationCode.COMPONENT_SELECT_RANDOM_PERCENTAGE_WALLETS,
     ]);
 
     opertatinTypesToCheck = opertatinTypesToCheck.filter(

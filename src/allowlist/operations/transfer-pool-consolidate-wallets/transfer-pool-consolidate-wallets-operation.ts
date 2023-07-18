@@ -4,10 +4,6 @@ import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { SeizeApi } from '../../../services/seize/seize.api';
-import {
-  Transfer,
-  sortAndLowercaseTransfers,
-} from '../../state-types/transfer';
 
 export class TransferPoolConsolidateWalletsOperation
   implements AllowlistOperationExecutor
@@ -83,17 +79,6 @@ export class TransferPoolConsolidateWalletsOperation
         return acc;
       },
       {},
-    );
-
-    const x = state.transferPools[params.transferPoolId].transfers.filter(
-      (transfer) =>
-        consolidationsMap.hasOwnProperty(transfer.to) ||
-        consolidationsMap.hasOwnProperty(transfer.from),
-    );
-    const y = state.transferPools[params.transferPoolId].transfers.filter(
-      (transfer) =>
-        !consolidationsMap.hasOwnProperty(transfer.to) &&
-        !consolidationsMap.hasOwnProperty(transfer.from),
     );
 
     state.transferPools[params.transferPoolId].transfers = state.transferPools[

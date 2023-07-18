@@ -50,7 +50,9 @@ describe('AllowlistOperationCodeUtils', () => {
   });
 
   it('should return correct codes for TOKEN_POOL', () => {
-    expect(getCodesForType(AllowlistOperationType.TOKEN_POOL)).toEqual([]);
+    expect(getCodesForType(AllowlistOperationType.TOKEN_POOL)).toEqual([
+      AllowlistOperationCode.TOKEN_POOL_CONSOLIDATE_WALLETS,
+    ]);
     opertatinTypesToCheck = opertatinTypesToCheck.filter(
       (t) => t !== AllowlistOperationType.TOKEN_POOL,
     );

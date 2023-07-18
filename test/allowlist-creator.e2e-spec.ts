@@ -49,7 +49,14 @@ describe('AllowlistCreator e2e tests', () => {
             description: 'Meme Cards 1 to 94',
             tokenIds: '1-94',
             contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
-            blockNo: 17684111,
+            blockNo: 17719473,
+          },
+        },
+        {
+          code: AllowlistOperationCode.TOKEN_POOL_CONSOLIDATE_WALLETS,
+          params: {
+            tokenPoolId: 'token-pool-1',
+            consolidationBlockNumber: 17719473,
           },
         },
         {

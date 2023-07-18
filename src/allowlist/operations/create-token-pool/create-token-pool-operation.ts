@@ -97,12 +97,13 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       id,
       AllowlistOperationCode.CREATE_TOKEN_POOL,
     );
-    const collectionOwners =
-      await this.alchemyService.getCollectionOwnersInBlock({
-        contract,
-        block: blockNo,
-      });
+
     try {
+      const collectionOwners =
+        await this.alchemyService.getCollectionOwnersInBlock({
+          contract,
+          block: blockNo,
+        });
       const tokenOwnerships = collectionOwners
         .map<CollectionOwner>((owner) => ({
           ...owner,

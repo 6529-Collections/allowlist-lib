@@ -152,7 +152,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       blockNo,
     });
     const tokenToOwningWallets = transfers.reduce((acc, transfer) => {
-      if (tokenIds === null || tokenIds.includes(transfer.tokenID)) {
+      if (!tokenIds || tokenIds.includes(transfer.tokenID)) {
         if (!acc[transfer.tokenID]) {
           acc[transfer.tokenID] = [];
         }

@@ -2,6 +2,7 @@ import { AllowlistCreator } from '../src/allowlist/allowlist-creator';
 import { AllowlistOperation } from '../src/allowlist/allowlist-operation';
 import { AllowlistOperationCode } from '../src/allowlist/allowlist-operation-code';
 import { Pool } from '../src/app-types';
+import axios from 'axios';
 
 describe('AllowlistCreator e2e tests', () => {
   let allowlistCreator: AllowlistCreator;
@@ -105,5 +106,40 @@ describe('AllowlistCreator e2e tests', () => {
       await allowlistCreator.execute(operations);
     },
     60 * 60 * 1000,
+  );
+
+  it.skip(
+    'should create allowlist',
+    async () => {
+      const contract = '0x495f947276749ce646f68ac8c248420045cb7b5e';
+      const finishBlock = 17720173;
+      let targetBlock = 13002230;
+      const baseUrl = 'https://allowlist-api.staging.seize.io';
+
+      // const allowlist = await axios.post(`${baseUrl}/allowlists`, {
+      //   name: 'MEME CARD 95 DISTRIBUTION',
+      //   description: 'Allowlist for meme card 95 distribution',
+      // });
+      // const allowlistId = allowlist.data.id;
+      const allowlistId = 'd4b159f4-4942-4cad-9964-01fc72debdbb';
+      const response = await axios.get(`${baseUrl}/allowlists/${allowlistId}`);
+      const activeRun = response.data.activeRun;
+      console.log({ activeRun });
+      // await axios.post(`${baseUrl}/allowlists/${allowlistId}/operations`, {
+      //   code: AllowlistOperationCode.CREATE_TOKEN_POOL,
+      //   params: {
+      //     id: 'token-pool-1',
+      //     name: 'Opensea',
+      //     description: 'Contract',
+      //     tokenIds: null,
+      //     contract,
+      //     blockNo: targetBlock,
+      //   },
+      // });
+      // await axios.post(`${baseUrl}/allowlists/${allowlistId}/runs`, {});
+      //  await axios.delete(`${baseUrl}/allowlists/${allowlistId}`);
+      targetBlock += 10000;
+    },
+    60 * 60 * 10000,
   );
 });

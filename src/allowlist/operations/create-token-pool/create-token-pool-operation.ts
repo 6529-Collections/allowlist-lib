@@ -151,31 +151,33 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       contract,
       blockNo,
     });
-    const tokenToOwningWallets = transfers.reduce((acc, transfer) => {
-      if (!tokenIds || tokenIds.includes(transfer.tokenID)) {
-        if (!acc[transfer.tokenID]) {
-          acc[transfer.tokenID] = [];
-        }
-        const amount = transfer.amount;
-        for (let i = 0; i < amount; i++) {
-          acc[transfer.tokenID].push({
-            wallet: transfer.to,
-          });
-        }
-        let amountLeft = amount;
-        for (let i = acc[transfer.tokenID].length - 1; i >= 0; i--) {
-          const owner = acc[transfer.tokenID][i];
-          if (owner.wallet === transfer.from) {
-            acc[transfer.tokenID].splice(i, 1);
-            amountLeft--;
-            if (amountLeft === 0) {
-              break;
+    const tokenToOwningWallets = transfers
+      .filter((transfer) => transfer.amount <= 1000000)
+      .reduce((acc, transfer) => {
+        if (tokenIds === null || tokenIds.includes(transfer.tokenID)) {
+          if (!acc[transfer.tokenID]) {
+            acc[transfer.tokenID] = [];
+          }
+          const amount = transfer.amount;
+          for (let i = 0; i < amount; i++) {
+            acc[transfer.tokenID].push({
+              wallet: transfer.to,
+            });
+          }
+          let amountLeft = amount;
+          for (let i = acc[transfer.tokenID].length - 1; i >= 0; i--) {
+            const owner = acc[transfer.tokenID][i];
+            if (owner.wallet === transfer.from) {
+              acc[transfer.tokenID].splice(i, 1);
+              amountLeft--;
+              if (amountLeft === 0) {
+                break;
+              }
             }
           }
         }
-      }
-      return acc;
-    }, {} as Record<string, { wallet: string }[]>);
+        return acc;
+      }, {} as Record<string, { wallet: string }[]>);
     const tokenOwnerships: TokenOwnership[] = Object.entries(
       tokenToOwningWallets,
     ).flatMap(([tokenId, tokenOwnerships]) =>

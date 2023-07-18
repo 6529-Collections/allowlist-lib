@@ -108,20 +108,20 @@ describe('AllowlistCreator e2e tests', () => {
     60 * 60 * 1000,
   );
 
-  it.skip(
+  it(
     'should create allowlist',
     async () => {
       const contract = '0x495f947276749ce646f68ac8c248420045cb7b5e';
       const finishBlock = 17720173;
       let targetBlock = 13002230;
-      const baseUrl = 'https://allowlist-api.staging.seize.io';
+      const baseUrl = 'http://localhost:3000';
 
       // const allowlist = await axios.post(`${baseUrl}/allowlists`, {
       //   name: 'MEME CARD 95 DISTRIBUTION',
       //   description: 'Allowlist for meme card 95 distribution',
       // });
       // const allowlistId = allowlist.data.id;
-      const allowlistId = 'd4b159f4-4942-4cad-9964-01fc72debdbb';
+      const allowlistId = '9054e345-6514-40a9-baab-ed210f0677b8';
       const response = await axios.get(`${baseUrl}/allowlists/${allowlistId}`);
       const activeRun = response.data.activeRun;
       console.log({ activeRun });
@@ -136,7 +136,7 @@ describe('AllowlistCreator e2e tests', () => {
       //     blockNo: targetBlock,
       //   },
       // });
-      // await axios.post(`${baseUrl}/allowlists/${allowlistId}/runs`, {});
+      await axios.post(`${baseUrl}/allowlists/${allowlistId}/runs`, {});
       //  await axios.delete(`${baseUrl}/allowlists/${allowlistId}`);
       targetBlock += 10000;
     },

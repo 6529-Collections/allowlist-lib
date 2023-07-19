@@ -113,7 +113,7 @@ describe('AllowlistCreator e2e tests', () => {
     async () => {
       const contract = '0x495f947276749ce646f68ac8c248420045cb7b5e';
       const finishBlock = 17720173;
-      let targetBlock = 16222230;
+      let targetBlock = 16822230;
       const baseUrl = 'https://allowlist-api.staging.seize.io';
       // c060ce6d-3a7f-4d94-aa11-4ef9088155d3
 

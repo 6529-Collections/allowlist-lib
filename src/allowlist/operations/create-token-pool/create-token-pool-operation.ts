@@ -9,6 +9,8 @@ import { AlchemyService } from '../../../services/alchemy.service';
 import { CollectionOwner } from '../../../services/collection-owner';
 import { TransfersService } from '../../../services/transfers.service';
 import { TokenOwnership } from '../../state-types/token-ownership';
+import { EtherscanService } from '../../../services/etherscan.service';
+import { ContractSchema } from '../../../app-types';
 
 export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   private logger: Logger;
@@ -17,6 +19,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     loggerFactory: LoggerFactory,
     private readonly alchemyService: AlchemyService,
     private readonly transfersService: TransfersService,
+    private readonly etherscan: EtherscanService,
   ) {
     this.logger = loggerFactory.create(CreateTokenPoolOperation.name);
   }
@@ -98,36 +101,17 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       AllowlistOperationCode.CREATE_TOKEN_POOL,
     );
 
-    try {
-      const collectionOwners =
-        await this.alchemyService.getCollectionOwnersInBlock({
-          contract,
-          block: blockNo,
-        });
-      const tokenOwnerships = collectionOwners
-        .map<CollectionOwner>((owner) => ({
-          ...owner,
-          tokens: owner.tokens.filter(
-            (token) =>
-              !tokenIds?.length || parsedTokenIds.includes(token.tokenId),
-          ),
-        }))
-        .filter((owner) => owner.tokens.length > 0)
-        .map((owner) =>
-          owner.tokens.map((token) =>
-            Array.from({ length: token.balance }, () => ({
-              id: token.tokenId,
-              owner: owner.ownerAddress,
-              contract,
-            })),
-          ),
-        )
-        .flat(2);
-      state.tokenPools[id] = { ...params, tokens: tokenOwnerships };
-    } catch (e) {
-      console.error(e);
-      this.logger.error(
-        `Error creating tokenpool ${id}: ${e.message}. Will fall back to transfer pool based token pool creation`,
+    const contractSchema = await this.etherscan.getContractSchema({
+      contractAddress: contract,
+    });
+
+    if (!contractSchema) {
+      throw new BadInputError('Invalid contract');
+    }
+
+    if (contractSchema === ContractSchema.ERC721Old) {
+      this.logger.info(
+        `Contract ${contract} is ERC721Old. Will fall back to transfer pool based token pool creation`,
       );
       await this.buildTokenPoolFromTransferPool({
         ...p,
@@ -136,7 +120,50 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       this.logger.info(
         `Managed to build tokenpool ${id} with transfer pool strategy`,
       );
+    } else {
+      try {
+        const collectionOwners =
+          await this.alchemyService.getCollectionOwnersInBlock({
+            contract,
+            block: blockNo,
+          });
+        const tokenOwnerships = collectionOwners
+          .map<CollectionOwner>((owner) => ({
+            ...owner,
+            tokens: owner.tokens.filter(
+              (token) =>
+                !tokenIds?.length || parsedTokenIds.includes(token.tokenId),
+            ),
+          }))
+          .filter((owner) => owner.tokens.length > 0)
+          .map((owner) =>
+            owner.tokens.map((token) =>
+              Array.from({ length: token.balance }, () => ({
+                id: token.tokenId,
+                owner: owner.ownerAddress,
+                contract,
+              })),
+            ),
+          )
+          .flat(2);
+        state.tokenPools[id] = { ...params, tokens: tokenOwnerships };
+      } catch (e) {
+        console.error(e);
+        this.logger.error(
+          `Error creating tokenpool ${id}: ${e.message}. Will fall back to transfer pool based token pool creation`,
+        );
+        await this.buildTokenPoolFromTransferPool({
+          ...p,
+          tokenIds: parsedTokenIds,
+        });
+        this.logger.info(
+          `Managed to build tokenpool ${id} with transfer pool strategy`,
+        );
+      }
     }
+
+    console.log(state.tokenPools[id]);
+
     this.logger.info(`Tokenpool ${id} created`);
   }
 

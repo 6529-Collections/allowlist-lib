@@ -75,7 +75,7 @@ export class ItemSortWalletsByUniqueTokensCountOperation
     }, {});
 
     state.phases[phaseId].components[componentId].items[itemId].tokens =
-      structuredClone(Object.values(wallets))
+      Object.values(wallets)
         .sort((a, d) => {
           if (d.uniqueTokens.size === a.uniqueTokens.size) {
             return d.tokens.length - a.tokens.length;

@@ -108,37 +108,55 @@ describe('AllowlistCreator e2e tests', () => {
     60 * 60 * 1000,
   );
 
-  it(
+  it.skip(
     'should create allowlist',
     async () => {
       const contract = '0x495f947276749ce646f68ac8c248420045cb7b5e';
       const finishBlock = 17720173;
-      let targetBlock = 13002230;
-      const baseUrl = 'http://localhost:3000';
+      let targetBlock = 16222230;
+      const baseUrl = 'https://allowlist-api.staging.seize.io';
+      // c060ce6d-3a7f-4d94-aa11-4ef9088155d3
 
-      // const allowlist = await axios.post(`${baseUrl}/allowlists`, {
-      //   name: 'MEME CARD 95 DISTRIBUTION',
-      //   description: 'Allowlist for meme card 95 distribution',
-      // });
-      // const allowlistId = allowlist.data.id;
-      const allowlistId = '9054e345-6514-40a9-baab-ed210f0677b8';
-      const response = await axios.get(`${baseUrl}/allowlists/${allowlistId}`);
-      const activeRun = response.data.activeRun;
-      console.log({ activeRun });
-      // await axios.post(`${baseUrl}/allowlists/${allowlistId}/operations`, {
-      //   code: AllowlistOperationCode.CREATE_TOKEN_POOL,
-      //   params: {
-      //     id: 'token-pool-1',
-      //     name: 'Opensea',
-      //     description: 'Contract',
-      //     tokenIds: null,
-      //     contract,
-      //     blockNo: targetBlock,
-      //   },
-      // });
-      await axios.post(`${baseUrl}/allowlists/${allowlistId}/runs`, {});
-      //  await axios.delete(`${baseUrl}/allowlists/${allowlistId}`);
-      targetBlock += 10000;
+      while (targetBlock < finishBlock) {
+        const startingTime = new Date().getTime();
+        const allowlist = await axios.post(`${baseUrl}/allowlists`, {
+          name: 'MEME CARD 95 DISTRIBUTION',
+          description: 'Allowlist for meme card 95 distribution',
+        });
+        const allowlistId = allowlist.data.id;
+        console.log({ allowlistId, targetBlock, startingTime });
+        await axios.post(`${baseUrl}/allowlists/${allowlistId}/operations`, {
+          code: AllowlistOperationCode.GET_COLLECTION_TRANSFERS,
+          params: {
+            id: 'transfer-pool-1',
+            name: 'random name',
+            description: 'random description',
+            contract,
+            blockNo: targetBlock,
+          },
+        });
+        await axios.post(`${baseUrl}/allowlists/${allowlistId}/runs`, {});
+        let runCompleted = false;
+        while (!runCompleted) {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          const response = await axios.get(
+            `${baseUrl}/allowlists/${allowlistId}`,
+          );
+          const activeRun = response.data.activeRun;
+          console.log({
+            activeRun,
+            allowlistId,
+            targetBlock,
+            timeDiff: Math.floor((new Date().getTime() - startingTime) / 1000),
+          });
+          if (activeRun?.status === 'COMPLETED') {
+            runCompleted = true;
+          }
+        }
+        await axios.delete(`${baseUrl}/allowlists/${allowlistId}`);
+        targetBlock += 100000;
+        await new Promise((resolve) => setTimeout(resolve, 240000));
+      }
     },
     60 * 60 * 10000,
   );

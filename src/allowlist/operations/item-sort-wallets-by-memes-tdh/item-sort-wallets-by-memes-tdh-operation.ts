@@ -72,9 +72,9 @@ export class ItemSortWalletsByMemesTdhOperation
       return acc;
     }, {});
 
-    const sortedByTdh = structuredClone(
-      state.phases[phaseId].components[componentId].items[itemId].tokens,
-    ).sort((a, d) => {
+    const sortedByTdh = state.phases[phaseId].components[componentId].items[
+      itemId
+    ].tokens.sort((a, d) => {
       const aTdh = tdhsMap[a.owner];
       const dTdh = tdhsMap[d.owner];
       if (!aTdh && !dTdh) {

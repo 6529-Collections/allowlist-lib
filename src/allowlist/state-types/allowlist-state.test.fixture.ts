@@ -210,7 +210,7 @@ export function anAllowlistState(params?: {
   transferPools?: TransferPool[];
   walletPools?: WalletPool[];
 }): AllowlistState {
-  return structuredClone({
+  return {
     allowlist: params?.allowlist || anAllowList(),
     tokenPools: (params?.tokenPools || [aTokenPool()]).reduce((acc, cur) => {
       acc[cur.id] = cur;
@@ -238,5 +238,5 @@ export function anAllowlistState(params?: {
       },
       {} as Record<string, TransferPool>,
     ),
-  });
+  };
 }

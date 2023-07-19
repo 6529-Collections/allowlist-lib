@@ -69,7 +69,7 @@ export class ItemSortWalletsByTotalTokensCountOperation
     }, {});
 
     state.phases[phaseId].components[componentId].items[itemId].tokens =
-      structuredClone(Object.values(wallets))
+      Object.values(wallets)
         .sort((a, d) => d.tokens.length - a.tokens.length)
         .flatMap((w) => w.tokens);
 

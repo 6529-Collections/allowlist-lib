@@ -7,6 +7,8 @@ import { CollectionOwner } from '../../../services/collection-owner';
 import { CreateTokenPoolOperation } from './create-token-pool-operation';
 import { Alchemy } from 'alchemy-sdk';
 import { TransfersService } from '../../../services/transfers.service';
+import { EtherscanService } from '../../../services/etherscan.service';
+import { ContractSchema } from '../../../app-types';
 
 class MockAlchemyService extends AlchemyService {
   async getCollectionOwnersInBlock({
@@ -33,6 +35,9 @@ describe('CreateTokenPoolOperation', () => {
     defaultLogFactory,
     new MockAlchemyService(undefined as Alchemy),
     undefined as TransfersService,
+    {
+      getContractSchema: jest.fn().mockResolvedValue(ContractSchema.ERC721),
+    } as any,
   );
 
   let state: AllowlistState;

@@ -1,3 +1,4 @@
+import { TokenOwnership } from '../allowlist/state-types/token-ownership';
 import { Transfer } from '../allowlist/state-types/transfer';
 
 export interface TransfersStorage {
@@ -7,4 +8,7 @@ export interface TransfersStorage {
     blockNo: number,
   ): Promise<Transfer[]>;
   saveContractTransfers(contract: string, transfers: Transfer[]): Promise<void>;
+  getTokenPoolTokenOwnerships(
+    tokenPoolId: string,
+  ): Promise<TokenOwnership[] | null>;
 }

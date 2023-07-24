@@ -174,6 +174,13 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   }) {
     const { params, state } = p;
     const { id, contract, tokenIds, blockNo } = params;
+    const savedTokens = await this.transfersService.getTokenPoolTokenOwnerships(
+      id,
+    );
+    if (savedTokens) {
+      state.tokenPools[id] = { ...params, tokens: savedTokens };
+      return;
+    }
     const transfers = await this.transfersService.getCollectionTransfers({
       contract,
       blockNo,

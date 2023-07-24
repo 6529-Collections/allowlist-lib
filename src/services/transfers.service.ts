@@ -5,6 +5,7 @@ import {
 import { EtherscanService } from './etherscan.service';
 import { TransfersStorage } from './transfers.storage';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
+import { TokenOwnership } from '../allowlist/state-types/token-ownership';
 
 export class TransfersService {
   private logger: Logger;
@@ -86,5 +87,11 @@ export class TransfersService {
     } catch (e) {
       return 0;
     }
+  }
+
+  async getTokenPoolTokenOwnerships(
+    tokenPoolId: string,
+  ): Promise<TokenOwnership[] | null> {
+    return await this.transfersStorage.getTokenPoolTokenOwnerships(tokenPoolId);
   }
 }

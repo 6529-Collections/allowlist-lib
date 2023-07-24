@@ -6,6 +6,7 @@ import {
 import * as fs from 'fs';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
 import { Time } from '../time';
+import { TokenOwnership } from '../allowlist/state-types/token-ownership';
 
 export class JsonFilesTransfersStorage implements TransfersStorage {
   private readonly logger: Logger;
@@ -71,5 +72,11 @@ export class JsonFilesTransfersStorage implements TransfersStorage {
       );
     }
     this.logger.debug(`saveContractTransfers took ${now.diffFromNow()}`);
+  }
+
+  async getTokenPoolTokenOwnerships(
+    tokenPoolId: string,
+  ): Promise<TokenOwnership[] | null> {
+    return null;
   }
 }

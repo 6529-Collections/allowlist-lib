@@ -3,9 +3,12 @@ import { JsonFilesTransfersStorage } from '../services/json-files-transfers-stor
 import { LoggerFactory } from '../logging/logging-emitter';
 import { AllowlistOperation } from './allowlist-operation';
 import { Alchemy } from 'alchemy-sdk';
+import { TokenPoolStorage } from '../services/token-pool.storage';
+import { JsonFilesTokenPoolStorage } from '../services/json-files-token-pool.storage';
 
 export interface StorageImplementations {
   readonly transfersStorage: TransfersStorage;
+  readonly tokenPoolStorage: TokenPoolStorage;
 }
 
 export interface AllowlistCreatorConfig {
@@ -30,6 +33,7 @@ export class LocalFileSystemStorageImplementations
   implements StorageImplementations
 {
   readonly transfersStorage: TransfersStorage;
+  readonly tokenPoolStorage: TokenPoolStorage;
 
   constructor(
     conf: { transferFilesFolder?: string },
@@ -41,5 +45,6 @@ export class LocalFileSystemStorageImplementations
       },
       loggerFactory,
     );
+    this.tokenPoolStorage = new JsonFilesTokenPoolStorage(loggerFactory);
   }
 }

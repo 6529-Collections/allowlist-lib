@@ -50,6 +50,7 @@ import { Alchemy, Network } from 'alchemy-sdk';
 import { CreateTokenPoolOperation } from './operations/create-token-pool/create-token-pool-operation';
 import { ComponentSelectRandomPercentageWalletsOperation } from './operations/component-select-random-percentage-wallets/component-select-random-percentage-wallets-operation';
 import { TokenPoolConsolidateWalletsOperation } from './operations/token-pool-consolidate-wallets/token-pool-consolidate-wallets-operation';
+import { TokenPoolService } from '../services/token-pool.service';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -124,6 +125,11 @@ export class AllowlistCreator {
       etherscanService,
       loggerFactoryImpl,
     );
+
+    const tokenPoolService = new TokenPoolService(
+      storageImpls.tokenPoolStorage,
+      loggerFactoryImpl,
+    );
     const opExecutors: Record<
       AllowlistOperationCode,
       AllowlistOperationExecutor
@@ -138,6 +144,7 @@ export class AllowlistCreator {
         loggerFactoryImpl,
         alchemyService,
         transfersService,
+        tokenPoolService,
         etherscanService,
       ),
       CREATE_TOKEN_POOL_RAW: new CreateTokenPoolRawOperation(loggerFactoryImpl),

@@ -11,6 +11,7 @@ import { TransfersService } from '../../../services/transfers.service';
 import { TokenOwnership } from '../../state-types/token-ownership';
 import { EtherscanService } from '../../../services/etherscan.service';
 import { ContractSchema } from '../../../app-types';
+import { TokenPoolService } from '../../../services/token-pool.service';
 
 export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   private logger: Logger;
@@ -19,6 +20,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     loggerFactory: LoggerFactory,
     private readonly alchemyService: AlchemyService,
     private readonly transfersService: TransfersService,
+    private readonly tokenPoolService: TokenPoolService,
     private readonly etherscan: EtherscanService,
   ) {
     this.logger = loggerFactory.create(CreateTokenPoolOperation.name);
@@ -95,62 +97,32 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       throw new BadInputError('Invalid params');
     }
     const { id, contract, tokenIds, blockNo } = params;
-    const parsedTokenIds = parseTokenIds(
-      tokenIds,
+    const savedTokenPoolTokens = await this.tokenPoolService.getTokenPoolTokens(
       id,
-      AllowlistOperationCode.CREATE_TOKEN_POOL,
     );
-
-    const contractSchema = await this.etherscan.getContractSchema({
-      contractAddress: contract,
-    });
-
-    if (!contractSchema) {
-      throw new BadInputError('Invalid contract');
-    }
-
-    if (contractSchema === ContractSchema.ERC721Old) {
+    if (savedTokenPoolTokens) {
+      state.tokenPools[id] = { ...params, tokens: savedTokenPoolTokens };
       this.logger.info(
-        `Contract ${contract} is ERC721Old. Will fall back to transfer pool based token pool creation`,
-      );
-      await this.buildTokenPoolFromTransferPool({
-        ...p,
-        tokenIds: parsedTokenIds,
-      });
-      this.logger.info(
-        `Managed to build tokenpool ${id} with transfer pool strategy`,
+        `Managed to build tokenpool ${id} with token pool tokens strategy`,
       );
     } else {
-      try {
-        const collectionOwners =
-          await this.alchemyService.getCollectionOwnersInBlock({
-            contract,
-            block: blockNo,
-          });
-        const tokenOwnerships = collectionOwners
-          .map<CollectionOwner>((owner) => ({
-            ...owner,
-            tokens: owner.tokens.filter(
-              (token) =>
-                !tokenIds?.length || parsedTokenIds.includes(token.tokenId),
-            ),
-          }))
-          .filter((owner) => owner.tokens.length > 0)
-          .map((owner) =>
-            owner.tokens.map((token) =>
-              Array.from({ length: token.balance }, () => ({
-                id: token.tokenId,
-                owner: owner.ownerAddress,
-                contract,
-              })),
-            ),
-          )
-          .flat(2);
-        state.tokenPools[id] = { ...params, tokens: tokenOwnerships };
-      } catch (e) {
-        console.error(e);
-        this.logger.error(
-          `Error creating tokenpool ${id}: ${e.message}. Will fall back to transfer pool based token pool creation`,
+      const parsedTokenIds = parseTokenIds(
+        tokenIds,
+        id,
+        AllowlistOperationCode.CREATE_TOKEN_POOL,
+      );
+
+      const contractSchema = await this.etherscan.getContractSchema({
+        contractAddress: contract,
+      });
+
+      if (!contractSchema) {
+        throw new BadInputError('Invalid contract');
+      }
+
+      if (contractSchema === ContractSchema.ERC721Old) {
+        this.logger.info(
+          `Contract ${contract} is ERC721Old. Will fall back to transfer pool based token pool creation`,
         );
         await this.buildTokenPoolFromTransferPool({
           ...p,
@@ -159,10 +131,48 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         this.logger.info(
           `Managed to build tokenpool ${id} with transfer pool strategy`,
         );
+      } else {
+        try {
+          const collectionOwners =
+            await this.alchemyService.getCollectionOwnersInBlock({
+              contract,
+              block: blockNo,
+            });
+          const tokenOwnerships = collectionOwners
+            .map<CollectionOwner>((owner) => ({
+              ...owner,
+              tokens: owner.tokens.filter(
+                (token) =>
+                  !tokenIds?.length || parsedTokenIds.includes(token.tokenId),
+              ),
+            }))
+            .filter((owner) => owner.tokens.length > 0)
+            .map((owner) =>
+              owner.tokens.map((token) =>
+                Array.from({ length: token.balance }, () => ({
+                  id: token.tokenId,
+                  owner: owner.ownerAddress,
+                  contract,
+                })),
+              ),
+            )
+            .flat(2);
+          state.tokenPools[id] = { ...params, tokens: tokenOwnerships };
+        } catch (e) {
+          console.error(e);
+          this.logger.error(
+            `Error creating tokenpool ${id}: ${e.message}. Will fall back to transfer pool based token pool creation`,
+          );
+          await this.buildTokenPoolFromTransferPool({
+            ...p,
+            tokenIds: parsedTokenIds,
+          });
+          this.logger.info(
+            `Managed to build tokenpool ${id} with transfer pool strategy`,
+          );
+        }
       }
     }
-
-    console.log(state.tokenPools[id]);
 
     this.logger.info(`Tokenpool ${id} created`);
   }
@@ -174,13 +184,6 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   }) {
     const { params, state } = p;
     const { id, contract, tokenIds, blockNo } = params;
-    const savedTokens = await this.transfersService.getTokenPoolTokenOwnerships(
-      id,
-    );
-    if (savedTokens) {
-      state.tokenPools[id] = { ...params, tokens: savedTokens };
-      return;
-    }
     const transfers = await this.transfersService.getCollectionTransfers({
       contract,
       blockNo,

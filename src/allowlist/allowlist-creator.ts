@@ -281,4 +281,12 @@ export class AllowlistCreator {
   }) {
     return this.operationExecutors[params.code].validate(params.params);
   }
+
+  public executeOperation(params: {
+    code: AllowlistOperationCode;
+    params: any;
+    state: AllowlistState;
+  }) {
+    return this.operationExecutors[params.code].execute(params);
+  }
 }

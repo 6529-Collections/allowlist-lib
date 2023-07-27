@@ -25,12 +25,20 @@ export class JsonFilesTransfersStorage implements TransfersStorage {
     }
   }
 
-  async getLatestTransferBlockNo(contract: string): Promise<number> {
+  async getLatestTransferBlockNo({
+    contract,
+    transferType,
+  }: {
+    contract: string;
+    transferType?: 'single' | 'batch';
+  }): Promise<number> {
     const now = Time.now();
     const transfers: Transfer[] = JSON.parse(
       fs.readFileSync(`${this.conf.rootFolder}${contract}.json`, 'utf8'),
     );
-    const latestTransfer = sortAndLowercaseTransfers(transfers).at(-1);
+    const latestTransfer = sortAndLowercaseTransfers(transfers)
+      .filter((t) => !transferType || t.transferType === transferType)
+      .at(-1);
     this.logger.debug(`getLatestTransferBlockNo took ${now.diffFromNow()}`);
     return latestTransfer?.blockNumber ?? 0;
   }

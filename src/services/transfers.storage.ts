@@ -1,7 +1,13 @@
 import { Transfer } from '../allowlist/state-types/transfer';
 
 export interface TransfersStorage {
-  getLatestTransferBlockNo(contract: string): Promise<number>;
+  getLatestTransferBlockNo({
+    contract,
+    transferType,
+  }: {
+    contract: string;
+    transferType?: 'single' | 'batch';
+  }): Promise<number>;
   getContractTransfersOrdered(
     contract: string,
     blockNo: number,

@@ -68,6 +68,7 @@ export class EtherscanService {
             amount: transfer.amount,
             transactionHash: transfer.transactionHash,
             transactionIndex: transfer.transactionIndex,
+            transferType: transferType,
           };
         });
         if (!convertedTransfers.length) {

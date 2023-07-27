@@ -9,6 +9,7 @@ export interface Transfer {
   readonly amount: number;
   readonly transactionHash: string;
   readonly transactionIndex: number;
+  readonly transferType?: 'single' | 'batch';
 }
 
 /**

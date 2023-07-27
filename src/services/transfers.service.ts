@@ -82,7 +82,7 @@ export class TransfersService {
     contract: string,
   ): Promise<number> {
     try {
-      return await this.transfersStorage.getLatestTransferBlockNo(contract);
+      return await this.transfersStorage.getLatestTransferBlockNo({ contract });
     } catch (e) {
       return 0;
     }

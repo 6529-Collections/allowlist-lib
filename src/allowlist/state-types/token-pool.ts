@@ -9,6 +9,7 @@ export interface TokenPoolRawParams extends DescribableEntity {
 export interface TokenPoolParams extends DescribableEntity {
   readonly contract: string;
   readonly blockNo: number;
+  readonly consolidateWallets: boolean;
   readonly tokenIds?: string;
 }
 

@@ -42,6 +42,9 @@ describe('CreateTokenPoolOperation', () => {
     {
       getContractSchema: jest.fn().mockResolvedValue(ContractSchema.ERC721),
     } as any,
+    {
+      getAllConsolidations: jest.fn().mockResolvedValue([]),
+    } as any,
   );
 
   let state: AllowlistState;
@@ -56,6 +59,7 @@ describe('CreateTokenPoolOperation', () => {
       tokenIds: '10,20-30,40',
       contract: '0x123',
       blockNo: 123,
+      consolidateWallets: false,
     };
   });
 
@@ -106,6 +110,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: 1,
         contract: '0x123',
         blockNo: 123,
+        consolidateWallets: false,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -119,6 +124,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: '',
         contract: '0x123',
         blockNo: 123,
+        consolidateWallets: false,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -132,6 +138,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: '1,2,3,x',
         contract: '0x123',
         blockNo: 123,
+        consolidateWallets: false,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -144,6 +151,7 @@ describe('CreateTokenPoolOperation', () => {
         description: 'tp 2 description',
         tokenIds: null,
         blockNo: 123,
+        consolidateWallets: false,
       }),
     ).toThrowError('Missing contract');
   });
@@ -174,6 +182,33 @@ describe('CreateTokenPoolOperation', () => {
     ).toThrowError('Invalid contract');
   });
 
+  it('throws if consolidateWallets is missing', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        contract: '0x123',
+        blockNo: 123,
+      }),
+    ).toThrowError('Missing consolidateWallets');
+  });
+
+  it('throws if consolidateWallets is not a boolean', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        contract: '0x123',
+        blockNo: 123,
+        consolidateWallets: 1,
+      }),
+    ).toThrowError('Invalid consolidateWallets');
+  });
+
   it('validates if tokenIds is null', () => {
     expect(() =>
       op.validate({
@@ -183,6 +218,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: null,
         contract: '0x123',
         blockNo: 123,
+        consolidateWallets: false,
       }),
     ).not.toThrow();
   });
@@ -196,6 +232,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: undefined,
         contract: '0x123',
         blockNo: 123,
+        consolidateWallets: false,
       }),
     ).not.toThrow();
   });
@@ -209,6 +246,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: '1,2,3-5,6',
         contract: '0x123',
         blockNo: 123,
+        consolidateWallets: false,
       }),
     ).not.toThrow();
   });
@@ -223,12 +261,11 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: '1,2,3-5,6',
         contract: '0x123',
         blockNo: 123,
+        consolidateWallets: false,
       },
       state: state,
     });
     expect(state.tokenPools['tp-2']).toStrictEqual({
-      blockNo: 123,
-      contract: '0x123',
       description: 'tp 2 description',
       id: 'tp-2',
       name: 'tp 2',

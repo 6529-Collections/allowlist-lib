@@ -146,6 +146,7 @@ export class AllowlistCreator {
         transfersService,
         tokenPoolService,
         etherscanService,
+        seizeApi,
       ),
       CREATE_TOKEN_POOL_RAW: new CreateTokenPoolRawOperation(loggerFactoryImpl),
       CREATE_CUSTOM_TOKEN_POOL: new CreateCustomTokenPoolOperation(),

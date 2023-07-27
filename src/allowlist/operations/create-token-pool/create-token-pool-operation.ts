@@ -12,6 +12,7 @@ import { TokenOwnership } from '../../state-types/token-ownership';
 import { EtherscanService } from '../../../services/etherscan.service';
 import { ContractSchema } from '../../../app-types';
 import { TokenPoolService } from '../../../services/token-pool.service';
+import { SeizeApi } from '../../../services/seize/seize.api';
 
 export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   private logger: Logger;
@@ -22,6 +23,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     private readonly transfersService: TransfersService,
     private readonly tokenPoolService: TokenPoolService,
     private readonly etherscan: EtherscanService,
+    private readonly seizeApi: SeizeApi,
   ) {
     this.logger = loggerFactory.create(CreateTokenPoolOperation.name);
   }
@@ -67,6 +69,18 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       throw new BadInputError('Invalid blockNo');
     }
 
+    if (params.blockNo % 1 !== 0) {
+      throw new BadInputError('Invalid blockNo');
+    }
+
+    if (!params.hasOwnProperty('consolidateWallets')) {
+      throw new BadInputError('Missing consolidateWallets');
+    }
+
+    if (typeof params.consolidateWallets !== 'boolean') {
+      throw new BadInputError('Invalid consolidateWallets');
+    }
+
     if (
       params.hasOwnProperty('tokenIds') &&
       params.tokenIds !== null &&
@@ -91,20 +105,60 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     return true;
   }
 
-  async execute(p: { params: TokenPoolParams; state: AllowlistState }) {
+  async execute(p: { params: any; state: AllowlistState }) {
     const { params, state } = p;
     if (!this.validate(params)) {
       throw new BadInputError('Invalid params');
     }
-    const { id, contract, tokenIds, blockNo } = params;
+    const { id, tokenIds, consolidateWallets } = params;
+    const tokens = await this.getTokens({ params, state });
+    state.tokenPools[id] = {
+      id,
+      name: params.name,
+      description: params.description,
+      tokens: consolidateWallets
+        ? await this.consolidate({ blockNo: params.blockNo, tokens })
+        : tokens,
+      tokenIds,
+    };
+
+    this.logger.info(`Tokenpool ${id} created`);
+  }
+
+  private async consolidate(params: {
+    blockNo: number;
+    tokens: TokenOwnership[];
+  }): Promise<TokenOwnership[]> {
+    const { blockNo, tokens } = params;
+    const consolidations = await this.seizeApi.getAllConsolidations({
+      block: blockNo,
+    });
+    const consolidationsMap = consolidations.reduce<Record<string, string>>(
+      (acc, curr) => {
+        for (const wallet of curr.wallets) {
+          acc[wallet] = curr.primary;
+        }
+        return acc;
+      },
+      {},
+    );
+    return tokens.map((token) => ({
+      ...token,
+      owner: consolidationsMap[token.owner] ?? token.owner,
+    }));
+  }
+
+  private async getTokens(p: {
+    params: TokenPoolParams;
+    state: AllowlistState;
+  }): Promise<TokenOwnership[]> {
+    const { params } = p;
+    const { id, contract, tokenIds } = params;
     const savedTokenPoolTokens = await this.tokenPoolService.getTokenPoolTokens(
       id,
     );
     if (savedTokenPoolTokens) {
-      state.tokenPools[id] = { ...params, tokens: savedTokenPoolTokens };
-      this.logger.info(
-        `Managed to build tokenpool ${id} with token pool tokens strategy`,
-      );
+      return savedTokenPoolTokens;
     } else {
       const parsedTokenIds = parseTokenIds(
         tokenIds,
@@ -124,66 +178,69 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         this.logger.info(
           `Contract ${contract} is ERC721Old. Will fall back to transfer pool based token pool creation`,
         );
-        await this.buildTokenPoolFromTransferPool({
+        return await this.getTokensFromTransferPool({
           ...p,
           tokenIds: parsedTokenIds,
         });
-        this.logger.info(
-          `Managed to build tokenpool ${id} with transfer pool strategy`,
-        );
       } else {
         try {
-          const collectionOwners =
-            await this.alchemyService.getCollectionOwnersInBlock({
-              contract,
-              block: blockNo,
-            });
-          const tokenOwnerships = collectionOwners
-            .map<CollectionOwner>((owner) => ({
-              ...owner,
-              tokens: owner.tokens.filter(
-                (token) =>
-                  !tokenIds?.length || parsedTokenIds.includes(token.tokenId),
-              ),
-            }))
-            .filter((owner) => owner.tokens.length > 0)
-            .map((owner) =>
-              owner.tokens.map((token) =>
-                Array.from({ length: token.balance }, () => ({
-                  id: token.tokenId,
-                  owner: owner.ownerAddress,
-                  contract,
-                })),
-              ),
-            )
-            .flat(2);
-          state.tokenPools[id] = { ...params, tokens: tokenOwnerships };
+          return await this.getTokensFromArchiveNode({
+            ...p,
+            tokenIds: parsedTokenIds,
+          });
         } catch (e) {
           console.error(e);
           this.logger.error(
             `Error creating tokenpool ${id}: ${e.message}. Will fall back to transfer pool based token pool creation`,
           );
-          await this.buildTokenPoolFromTransferPool({
+          return await this.getTokensFromTransferPool({
             ...p,
             tokenIds: parsedTokenIds,
           });
-          this.logger.info(
-            `Managed to build tokenpool ${id} with transfer pool strategy`,
-          );
         }
       }
     }
-
-    this.logger.info(`Tokenpool ${id} created`);
   }
 
-  private async buildTokenPoolFromTransferPool(p: {
+  private async getTokensFromArchiveNode(p: {
     params: TokenPoolParams;
     state: AllowlistState;
     tokenIds: string[] | null;
-  }) {
-    const { params, state } = p;
-    const { id, contract, tokenIds, blockNo } = params;
+  }): Promise<TokenOwnership[]> {
+    const { params, tokenIds } = p;
+    const { contract, blockNo } = params;
+    const collectionOwners =
+      await this.alchemyService.getCollectionOwnersInBlock({
+        contract,
+        block: blockNo,
+      });
+    return collectionOwners
+      .map<CollectionOwner>((owner) => ({
+        ...owner,
+        tokens: owner.tokens.filter(
+          (token) => !tokenIds?.length || tokenIds.includes(token.tokenId),
+        ),
+      }))
+      .filter((owner) => owner.tokens.length > 0)
+      .map((owner) =>
+        owner.tokens.map((token) =>
+          Array.from({ length: token.balance }, () => ({
+            id: token.tokenId,
+            owner: owner.ownerAddress,
+            contract,
+          })),
+        ),
+      )
+      .flat(2);
+  }
+
+  private async getTokensFromTransferPool(p: {
+    params: TokenPoolParams;
+    state: AllowlistState;
+    tokenIds: string[] | null;
+  }): Promise<TokenOwnership[]> {
+    const { params } = p;
+    const { contract, tokenIds, blockNo } = params;
     const transfers = await this.transfersService.getCollectionTransfers({
       contract,
       blockNo,
@@ -215,15 +272,13 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         }
         return acc;
       }, {} as Record<string, { wallet: string }[]>);
-    const tokenOwnerships: TokenOwnership[] = Object.entries(
-      tokenToOwningWallets,
-    ).flatMap(([tokenId, tokenOwnerships]) =>
-      tokenOwnerships.map(({ wallet }) => ({
-        id: tokenId,
-        owner: wallet,
-        contract,
-      })),
+    return Object.entries(tokenToOwningWallets).flatMap(
+      ([tokenId, tokenOwnerships]) =>
+        tokenOwnerships.map(({ wallet }) => ({
+          id: tokenId,
+          owner: wallet,
+          contract,
+        })),
     );
-    state.tokenPools[id] = { ...params, tokens: tokenOwnerships };
   }
 }

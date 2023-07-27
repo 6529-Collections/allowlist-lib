@@ -23,21 +23,128 @@ export class EtherscanService {
     this.logger = loggerFactory.create(EtherscanService.name);
   }
 
-  private supportsInterfaceData(interfaceId): string {
-    return `0x01ffc9a7${interfaceId.replace(
-      '0x',
-      '',
-    )}00000000000000000000000000000000000000000000000000000000`;
-  }
-  private getEtherscanApiSupportsInterfaceUrl(param: {
+  async *getTransfers(param: {
     contractAddress: string;
-    interfaceId: string;
-  }): string {
-    return `https://api.etherscan.io/api?module=proxy&action=eth_call&to=${
-      param.contractAddress
-    }&data=${this.supportsInterfaceData(param.interfaceId)}&tag=latest&apikey=${
-      this.config.apiKey
-    }`;
+    contractSchema: ContractSchema;
+    transferType: 'single' | 'batch';
+    startingBlock: string;
+    toBlock: string;
+  }): AsyncGenerator<Transfer[], void, void> {
+    const {
+      contractAddress,
+      contractSchema,
+      toBlock,
+      transferType,
+      startingBlock,
+    } = param;
+    let fromBlock = parseInt(startingBlock);
+    let latestUniqueKey = '';
+    while (true) {
+      const logs = await this.getEtherscanLogsRaw({
+        contractAddress,
+        params: {
+          fromBlock,
+          offset: 10000,
+          page: 1,
+          toBlock,
+          ...this.getEtherscanApiTopics({ contractSchema, transferType }),
+        },
+      });
+      if (typeof logs !== 'string') {
+        const convertedTransfers = this.convertEtherscanApiTokenTransfers({
+          transfers: logs.result,
+          contractSchema,
+          transferType,
+        });
+        const mappedTransfers = convertedTransfers.map((transfer) => {
+          return {
+            contract: transfer.contract,
+            tokenID: transfer.tokenID,
+            blockNumber: transfer.blockNumber,
+            timeStamp: transfer.timeStamp,
+            logIndex: transfer.logIndex,
+            from: transfer.from,
+            to: transfer.to,
+            amount: transfer.amount,
+            transactionHash: transfer.transactionHash,
+            transactionIndex: transfer.transactionIndex,
+          };
+        });
+        if (!convertedTransfers.length) {
+          break;
+        }
+        const thisUniqueKey = convertedTransfers.at(-1)?.uniqueKey;
+        if (thisUniqueKey === latestUniqueKey) {
+          break;
+        } else {
+          latestUniqueKey = thisUniqueKey;
+        }
+        yield mappedTransfers;
+        fromBlock = parseInt(logs.result.at(-1).blockNumber, 16);
+        this.logger.info(
+          `Reached block ${fromBlock} with contract ${contractAddress}`,
+        );
+      } else {
+        throw new BadInputError(logs);
+      }
+    }
+  }
+
+  async getContractTransfers(param: {
+    contractAddress: string;
+    startingBlock: number;
+    toBlock: number;
+  }): Promise<Transfer[]> {
+    const { contractAddress, toBlock, startingBlock } = param;
+    const contractSchema = await this.getContractSchema({
+      contractAddress,
+    });
+
+    switch (contractSchema) {
+      case ContractSchema.ERC721:
+        const transfers = await this.getAllTransfersAtOnce({
+          contractAddress,
+          contractSchema,
+          startingBlock: startingBlock.toString(),
+          toBlock: toBlock.toString(),
+          transferType: 'single',
+        });
+        return sortAndLowercaseTransfers(transfers);
+      case ContractSchema.ERC1155:
+        const [singleTransfers, batchTransfers] = await Promise.all([
+          this.getAllTransfersAtOnce({
+            contractAddress,
+            contractSchema,
+            startingBlock: startingBlock.toString(),
+            toBlock: toBlock.toString(),
+            transferType: 'single',
+          }),
+
+          this.getAllTransfersAtOnce({
+            contractAddress,
+            contractSchema,
+            startingBlock: startingBlock.toString(),
+            toBlock: toBlock.toString(),
+            transferType: 'batch',
+          }),
+        ]);
+        return sortAndLowercaseTransfers([
+          ...singleTransfers,
+          ...batchTransfers,
+        ]);
+      case ContractSchema.ERC721Old:
+        const erc721OldTransfers = await this.getAllTransfersAtOnce({
+          contractAddress,
+          contractSchema,
+          startingBlock: startingBlock.toString(),
+          toBlock: toBlock.toString(),
+          transferType: 'single',
+        });
+        return sortAndLowercaseTransfers(erc721OldTransfers);
+      default:
+        assertUnreachable(contractSchema);
+        break;
+    }
   }
 
   async getContractSchema(param: {
@@ -83,6 +190,23 @@ export class EtherscanService {
       throw new BadInputError('Invalid contract address');
     }
     throw new BadInputError('Invalid contract address');
+  }
+
+  private supportsInterfaceData(interfaceId): string {
+    return `0x01ffc9a7${interfaceId.replace(
+      '0x',
+      '',
+    )}00000000000000000000000000000000000000000000000000000000`;
+  }
+  private getEtherscanApiSupportsInterfaceUrl(param: {
+    contractAddress: string;
+    interfaceId: string;
+  }): string {
+    return `https://api.etherscan.io/api?module=proxy&action=eth_call&to=${
+      param.contractAddress
+    }&data=${this.supportsInterfaceData(param.interfaceId)}&tag=latest&apikey=${
+      this.config.apiKey
+    }`;
   }
 
   private async getEtherscanLogsRaw(param: {
@@ -332,132 +456,17 @@ export class EtherscanService {
     return [];
   }
 
-  async getTransfers(param: {
+  private async getAllTransfersAtOnce(param: {
     contractAddress: string;
     contractSchema: ContractSchema;
     transferType: 'single' | 'batch';
     startingBlock: string;
     toBlock: string;
   }): Promise<Transfer[]> {
-    const {
-      contractAddress,
-      contractSchema,
-      toBlock,
-      transferType,
-      startingBlock,
-    } = param;
-    let fromBlock = parseInt(startingBlock);
-    let latestUniqueKey = '';
-    const uniqueKeys = new Set<string>();
-    const transfers: Transfer[] = [];
-    while (true) {
-      const logs = await this.getEtherscanLogsRaw({
-        contractAddress,
-        params: {
-          fromBlock,
-          offset: 10000,
-          page: 1,
-          toBlock,
-          ...this.getEtherscanApiTopics({ contractSchema, transferType }),
-        },
-      });
-      if (typeof logs !== 'string') {
-        const convertedTransfers = this.convertEtherscanApiTokenTransfers({
-          transfers: logs.result,
-          contractSchema,
-          transferType,
-        });
-        convertedTransfers.forEach((transfer) => {
-          if (!uniqueKeys.has(transfer.uniqueKey)) {
-            uniqueKeys.add(transfer.uniqueKey);
-            transfers.push({
-              contract: transfer.contract,
-              tokenID: transfer.tokenID,
-              blockNumber: transfer.blockNumber,
-              timeStamp: transfer.timeStamp,
-              logIndex: transfer.logIndex,
-              from: transfer.from,
-              to: transfer.to,
-              amount: transfer.amount,
-              transactionHash: transfer.transactionHash,
-              transactionIndex: transfer.transactionIndex,
-            });
-          }
-        });
-        if (!convertedTransfers.length) {
-          break;
-        }
-        const thisUniqueKey = convertedTransfers.at(-1)?.uniqueKey;
-        if (thisUniqueKey === latestUniqueKey) {
-          break;
-        } else {
-          latestUniqueKey = thisUniqueKey;
-        }
-        fromBlock = parseInt(logs.result.at(-1).blockNumber, 16);
-        this.logger.info(
-          `Reached block ${fromBlock} with contract ${contractAddress}`,
-        );
-      } else {
-        throw new BadInputError(logs);
-      }
+    const transfers = [];
+    for await (const t of this.getTransfers(param)) {
+      transfers.push(...t);
     }
     return transfers;
-  }
-
-  async getContractTransfers(param: {
-    contractAddress: string;
-    startingBlock: number;
-    toBlock: number;
-  }): Promise<Transfer[]> {
-    const { contractAddress, toBlock, startingBlock } = param;
-    const contractSchema = await this.getContractSchema({
-      contractAddress,
-    });
-
-    switch (contractSchema) {
-      case ContractSchema.ERC721:
-        const transfers = await this.getTransfers({
-          contractAddress,
-          contractSchema,
-          startingBlock: startingBlock.toString(),
-          toBlock: toBlock.toString(),
-          transferType: 'single',
-        });
-        return sortAndLowercaseTransfers(transfers);
-      case ContractSchema.ERC1155:
-        const [singleTransfers, batchTransfers] = await Promise.all([
-          this.getTransfers({
-            contractAddress,
-            contractSchema,
-            startingBlock: startingBlock.toString(),
-            toBlock: toBlock.toString(),
-            transferType: 'single',
-          }),
-
-          this.getTransfers({
-            contractAddress,
-            contractSchema,
-            startingBlock: startingBlock.toString(),
-            toBlock: toBlock.toString(),
-            transferType: 'batch',
-          }),
-        ]);
-        return sortAndLowercaseTransfers([
-          ...singleTransfers,
-          ...batchTransfers,
-        ]);
-      case ContractSchema.ERC721Old:
-        const erc721OldTransfers = await this.getTransfers({
-          contractAddress,
-          contractSchema,
-          startingBlock: startingBlock.toString(),
-          toBlock: toBlock.toString(),
-          transferType: 'single',
-        });
-        return sortAndLowercaseTransfers(erc721OldTransfers);
-      default:
-        assertUnreachable(contractSchema);
-        break;
-    }
   }
 }

@@ -211,6 +211,7 @@ export class AllowlistCreator {
     };
     return new AllowlistCreator(
       opExecutors,
+      etherscanService,
       loggerFactoryImpl,
       onBeforeOperation,
       onAfterOperation,
@@ -224,6 +225,7 @@ export class AllowlistCreator {
       string,
       AllowlistOperationExecutor
     >,
+    readonly etherscanService: EtherscanService,
     loggerFactory: LoggerFactory,
     private readonly onBeforeOperation?: (
       operation: AllowlistOperation,

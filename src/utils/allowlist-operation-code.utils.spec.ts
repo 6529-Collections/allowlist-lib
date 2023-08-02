@@ -159,6 +159,7 @@ describe('AllowlistOperationCodeUtils', () => {
       AllowlistOperationCode.ITEM_REMOVE_FIRST_N_WALLETS,
       AllowlistOperationCode.ITEM_SELECT_FIRST_N_WALLETS,
       AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS,
+      AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS,
     ]);
 
     opertatinTypesToCheck = opertatinTypesToCheck.filter(

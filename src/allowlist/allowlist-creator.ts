@@ -51,6 +51,7 @@ import { CreateTokenPoolOperation } from './operations/create-token-pool/create-
 import { ComponentSelectRandomPercentageWalletsOperation } from './operations/component-select-random-percentage-wallets/component-select-random-percentage-wallets-operation';
 import { TokenPoolConsolidateWalletsOperation } from './operations/token-pool-consolidate-wallets/token-pool-consolidate-wallets-operation';
 import { TokenPoolService } from '../services/token-pool.service';
+import { ItemRemoveWalletsFromCertainTokenPoolsOperation } from './operations/item-remove-wallets-from-certain-token-pools/item-remove-wallets-from-certain-token-pools-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -208,6 +209,7 @@ export class AllowlistCreator {
         seizeApi,
         loggerFactoryImpl,
       ),
+      ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS: new ItemRemoveWalletsFromCertainTokenPoolsOperation(loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

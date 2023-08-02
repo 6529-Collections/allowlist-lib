@@ -56,6 +56,8 @@ export const ALLOWLIST_OPERATION_CODE_TO_TYPE: Record<
     AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS]:
     AllowlistOperationType.ITEM,
+  [AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS]:
+    AllowlistOperationType.ITEM,
 };
 
 export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
@@ -175,6 +177,10 @@ export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
   [AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_COMPONENTS]: {
     title: 'Remove Wallets from Certain Components',
     description: 'Remove wallets from certain components in an item',
+  },
+  [AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS]: {
+    title: 'Remove Wallets from Certain Token Pools',
+    description: 'Remove wallets from certain token pools in an item',
   },
 };
 

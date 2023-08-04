@@ -37,6 +37,9 @@ export function anAllowlistItem(params?: {
     id: params?.id || 'item-1',
     name: params?.name || 'item 1',
     description: params?.description || 'item 1 description',
+    contract: null,
+    blockNo: null,
+    consolidateBlockNo: null,
     poolId: params?.poolId || aTokenPool().id,
     poolType: params?.poolType || Pool.TOKEN_POOL,
     tokens: params?.tokens ?? [anAllowlistItemToken()],
@@ -178,6 +181,9 @@ export const aTokenPool: (param?: {
   description: param?.description ?? 'Token Pool 1 description',
   transferPoolId: param?.transferPoolId ?? aTransferPool().id,
   tokenIds: param?.tokenIds ?? '10,20-30,40',
+  contract: '0x123',
+  blockNo: 123,
+  consolidateBlockNo: null,
   tokens: param?.tokens ?? [aTokenOwnership()],
 });
 
@@ -242,10 +248,7 @@ export function anAllowlistState(params?: {
       {} as Record<string, TransferPool>,
     ),
     sorters: {},
-    getSorter(contractOrCustomPoolId: string): TokenSorter {
-      if (contractOrCustomPoolId === MEMES_CONTRACT) {
-        return new MemesTokenSorter();
-      }
+    getSorter(): TokenSorter {
       return new SimpleTokenSorter();
     },
   };

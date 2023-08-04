@@ -54,10 +54,16 @@ export class ItemSortWalletsByTotalTokensCountOperation
       poolType: item.poolType,
       state,
     });
+    const blockNo = 17832569; // TODO: Get real block number from somewhere
 
     const sorter = state.getSorter(contractOrCustomPoolId);
     state.phases[phaseId].components[componentId].items[itemId].tokens =
-      await sorter.sortByTotalTokensCount(item.tokens);
+      await sorter.sortByTotalTokensCount({
+        tokens: item.tokens,
+        blockNo,
+        consolidateBlockNo: null,
+        contract: null,
+      });
 
     this.logger.info(`Item sorted by wallet total tokens count '${itemId}'`);
   }

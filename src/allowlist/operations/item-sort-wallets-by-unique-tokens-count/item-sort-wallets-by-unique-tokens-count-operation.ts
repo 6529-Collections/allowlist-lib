@@ -51,16 +51,23 @@ export class ItemSortWalletsByUniqueTokensCountOperation
       throw new BadInputError(`Item '${itemId}' not found`);
     }
 
-    const item = state.phases[phaseId].components[componentId].items[itemId];
+    const { tokens, poolId, poolType, blockNo, contract, consolidateBlockNo } =
+      state.phases[phaseId].components[componentId].items[itemId];
+
     const contractOrCustomPoolId = getTokenPoolContractOrIdIfCustom({
-      poolId: item.poolId,
-      poolType: item.poolType,
+      poolId,
+      poolType,
       state,
     });
 
     const sorter = state.getSorter(contractOrCustomPoolId);
     state.phases[phaseId].components[componentId].items[itemId].tokens =
-      await sorter.sortByUniqueTokensCount(item.tokens);
+      await sorter.sortByUniqueTokensCount({
+        tokens,
+        blockNo,
+        contract,
+        consolidateBlockNo,
+      });
     this.logger.info(`Item sorted by wallet unique tokens count: ${itemId}`);
   }
 }

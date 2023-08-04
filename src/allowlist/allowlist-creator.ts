@@ -15,7 +15,6 @@ import { EtherscanService } from '../services/etherscan.service';
 import { TransfersService } from '../services/transfers.service';
 import { CreateAllowlistOperation } from './operations/create-allowlist/create-allowlist-operation';
 import { GetCollectionTransfersOperation } from './operations/get-collection-transfers/get-collection-transfers-operation';
-import { CreateTokenPoolRawOperation } from './operations/create-token-pool/create-token-pool-raw-operation';
 import { AddPhaseOperation } from './operations/add-phase/add-phase-operation';
 import { AddComponentOperation } from './operations/add-component/add-component-operation';
 import { AddItemOperation } from './operations/add-item/add-item-operation';
@@ -149,7 +148,6 @@ export class AllowlistCreator {
         etherscanService,
         seizeApi,
       ),
-      CREATE_TOKEN_POOL_RAW: new CreateTokenPoolRawOperation(loggerFactoryImpl),
       CREATE_CUSTOM_TOKEN_POOL: new CreateCustomTokenPoolOperation(),
       CREATE_WALLET_POOL: new CreateWalletPoolOperation(loggerFactoryImpl),
 
@@ -209,12 +207,14 @@ export class AllowlistCreator {
         seizeApi,
         loggerFactoryImpl,
       ),
-      ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS: new ItemRemoveWalletsFromCertainTokenPoolsOperation(loggerFactoryImpl),
+      ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS:
+        new ItemRemoveWalletsFromCertainTokenPoolsOperation(loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(
       opExecutors,
       etherscanService,
+      seizeApi,
       loggerFactoryImpl,
       onBeforeOperation,
       onAfterOperation,
@@ -229,6 +229,7 @@ export class AllowlistCreator {
       AllowlistOperationExecutor
     >,
     readonly etherscanService: EtherscanService,
+    private readonly seizeApi: SeizeApi,
     loggerFactory: LoggerFactory,
     private readonly onBeforeOperation?: (
       operation: AllowlistOperation,
@@ -257,7 +258,7 @@ export class AllowlistCreator {
       throw new BadInputError('First operation must be CREATE_ALLOWLIST');
     }
     const allowlistId = createAllowlistOperation.params?.id;
-    const state = createAllowlistState();
+    const state = createAllowlistState(this.seizeApi);
     const _uniqueIds = new Set<string>();
     for (const operation of operations) {
       if (this.onBeforeOperation) {

@@ -30,7 +30,7 @@ describe('AllowlistCreator e2e tests', () => {
     });
   });
 
-  it.skip(
+  it(
     'TEST',
     async () => {
       const operations: AllowlistOperation[] = [
@@ -54,95 +54,95 @@ describe('AllowlistCreator e2e tests', () => {
             tokenIds: '119-126',
           },
         },
-        {
-          code: AllowlistOperationCode.CREATE_CUSTOM_TOKEN_POOL,
-          params: {
-            id: '64cd2386b113565b8cbfcaad',
-            name: 'team',
-            description: 'team',
-            tokens: [
-              { owner: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd' },
-              { owner: '0x8ba68cfe71550efc8988d81d040473709b7f9218' },
-              { owner: '0xa743c8c57c425b84cb2ed18c6b9ae3ad21629cb5' },
-              { owner: '0x1b7844cfae4c823ac6389855d47106a70c84f067' },
-              { owner: '0x76d078d7e5755b66ff50166863329d27f2566b43' },
-              { owner: '0xfd22004806a6846ea67ad883356be810f0428793' },
-              { owner: '0xc3c9737cce778d7583f31ae7c4f2ab8782ed51e5' },
-              { owner: '0xa62da2ea9f5bb03a58174060535ae32131973178' },
-              { owner: '0xe16df6503acd3c79b6e032f62c61752bec16eef2' },
-              { owner: '0x9769334fc882775f4951865aa473481880669d47' },
-              { owner: '0x3852471d266d9e2222ca9fdd922bafc904dc49e5' },
-              { owner: '0x88d3574660711e03196af8a96f268697590000fa' },
-              { owner: '0x885846850aabf20d8f8e051f400354d94a32ff55' },
-              { owner: '0x61d9d9cc8c3203dab7100ea79ced77587201c990' },
-              { owner: '0xe359ab04cec41ac8c62bc5016c10c749c7de5480' },
-              { owner: '0xfe3b3f0d64f354b69a5b40d02f714e69ca4b09bd' },
-              { owner: '0x8889ebb11295f456541901f50bcb5f382047caac' },
-              { owner: '0x4269aadfd043b58cba893bfe6029c9895c25cb61' },
-              { owner: '0xbdf82b13580b918ebc3c24b4034e8468ea168e21' },
-              { owner: '0x83ee335ca72759caeded7b1afd11dcf75f48436b' },
-              { owner: '0xdda3cb2741fac4a87caebec9efc7963087304097' },
-              { owner: '0xf9e129817bc576f937e4774e3c3aec98787cfb91' },
-              { owner: '0x8e63380ac1e34c7d61bf404af63e885875c18ce3' },
-              { owner: '0xaf5c021754ab82bf556bc6c90650de21cf92d1c7' },
-              { owner: '0x7f3774eadae4beb01919dec7f32a72e417ab5de3' },
-              { owner: '0xc03e57b6ace9dd62c84a095e11e494e3c8fd4d42' },
-              { owner: '0xe70d73c76ff3b4388ee9c58747f0eaa06c6b645b' },
-            ],
-          },
-        },
-        {
-          code: AllowlistOperationCode.ADD_PHASE,
-          params: {
-            id: '64cd238b62e03f8dd562e03b',
-            name: 'phase',
-            description: 'phase',
-          },
-        },
-        {
-          code: AllowlistOperationCode.ADD_COMPONENT,
-          params: {
-            id: '64cd23b4339af0b9f4eec45d',
-            phaseId: '64cd238b62e03f8dd562e03b',
-            name: 'g',
-            description: 'g',
-          },
-        },
-        {
-          code: AllowlistOperationCode.ADD_ITEM,
-          params: {
-            id: '64cd23b4cb5e64721c418cb3',
-            name: 'g',
-            description: 'g',
-            componentId: '64cd23b4339af0b9f4eec45d',
-            poolId: '64cd236ab7b52ead80179903',
-            poolType: 'TOKEN_POOL',
-          },
-        },
-        {
-          code: AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS,
-          params: {
-            itemId: '64cd23b4cb5e64721c418cb3',
-            pools: [
-              {
-                poolType: 'CUSTOM_TOKEN_POOL',
-                poolId: '64cd2386b113565b8cbfcaad',
-              },
-            ],
-          },
-        },
-        {
-          code: AllowlistOperationCode.ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT,
-          params: { itemId: '64cd23b4cb5e64721c418cb3' },
-        },
-        {
-          code: AllowlistOperationCode.ITEM_SELECT_FIRST_N_WALLETS,
-          params: { itemId: '64cd23b4cb5e64721c418cb3', count: 150 },
-        },
-        {
-          code: AllowlistOperationCode.COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS,
-          params: { componentId: '64cd23b4339af0b9f4eec45d', spots: 1 },
-        },
+        // {
+        //   code: AllowlistOperationCode.CREATE_CUSTOM_TOKEN_POOL,
+        //   params: {
+        //     id: '64cd2386b113565b8cbfcaad',
+        //     name: 'team',
+        //     description: 'team',
+        //     tokens: [
+        //       { owner: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd' },
+        //       { owner: '0x8ba68cfe71550efc8988d81d040473709b7f9218' },
+        //       { owner: '0xa743c8c57c425b84cb2ed18c6b9ae3ad21629cb5' },
+        //       { owner: '0x1b7844cfae4c823ac6389855d47106a70c84f067' },
+        //       { owner: '0x76d078d7e5755b66ff50166863329d27f2566b43' },
+        //       { owner: '0xfd22004806a6846ea67ad883356be810f0428793' },
+        //       { owner: '0xc3c9737cce778d7583f31ae7c4f2ab8782ed51e5' },
+        //       { owner: '0xa62da2ea9f5bb03a58174060535ae32131973178' },
+        //       { owner: '0xe16df6503acd3c79b6e032f62c61752bec16eef2' },
+        //       { owner: '0x9769334fc882775f4951865aa473481880669d47' },
+        //       { owner: '0x3852471d266d9e2222ca9fdd922bafc904dc49e5' },
+        //       { owner: '0x88d3574660711e03196af8a96f268697590000fa' },
+        //       { owner: '0x885846850aabf20d8f8e051f400354d94a32ff55' },
+        //       { owner: '0x61d9d9cc8c3203dab7100ea79ced77587201c990' },
+        //       { owner: '0xe359ab04cec41ac8c62bc5016c10c749c7de5480' },
+        //       { owner: '0xfe3b3f0d64f354b69a5b40d02f714e69ca4b09bd' },
+        //       { owner: '0x8889ebb11295f456541901f50bcb5f382047caac' },
+        //       { owner: '0x4269aadfd043b58cba893bfe6029c9895c25cb61' },
+        //       { owner: '0xbdf82b13580b918ebc3c24b4034e8468ea168e21' },
+        //       { owner: '0x83ee335ca72759caeded7b1afd11dcf75f48436b' },
+        //       { owner: '0xdda3cb2741fac4a87caebec9efc7963087304097' },
+        //       { owner: '0xf9e129817bc576f937e4774e3c3aec98787cfb91' },
+        //       { owner: '0x8e63380ac1e34c7d61bf404af63e885875c18ce3' },
+        //       { owner: '0xaf5c021754ab82bf556bc6c90650de21cf92d1c7' },
+        //       { owner: '0x7f3774eadae4beb01919dec7f32a72e417ab5de3' },
+        //       { owner: '0xc03e57b6ace9dd62c84a095e11e494e3c8fd4d42' },
+        //       { owner: '0xe70d73c76ff3b4388ee9c58747f0eaa06c6b645b' },
+        //     ],
+        //   },
+        // },
+        // {
+        //   code: AllowlistOperationCode.ADD_PHASE,
+        //   params: {
+        //     id: '64cd238b62e03f8dd562e03b',
+        //     name: 'phase',
+        //     description: 'phase',
+        //   },
+        // },
+        // {
+        //   code: AllowlistOperationCode.ADD_COMPONENT,
+        //   params: {
+        //     id: '64cd23b4339af0b9f4eec45d',
+        //     phaseId: '64cd238b62e03f8dd562e03b',
+        //     name: 'g',
+        //     description: 'g',
+        //   },
+        // },
+        // {
+        //   code: AllowlistOperationCode.ADD_ITEM,
+        //   params: {
+        //     id: '64cd23b4cb5e64721c418cb3',
+        //     name: 'g',
+        //     description: 'g',
+        //     componentId: '64cd23b4339af0b9f4eec45d',
+        //     poolId: '64cd236ab7b52ead80179903',
+        //     poolType: 'TOKEN_POOL',
+        //   },
+        // },
+        // {
+        //   code: AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS,
+        //   params: {
+        //     itemId: '64cd23b4cb5e64721c418cb3',
+        //     pools: [
+        //       {
+        //         poolType: 'CUSTOM_TOKEN_POOL',
+        //         poolId: '64cd2386b113565b8cbfcaad',
+        //       },
+        //     ],
+        //   },
+        // },
+        // {
+        //   code: AllowlistOperationCode.ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT,
+        //   params: { itemId: '64cd23b4cb5e64721c418cb3' },
+        // },
+        // {
+        //   code: AllowlistOperationCode.ITEM_SELECT_FIRST_N_WALLETS,
+        //   params: { itemId: '64cd23b4cb5e64721c418cb3', count: 150 },
+        // },
+        // {
+        //   code: AllowlistOperationCode.COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS,
+        //   params: { componentId: '64cd23b4339af0b9f4eec45d', spots: 1 },
+        // },
       ];
       const state = await allowlistCreator.execute(operations);
 
@@ -299,33 +299,33 @@ describe('AllowlistCreator e2e tests', () => {
         '0xfff39900273ffb1045c7cfde62df1720b63fd6bd'.toLowerCase(),
       ];
 
-      const results = Object.keys(
-        state.phases['64cd238b62e03f8dd562e03b'].components[
-          '64cd23b4339af0b9f4eec45d'
-        ].winners,
-      ).map((winner) => winner.toLowerCase());
-      let resultsMissing = 0;
-      let resultExample = '';
-      for (const t of targetResults) {
-        if (!results.includes(t)) {
-          resultsMissing++;
-          resultExample = t;
-        }
-      }
-      let targetResultsMissing = 0;
-      let targetResultExample = '';
-      for (const r of results) {
-        if (!targetResults.includes(r)) {
-          targetResultsMissing++;
-          targetResultExample = r;
-        }
-      }
-      console.log({
-        resultsMissing,
-        resultExample,
-        targetResultsMissing,
-        targetResultExample,
-      });
+      // const results = Object.keys(
+      //   state.phases['64cd238b62e03f8dd562e03b'].components[
+      //     '64cd23b4339af0b9f4eec45d'
+      //   ].winners,
+      // ).map((winner) => winner.toLowerCase());
+      // let resultsMissing = 0;
+      // let resultExample = '';
+      // for (const t of targetResults) {
+      //   if (!results.includes(t)) {
+      //     resultsMissing++;
+      //     resultExample = t;
+      //   }
+      // }
+      // let targetResultsMissing = 0;
+      // let targetResultExample = '';
+      // for (const r of results) {
+      //   if (!targetResults.includes(r)) {
+      //     targetResultsMissing++;
+      //     targetResultExample = r;
+      //   }
+      // }
+      // console.log({
+      //   resultsMissing,
+      //   resultExample,
+      //   targetResultsMissing,
+      //   targetResultExample,
+      // });
     },
     60 * 60 * 1000,
   );

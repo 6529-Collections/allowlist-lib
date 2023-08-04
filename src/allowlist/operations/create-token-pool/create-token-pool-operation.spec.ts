@@ -311,6 +311,9 @@ describe('CreateTokenPoolOperation', () => {
       id: 'tp-2',
       name: 'tp 2',
       tokenIds: '1,2,3-5,6',
+      contract: '0x123',
+      blockNo: 123,
+      consolidateBlockNo: null,
       tokens: [
         {
           contract: '0x123',

@@ -121,7 +121,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     if (!this.validate(params)) {
       throw new BadInputError('Invalid params');
     }
-    const { id, tokenIds, consolidateBlockNo } = params;
+    const { id, tokenIds, consolidateBlockNo, contract, blockNo } = params;
     const tokens = await this.getTokens({ params, state });
 
     state.tokenPools[id] = {
@@ -130,36 +130,18 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       description: params.description,
       tokens:
         consolidateBlockNo && consolidateBlockNo > 0
-          ? await this.consolidate({ blockNo: consolidateBlockNo, tokens })
+          ? await this.seizeApi.consolidate({
+              blockNo: consolidateBlockNo,
+              tokens,
+            })
           : tokens,
       tokenIds,
+      contract,
+      blockNo,
+      consolidateBlockNo,
     };
 
     this.logger.info(`Tokenpool ${id} created`);
-  }
-
-  private async consolidate(params: {
-    blockNo: number;
-    tokens: TokenOwnership[];
-  }): Promise<TokenOwnership[]> {
-    const { blockNo, tokens } = params;
-    const consolidations = await this.seizeApi.getAllConsolidations({
-      block: blockNo,
-    });
-    const consolidationsMap = consolidations.reduce<Record<string, string>>(
-      (acc, curr) => {
-        for (const wallet of curr.wallets) {
-          acc[wallet.toLowerCase()] = curr.primary;
-        }
-        return acc;
-      },
-      {},
-    );
-
-    return tokens.map((token) => ({
-      ...token,
-      owner: consolidationsMap[token.owner] ?? token.owner,
-    }));
   }
 
   private async getTokens(p: {

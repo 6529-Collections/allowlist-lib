@@ -14,32 +14,49 @@ export class AddItemOperation implements AllowlistOperationExecutor {
     this.logger = loggerFactory.create(AddItemOperation.name);
   }
 
-  private getTokens(
+  private getPool(
     param: { poolType: Pool; poolId: string; itemId: string },
     state: AllowlistState,
-  ): AllowlistItemToken[] {
+  ): {
+    readonly tokens: AllowlistItemToken[];
+    readonly contract: string | null;
+    readonly blockNo: number | null;
+    readonly consolidateBlockNo: number | null;
+  } {
     const { poolType, poolId, itemId } = param;
     switch (poolType) {
       case Pool.TOKEN_POOL:
-        if (!state.tokenPools[poolId]) {
+        const tokenPool = state.tokenPools[poolId];
+        if (!tokenPool) {
           throw new BadInputError(
             `Token pool '${poolId}' does not exist, itemId: ${itemId}`,
           );
         }
-        return state.tokenPools[poolId].tokens.map((token) => ({
-          id: token.id,
-          owner: token.owner,
-        }));
+        return {
+          tokens: state.tokenPools[poolId].tokens.map((token) => ({
+            id: token.id,
+            owner: token.owner,
+          })),
+          contract: tokenPool.contract,
+          blockNo: tokenPool.blockNo,
+          consolidateBlockNo: tokenPool.consolidateBlockNo,
+        };
       case Pool.CUSTOM_TOKEN_POOL:
-        if (!state.customTokenPools[poolId]) {
+        const customTokenPool = state.customTokenPools[poolId];
+        if (!customTokenPool) {
           throw new BadInputError(
             `Custom token pool '${poolId}' does not exist, itemId: ${itemId}`,
           );
         }
-        return state.customTokenPools[poolId].tokens.map((token) => ({
-          id: token.id,
-          owner: token.owner,
-        }));
+        return {
+          tokens: customTokenPool.tokens.map((token) => ({
+            id: token.id,
+            owner: token.owner,
+          })),
+          contract: null,
+          blockNo: null,
+          consolidateBlockNo: null,
+        };
       case Pool.WALLET_POOL:
         throw new BadInputError(
           `Wallet pool '${poolId}' cannot be used for item, itemId: ${itemId}`,
@@ -147,7 +164,10 @@ export class AddItemOperation implements AllowlistOperationExecutor {
     if (!phaseId) {
       throw new BadInputError(`Component '${componentId}' does not exist`);
     }
-    const tokens = this.getTokens({ poolId, poolType, itemId: id }, state);
+    const { tokens, contract, blockNo, consolidateBlockNo } = this.getPool(
+      { poolId, poolType, itemId: id },
+      state,
+    );
 
     state.phases[phaseId].components[componentId].items[id] = {
       id,
@@ -156,6 +176,9 @@ export class AddItemOperation implements AllowlistOperationExecutor {
       poolId,
       poolType,
       tokens,
+      contract,
+      blockNo,
+      consolidateBlockNo,
       _insertionOrder: Object.keys(
         state.phases[phaseId].components[componentId].items,
       ).length,

@@ -10,6 +10,9 @@ export interface AllowlistItem extends DescribableEntity {
   readonly id: string;
   readonly name: string;
   readonly description: string;
+  readonly contract: string | null;
+  readonly blockNo: number | null;
+  readonly consolidateBlockNo: number | null;
   readonly poolId: string;
   readonly poolType: Pool;
   tokens: AllowlistItemToken[];

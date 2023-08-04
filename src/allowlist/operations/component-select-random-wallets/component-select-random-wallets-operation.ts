@@ -4,12 +4,8 @@ import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { getComponentPath } from '../../../utils/path.utils';
-import {
-  getOwnersByCardStatistics,
-  pickRandomUniqueItemsWithSeed,
-} from '../../../utils/app.utils';
-import { CardStatistics, Pool } from '../../../app-types';
-import { getTokenPoolContractOrIdIfCustom } from '../../../utils/pool.utils';
+import { pickRandomUniqueItemsWithSeed } from '../../../utils/app.utils';
+import { CardStatistics } from '../../../app-types';
 import { getWalletsByComponent } from '../../../utils/component.utils';
 
 export class ComponentSelectRandomWalletsOperation

@@ -8,6 +8,8 @@ import { SimpleTokenSorter } from '../sorters/simple-token-sorter';
 import { TokenSorter } from '../sorters/token-sorter';
 import { MemesTokenSorter } from '../sorters/memes-token-sorter';
 import { MEMES_CONTRACT } from '../../app-types';
+import { AlchemyService } from '../../services/alchemy.service';
+import { SeizeApi } from '../../services/seize/seize.api';
 
 export interface AllowlistState {
   allowlist: DescribableEntity | null;
@@ -21,7 +23,7 @@ export interface AllowlistState {
   getSorter(contractOrCustomPoolId: string): TokenSorter;
 }
 
-export function createAllowlistState(): AllowlistState {
+export function createAllowlistState(seizeApi: SeizeApi): AllowlistState {
   const defaultSorter = new SimpleTokenSorter();
   return {
     allowlist: null,
@@ -31,7 +33,7 @@ export function createAllowlistState(): AllowlistState {
     walletPools: {},
     phases: {},
     sorters: {
-      MEMES_CONTRACT: new MemesTokenSorter(),
+      [MEMES_CONTRACT]: new MemesTokenSorter(seizeApi),
     },
     getSorter(contractOrCustomPoolId: string): TokenSorter {
       return this.sorters[contractOrCustomPoolId] || defaultSorter;

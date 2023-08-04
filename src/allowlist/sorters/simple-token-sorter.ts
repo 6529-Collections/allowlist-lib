@@ -1,11 +1,16 @@
-import { TokenSorter } from './token-sorter';
+import {
+  TdhTokenSorterParams,
+  TokenSorter,
+  TotalTokenSorterParams,
+  UniqueTokenSorterParams,
+} from './token-sorter';
 import { AllowlistItemToken } from '../state-types/allowlist-item';
 import { TdhInfo } from '../../services/seize/tdh-info';
 
 export class SimpleTokenSorter implements TokenSorter {
-  async sortByTotalTokensCount(
-    tokens: AllowlistItemToken[],
-  ): Promise<AllowlistItemToken[]> {
+  async sortByTotalTokensCount({
+    tokens,
+  }: TotalTokenSorterParams): Promise<AllowlistItemToken[]> {
     const wallets = tokens.reduce<
       Record<
         string,
@@ -30,9 +35,9 @@ export class SimpleTokenSorter implements TokenSorter {
       .flatMap((w) => w.tokens);
   }
 
-  async sortByUniqueTokensCount(
-    tokens: AllowlistItemToken[],
-  ): Promise<AllowlistItemToken[]> {
+  async sortByUniqueTokensCount({
+    tokens,
+  }: UniqueTokenSorterParams): Promise<AllowlistItemToken[]> {
     const wallets = tokens.reduce<
       Record<
         string,
@@ -65,10 +70,7 @@ export class SimpleTokenSorter implements TokenSorter {
       .flatMap((w) => w.tokens);
   }
 
-  async sortByTdh(
-    items: AllowlistItemToken[],
-    tdhs: TdhInfo[],
-  ): Promise<AllowlistItemToken[]> {
+  async sortByTdh({}: TdhTokenSorterParams): Promise<AllowlistItemToken[]> {
     throw new Error('Method not implemented in SimpleTokenSorter');
   }
 }

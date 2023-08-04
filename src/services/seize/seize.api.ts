@@ -8,6 +8,7 @@ import {
   ConsolidationMappingPage,
 } from './consolidation-mapping';
 import { DelegateMapping, DelegateMappingPage } from './delegation-mapping';
+import { TokenOwnership } from '../../allowlist/state-types/token-ownership';
 
 export class SeizeApi {
   constructor(
@@ -24,7 +25,6 @@ export class SeizeApi {
     const result: ConsolidationMapping[] = [];
     for (let page = 1; ; ) {
       const resultPage = await this.getConsolidations({ block, page });
-      result.push(...resultPage.data);
       if (resultPage.next) {
         page++;
       } else {
@@ -55,6 +55,7 @@ export class SeizeApi {
       endpoint,
       headers,
     });
+
     return {
       ...result,
       data: result.data.map((item) => ({
@@ -320,6 +321,30 @@ export class SeizeApi {
         return resolve(lines);
       });
     });
+  }
+
+  async consolidate(params: {
+    blockNo: number;
+    tokens: TokenOwnership[];
+  }): Promise<TokenOwnership[]> {
+    const { blockNo, tokens } = params;
+    const consolidations = await this.getAllConsolidations({
+      block: blockNo,
+    });
+    const consolidationsMap = consolidations.reduce<Record<string, string>>(
+      (acc, curr) => {
+        for (const wallet of curr.wallets) {
+          acc[wallet.toLowerCase()] = curr.primary;
+        }
+        return acc;
+      },
+      {},
+    );
+
+    return tokens.map((token) => ({
+      ...token,
+      owner: consolidationsMap[token.owner] ?? token.owner,
+    }));
   }
 }
 

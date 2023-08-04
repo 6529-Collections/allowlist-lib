@@ -83,7 +83,12 @@ export class ItemSortWalletsByMemesTdhOperation
 
     const tdhs = await this.seizeApi.getUploadsForBlock(tdhBlockNumber);
     const sorter = state.getSorter(contractOrCustomPoolId);
-    item.tokens = await sorter.sortByTdh(item.tokens, tdhs);
+    const blockNo = 17832569; // TODO: Get real block number from somewhere
+    item.tokens = await sorter.sortByTdh({
+      tokens: item.tokens,
+      tdhs,
+      blockNo,
+    });
 
     this.logger.info('Executed ItemSortWalletsByMemesTdh operation');
   }

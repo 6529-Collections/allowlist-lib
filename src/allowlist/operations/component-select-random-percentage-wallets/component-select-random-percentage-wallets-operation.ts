@@ -10,6 +10,7 @@ import {
 } from '../../../utils/app.utils';
 import { getTokenPoolContractOrIdIfCustom } from '../../../utils/pool.utils';
 import { getWalletsByComponent } from '../../../utils/component.utils';
+import { CardStatistics } from '../../../app-types';
 
 export class ComponentSelectRandomPercentageWalletsOperation
   implements AllowlistOperationExecutor
@@ -59,6 +60,20 @@ export class ComponentSelectRandomPercentageWalletsOperation
 
     if (!params.seed.length) {
       throw new BadInputError('Invalid seed');
+    }
+
+    if (params.hasOwnProperty('weightType')) {
+      if (typeof params.weightType !== 'string') {
+        throw new BadInputError('Invalid weightType');
+      }
+
+      if (!params.weightType.length) {
+        throw new BadInputError('Invalid weightType');
+      }
+
+      if (!Object.values(CardStatistics).includes(params.weightType)) {
+        throw new BadInputError('Invalid weightType');
+      }
     }
 
     return true;

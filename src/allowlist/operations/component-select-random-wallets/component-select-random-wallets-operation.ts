@@ -8,7 +8,7 @@ import {
   getOwnersByCardStatistics,
   pickRandomUniqueItemsWithSeed,
 } from '../../../utils/app.utils';
-import { Pool } from '../../../app-types';
+import { CardStatistics, Pool } from '../../../app-types';
 import { getTokenPoolContractOrIdIfCustom } from '../../../utils/pool.utils';
 import { getWalletsByComponent } from '../../../utils/component.utils';
 
@@ -62,6 +62,20 @@ export class ComponentSelectRandomWalletsOperation
 
     if (!params.seed.length) {
       throw new BadInputError('Invalid seed');
+    }
+
+    if (params.hasOwnProperty('weightType')) {
+      if (typeof params.weightType !== 'string') {
+        throw new BadInputError('Invalid weightType');
+      }
+
+      if (!params.weightType.length) {
+        throw new BadInputError('Invalid weightType');
+      }
+
+      if (!Object.values(CardStatistics).includes(params.weightType)) {
+        throw new BadInputError('Invalid weightType');
+      }
     }
 
     return true;

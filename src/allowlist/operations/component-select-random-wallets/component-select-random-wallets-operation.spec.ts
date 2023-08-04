@@ -135,8 +135,39 @@ describe('ComponentSelectRandomWalletsOperation', () => {
     ).toThrow('Invalid seed');
   });
 
-  it('should validate params', () => {
+  it('throws error if weightType is not a string', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        count: 1,
+        seed: 'seed',
+        weightType: 1,
+      }),
+    ).toThrow('Invalid weightType');
+  });
+
+  it('throws error if weightType is not a valid CardStatistics', () => {
+    expect(() =>
+      op.validate({
+        componentId: 'component-1',
+        count: 1,
+        seed: 'seed',
+        weightType: 'invalid',
+      }),
+    ).toThrow('Invalid weightType');
+  });
+
+  it('should validate params without weightType', () => {
     expect(op.validate(params)).toBe(true);
+  });
+
+  it('should validate params with weightType', () => {
+    expect(
+      op.validate({
+        ...params,
+        weightType: CardStatistics.TOTAL_CARDS,
+      }),
+    ).toBe(true);
   });
   it('throws error if component does not exist', () => {
     expect(() => {

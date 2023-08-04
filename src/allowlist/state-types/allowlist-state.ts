@@ -4,6 +4,10 @@ import { TokenPool } from './token-pool';
 import { DescribableEntity } from './describable-entity';
 import { TransferPool } from '../operations/get-collection-transfers/get-collection-transfers-operation.types';
 import { CustomTokenPool } from './custom-token-pool';
+import { SimpleTokenSorter } from '../sorters/simple-token-sorter';
+import { TokenSorter } from '../sorters/token-sorter';
+import { MemesTokenSorter } from '../sorters/memes-token-sorter';
+import { MEMES_CONTRACT } from '../../app-types';
 
 export interface AllowlistState {
   allowlist: DescribableEntity | null;
@@ -12,9 +16,13 @@ export interface AllowlistState {
   readonly customTokenPools: Record<string, CustomTokenPool>;
   readonly walletPools: Record<string, WalletPool>;
   readonly phases: Record<string, AllowlistPhase>;
+  readonly sorters: Record<string, TokenSorter>;
+
+  getSorter(contractOrCustomPoolId: string): TokenSorter;
 }
 
 export function createAllowlistState(): AllowlistState {
+  const defaultSorter = new SimpleTokenSorter();
   return {
     allowlist: null,
     transferPools: {},
@@ -22,5 +30,11 @@ export function createAllowlistState(): AllowlistState {
     customTokenPools: {},
     walletPools: {},
     phases: {},
+    sorters: {
+      MEMES_CONTRACT: new MemesTokenSorter(),
+    },
+    getSorter(contractOrCustomPoolId: string): TokenSorter {
+      return this.sorters[contractOrCustomPoolId] || defaultSorter;
+    },
   };
 }

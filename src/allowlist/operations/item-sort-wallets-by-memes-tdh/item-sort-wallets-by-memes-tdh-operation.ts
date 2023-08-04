@@ -1,11 +1,13 @@
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { ItemSortWalletsByMemesTdhParams } from './item-sort-wallets-by-memes-tdh.types';
-import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
+import { AllowlistState } from '../../state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { SeizeApi } from '../../../services/seize/seize.api';
 import { getItemPath } from '../../../utils/path.utils';
-import { TdhInfo } from '../../../services/seize/tdh-info';
+import { getTokenPoolContractOrIdIfCustom } from '../../../utils/pool.utils';
+import { MEMES_CONTRACT } from '../../../app-types';
+import { AllowlistOperationCode } from '../../allowlist-operation-code';
 
 export class ItemSortWalletsByMemesTdhOperation
   implements AllowlistOperationExecutor
@@ -66,35 +68,22 @@ export class ItemSortWalletsByMemesTdhOperation
       throw new BadInputError(`Item '${itemId}' not found`);
     }
 
-    const tdhs = await this.seizeApi.getUploadsForBlock(tdhBlockNumber);
-    const tdhsMap = tdhs.reduce<Record<string, TdhInfo>>((acc, tdh) => {
-      acc[tdh.wallet] = tdh;
-      return acc;
-    }, {});
+    const item = state.phases[phaseId].components[componentId].items[itemId];
 
-    const sortedByTdh = state.phases[phaseId].components[componentId].items[
-      itemId
-    ].tokens.sort((a, d) => {
-      const aTdh = tdhsMap[a.owner];
-      const dTdh = tdhsMap[d.owner];
-      if (!aTdh && !dTdh) {
-        return 0;
-      }
-      if (!aTdh) {
-        return 1;
-      }
-      if (!dTdh) {
-        return -1;
-      }
-      if (dTdh.boosted_memes_tdh === aTdh.boosted_memes_tdh) {
-        return dTdh.unique_memes === aTdh.unique_memes
-          ? dTdh.memes_balance - aTdh.memes_balance
-          : dTdh.unique_memes - aTdh.unique_memes;
-      }
-      return dTdh.boosted_memes_tdh - aTdh.boosted_memes_tdh;
+    const contractOrCustomPoolId = getTokenPoolContractOrIdIfCustom({
+      poolId: item.poolId,
+      poolType: item.poolType,
+      state,
     });
-    state.phases[phaseId].components[componentId].items[itemId].tokens =
-      sortedByTdh;
+    if (contractOrCustomPoolId !== MEMES_CONTRACT) {
+      throw new BadInputError(
+        `Item '${itemId}' is not a memes item and therefor operation ${AllowlistOperationCode.ITEM_SORT_WALLETS_BY_MEMES_TDH} is not supported`,
+      );
+    }
+
+    const tdhs = await this.seizeApi.getUploadsForBlock(tdhBlockNumber);
+    const sorter = state.getSorter(contractOrCustomPoolId);
+    item.tokens = await sorter.sortByTdh(item.tokens, tdhs);
 
     this.logger.info('Executed ItemSortWalletsByMemesTdh operation');
   }

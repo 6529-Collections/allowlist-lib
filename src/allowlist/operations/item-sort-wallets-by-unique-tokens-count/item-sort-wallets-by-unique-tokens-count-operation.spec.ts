@@ -58,21 +58,25 @@ describe('ItemSortWalletsByUniqueTokensCountOperation', () => {
     expect(op.validate(params)).toBe(true);
   });
 
-  it('throws error if item is not found', () => {
+  it('throws error if item is not found', async () => {
     const itemId = 'item-2';
-    expect(() =>
-      op.execute({
+    let err = null;
+    try {
+      await op.execute({
         params: {
           ...params,
           itemId,
         },
         state,
-      }),
-    ).toThrowError(`Item '${itemId}' not found`);
+      });
+    } catch (e) {
+      err = e.message;
+    }
+    expect(err).toBe(`Item '${itemId}' not found`);
   });
 
-  it('sorts wallets by unique tokens count', () => {
-    op.execute({
+  it('sorts wallets by unique tokens count', async () => {
+    await op.execute({
       params,
       state,
     });

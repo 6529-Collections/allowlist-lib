@@ -9,7 +9,10 @@ import { WalletPool } from './wallet-pool';
 import { Transfer } from './transfer';
 import { TokenOwnership } from './token-ownership';
 import { CustomTokenOwnership, CustomTokenPool } from './custom-token-pool';
-import { Pool } from '../../app-types';
+import { MEMES_CONTRACT, Pool } from '../../app-types';
+import { TokenSorter } from '../sorters/token-sorter';
+import { SimpleTokenSorter } from '../sorters/simple-token-sorter';
+import { MemesTokenSorter } from '../sorters/memes-token-sorter';
 
 export function anAllowlistItemToken(params?: {
   id?: string;
@@ -238,5 +241,12 @@ export function anAllowlistState(params?: {
       },
       {} as Record<string, TransferPool>,
     ),
+    sorters: {},
+    getSorter(contractOrCustomPoolId: string): TokenSorter {
+      if (contractOrCustomPoolId === MEMES_CONTRACT) {
+        return new MemesTokenSorter();
+      }
+      return new SimpleTokenSorter();
+    },
   };
 }

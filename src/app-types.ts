@@ -18,3 +18,5 @@ export enum CardStatistics {
 export type Mutable<T, K extends keyof T> = Omit<T, K> & {
   -readonly [P in K]: T[P];
 };
+
+export const MEMES_CONTRACT = '0x33fd426905f149f8376e227d0c9d3340aad17af1';

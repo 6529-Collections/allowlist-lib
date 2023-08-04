@@ -22,7 +22,7 @@ export class SeizeApi {
     block: number;
   }): Promise<ConsolidationMapping[]> {
     const result: ConsolidationMapping[] = [];
-    for (let page = 1; ; page++) {
+    for (let page = 1; ; ) {
       const resultPage = await this.getConsolidations({ block, page });
       result.push(...resultPage.data);
       if (resultPage.next) {

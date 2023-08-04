@@ -123,6 +123,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     }
     const { id, tokenIds, consolidateBlockNo } = params;
     const tokens = await this.getTokens({ params, state });
+
     state.tokenPools[id] = {
       id,
       name: params.name,
@@ -148,12 +149,13 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     const consolidationsMap = consolidations.reduce<Record<string, string>>(
       (acc, curr) => {
         for (const wallet of curr.wallets) {
-          acc[wallet] = curr.primary;
+          acc[wallet.toLowerCase()] = curr.primary;
         }
         return acc;
       },
       {},
     );
+
     return tokens.map((token) => ({
       ...token,
       owner: consolidationsMap[token.owner] ?? token.owner,

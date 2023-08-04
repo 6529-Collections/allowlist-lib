@@ -7,9 +7,7 @@ import { CollectionOwner } from '../../../services/collection-owner';
 import { CreateTokenPoolOperation } from './create-token-pool-operation';
 import { Alchemy } from 'alchemy-sdk';
 import { TransfersService } from '../../../services/transfers.service';
-import { EtherscanService } from '../../../services/etherscan.service';
 import { ContractSchema } from '../../../app-types';
-import { TokenPoolService } from '../../../services/token-pool.service';
 
 class MockAlchemyService extends AlchemyService {
   async getCollectionOwnersInBlock({
@@ -59,7 +57,7 @@ describe('CreateTokenPoolOperation', () => {
       tokenIds: '10,20-30,40',
       contract: '0x123',
       blockNo: 123,
-      consolidateWallets: false,
+      consolidateBlockNo: null,
     };
   });
 
@@ -110,7 +108,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: 1,
         contract: '0x123',
         blockNo: 123,
-        consolidateWallets: false,
+        consolidateBlockNo: null,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -124,7 +122,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: '',
         contract: '0x123',
         blockNo: 123,
-        consolidateWallets: false,
+        consolidateBlockNo: null,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -138,7 +136,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: '1,2,3,x',
         contract: '0x123',
         blockNo: 123,
-        consolidateWallets: false,
+        consolidateBlockNo: null,
       }),
     ).toThrowError('Invalid tokenIds');
   });
@@ -151,7 +149,7 @@ describe('CreateTokenPoolOperation', () => {
         description: 'tp 2 description',
         tokenIds: null,
         blockNo: 123,
-        consolidateWallets: false,
+        consolidateBlockNo: null,
       }),
     ).toThrowError('Missing contract');
   });
@@ -182,33 +180,6 @@ describe('CreateTokenPoolOperation', () => {
     ).toThrowError('Invalid contract');
   });
 
-  it('throws if consolidateWallets is missing', () => {
-    expect(() =>
-      op.validate({
-        id: 'tp-2',
-        name: 'tp 2',
-        description: 'tp 2 description',
-        tokenIds: null,
-        contract: '0x123',
-        blockNo: 123,
-      }),
-    ).toThrowError('Missing consolidateWallets');
-  });
-
-  it('throws if consolidateWallets is not a boolean', () => {
-    expect(() =>
-      op.validate({
-        id: 'tp-2',
-        name: 'tp 2',
-        description: 'tp 2 description',
-        tokenIds: null,
-        contract: '0x123',
-        blockNo: 123,
-        consolidateWallets: 1,
-      }),
-    ).toThrowError('Invalid consolidateWallets');
-  });
-
   it('validates if tokenIds is null', () => {
     expect(() =>
       op.validate({
@@ -218,7 +189,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: null,
         contract: '0x123',
         blockNo: 123,
-        consolidateWallets: false,
+        consolidateBlockNo: null,
       }),
     ).not.toThrow();
   });
@@ -232,7 +203,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: undefined,
         contract: '0x123',
         blockNo: 123,
-        consolidateWallets: false,
+        consolidateBlockNo: null,
       }),
     ).not.toThrow();
   });
@@ -246,7 +217,77 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: '1,2,3-5,6',
         contract: '0x123',
         blockNo: 123,
-        consolidateWallets: false,
+        consolidateBlockNo: null,
+      }),
+    ).not.toThrow();
+  });
+
+  it('throws if consolidateBlockNo is not a number or null', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        contract: '0x123',
+        blockNo: 123,
+        consolidateBlockNo: '123',
+      }),
+    ).toThrowError('Invalid consolidateBlockNo');
+  });
+
+  it('throws if consolidateBlockNo is a negative number', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        contract: '0x123',
+        blockNo: 123,
+        consolidateBlockNo: -1,
+      }),
+    ).toThrowError('Invalid consolidateBlockNo');
+  });
+
+  it('throws if consolidateBlockNo is a float number', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        contract: '0x123',
+        blockNo: 123,
+        consolidateBlockNo: 1.1,
+      }),
+    ).toThrowError('Invalid consolidateBlockNo');
+  });
+
+  it('validates if consolidateBlockNo is null', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        contract: '0x123',
+        blockNo: 123,
+        consolidateBlockNo: null,
+      }),
+    ).not.toThrow();
+  });
+
+  it('validates if consolidateBlockNo is a number', () => {
+    expect(() =>
+      op.validate({
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        contract: '0x123',
+        blockNo: 123,
+        consolidateBlockNo: 1,
       }),
     ).not.toThrow();
   });
@@ -261,7 +302,7 @@ describe('CreateTokenPoolOperation', () => {
         tokenIds: '1,2,3-5,6',
         contract: '0x123',
         blockNo: 123,
-        consolidateWallets: false,
+        consolidateBlockNo: null,
       },
       state: state,
     });

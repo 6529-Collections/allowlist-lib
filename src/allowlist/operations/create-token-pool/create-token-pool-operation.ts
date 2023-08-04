@@ -73,12 +73,23 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       throw new BadInputError('Invalid blockNo');
     }
 
-    if (!params.hasOwnProperty('consolidateWallets')) {
-      throw new BadInputError('Missing consolidateWallets');
+    if (!params.hasOwnProperty('consolidateBlockNo')) {
+      throw new BadInputError('Missing consolidateBlockNo');
     }
 
-    if (typeof params.consolidateWallets !== 'boolean') {
-      throw new BadInputError('Invalid consolidateWallets');
+    if (
+      typeof params.consolidateBlockNo !== 'number' &&
+      params.consolidateBlockNo !== null
+    ) {
+      throw new BadInputError('Invalid consolidateBlockNo');
+    }
+
+    if (params.consolidateBlockNo < 0) {
+      throw new BadInputError('Invalid consolidateBlockNo');
+    }
+
+    if (params.consolidateBlockNo % 1 !== 0) {
+      throw new BadInputError('Invalid consolidateBlockNo');
     }
 
     if (
@@ -110,15 +121,16 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     if (!this.validate(params)) {
       throw new BadInputError('Invalid params');
     }
-    const { id, tokenIds, consolidateWallets } = params;
+    const { id, tokenIds, consolidateBlockNo } = params;
     const tokens = await this.getTokens({ params, state });
     state.tokenPools[id] = {
       id,
       name: params.name,
       description: params.description,
-      tokens: consolidateWallets
-        ? await this.consolidate({ blockNo: params.blockNo, tokens })
-        : tokens,
+      tokens:
+        consolidateBlockNo && consolidateBlockNo > 0
+          ? await this.consolidate({ blockNo: consolidateBlockNo, tokens })
+          : tokens,
       tokenIds,
     };
 

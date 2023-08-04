@@ -45,7 +45,7 @@ export class TokenPoolConsolidateWalletsOperation
     }
 
     if (params.consolidationBlockNumber % 1 !== 0) {
-      throw new Error('Invalid consolidationBlockNumber');
+      throw new BadInputError('Invalid consolidationBlockNumber');
     }
 
     return true;

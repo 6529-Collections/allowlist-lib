@@ -1,6 +1,7 @@
 import { AllowlistOperationCode } from '../allowlist/allowlist-operation-code';
 import { BadInputError } from '../allowlist/bad-input.error';
 import * as seedrandom from 'seedrandom';
+import { CardStatistics } from '../app-types';
 
 // The `assertUnreachable` function takes an input `_x` of type `never` and always throws
 // an error. This function is typically used in TypeScript to assert exhaustiveness in
@@ -62,29 +63,55 @@ export const parseTokenIds = (
   return Array.from(resultSet).map((it) => it.toString());
 };
 
-export function pickRandomItemsWithSeed({
+export function pickRandomUniqueItemsWithSeed<T>({
   array,
   count,
   seed,
 }: {
-  array: any[];
+  array: T[];
   count: number;
   seed: string;
-}) {
+}): Set<T> {
   const rng = seedrandom(seed); // Create a seeded random number generator
-  const indices = new Set<number>(); // Use a Set to ensure unique indices
+  const winners = new Set<T>(); // Use a Set to ensure unique winners
 
-  // Generate x unique random indices between 0 and n-1
-  while (indices.size < count) {
+  // Generate x unique random items from the array
+  while (winners.size < count) {
     const index = Math.floor(rng() * array.length);
-    indices.add(index);
+    const item = array[index];
+    if (winners.has(item)) {
+      continue;
+    }
+    winners.add(item);
   }
 
-  // Use the generated indices to select the corresponding items from the array
-  const result = [];
-  for (const index of indices) {
-    result.push(array[index]);
-  }
-
-  return result;
+  // Convert the winners set to an array and return it
+  return winners;
 }
+
+export const getOwnersByCardStatistics = ({
+  cards,
+  type,
+}: {
+  cards: { id: string; owner: string }[];
+  type: CardStatistics | null;
+}): string[] => {
+  if (!type) {
+    return Array.from(new Set<string>(cards.map((card) => card.owner)));
+  }
+  switch (type) {
+    case CardStatistics.TOTAL_CARDS:
+      return cards.map((card) => card.owner);
+    case CardStatistics.UNIQUE_CARDS:
+      const owners = new Set<string>(cards.map((card) => card.owner));
+      return Array.from(owners).flatMap((owner) => {
+        const uniqueCards = new Set(
+          cards.filter((card) => card.owner === owner).map((card) => card.id),
+        );
+        return Array.from({ length: uniqueCards.size }, () => owner);
+      });
+
+    default:
+      assertUnreachable(type);
+  }
+};

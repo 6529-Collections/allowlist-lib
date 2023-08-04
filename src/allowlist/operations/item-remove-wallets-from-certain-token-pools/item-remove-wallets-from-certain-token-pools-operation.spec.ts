@@ -13,10 +13,7 @@ import {
 } from '../../../allowlist/state-types/allowlist-state.test.fixture';
 import { Pool } from '../../../app-types';
 import { getItemPath } from '../../../utils/path.utils';
-import {
-  anAllowlistLargeItemTokens,
-  anAllowlistSmallItemTokens,
-} from '../../state-types/allowlist-state.test.fixture.large';
+import { anAllowlistLargeItemTokens } from '../../state-types/allowlist-state.test.fixture.large';
 
 describe('ItemRemoveWalletsFromCertainTokenPoolsOperation', () => {
   const op = new ItemRemoveWalletsFromCertainTokenPoolsOperation(

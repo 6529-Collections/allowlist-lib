@@ -53,18 +53,18 @@ export class ItemSelectTokenIdsOperation implements AllowlistOperationExecutor {
     state: AllowlistState;
   }) {
     if (!this.validate(params)) {
-      throw new Error(`Invalid params`);
+      throw new BadInputError(`Invalid params`);
     }
     const { itemId, tokenIds } = params;
     const { phaseId, componentId } = getItemPath({ state, itemId });
     if (!phaseId || !componentId) {
-      throw new Error(
+      throw new BadInputError(
         `ITEM_SELECT_TOKEN_IDS: Item '${itemId}' does not exist, itemId: ${itemId} `,
       );
     }
 
     if (typeof tokenIds !== 'string' || !tokenIds?.length) {
-      throw new Error(
+      throw new BadInputError(
         `ITEM_SELECT_TOKEN_IDS: No token ids provided, itemId: ${itemId}`,
       );
     }
@@ -76,7 +76,7 @@ export class ItemSelectTokenIdsOperation implements AllowlistOperationExecutor {
     );
 
     if (!parsedTokenIds?.length) {
-      throw new Error(
+      throw new BadInputError(
         `ITEM_SELECT_TOKEN_IDS: No token ids provided, itemId: ${itemId}`,
       );
     }

@@ -1,6 +1,7 @@
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { getComponentPath } from '../../../utils/path.utils';
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
+import { BadInputError } from '../../bad-input.error';
 import { AllowlistState } from '../../state-types/allowlist-state';
 import { ComponentAddSpotsToAllItemWalletsParams } from './component-add-spots-to-all-item-wallets.types';
 
@@ -17,30 +18,30 @@ export class ComponentAddSpotsToAllItemWalletsOperation
 
   validate(params: any): params is ComponentAddSpotsToAllItemWalletsParams {
     if (!params.hasOwnProperty('componentId')) {
-      throw new Error(`Missing componentId`);
+      throw new BadInputError(`Missing componentId`);
     }
 
     if (typeof params.componentId !== 'string') {
-      throw new Error(`Invalid componentId`);
+      throw new BadInputError(`Invalid componentId`);
     }
 
     if (!params.componentId.length) {
-      throw new Error(`Invalid componentId`);
+      throw new BadInputError(`Invalid componentId`);
     }
     if (!params.hasOwnProperty('spots')) {
-      throw new Error(`Missing spots`);
+      throw new BadInputError(`Missing spots`);
     }
 
     if (typeof params.spots !== 'number') {
-      throw new Error(`Invalid spots`);
+      throw new BadInputError(`Invalid spots`);
     }
 
     if (params.spots < 1) {
-      throw new Error(`Invalid spots`);
+      throw new BadInputError(`Invalid spots`);
     }
 
     if (!Number.isInteger(params.spots)) {
-      throw new Error(`Invalid spots`);
+      throw new BadInputError(`Invalid spots`);
     }
 
     return true;
@@ -54,12 +55,12 @@ export class ComponentAddSpotsToAllItemWalletsOperation
     state: AllowlistState;
   }) {
     if (!this.validate(params)) {
-      throw new Error(`Invalid params`);
+      throw new BadInputError(`Invalid params`);
     }
     const { componentId, spots } = params;
     const { phaseId } = getComponentPath({ state, componentId });
     if (!phaseId) {
-      throw new Error(
+      throw new BadInputError(
         `COMPONENT_ADD_SPOTS_TO_ALL_ITEM_WALLETS: Component '${componentId}' does not exist, componentId: ${componentId} `,
       );
     }

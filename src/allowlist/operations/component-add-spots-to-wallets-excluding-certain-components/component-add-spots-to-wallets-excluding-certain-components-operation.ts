@@ -36,7 +36,7 @@ export class ComponentAddSpotsToWalletsExcludingCertainComponentsOperation
     }
 
     if (typeof params.spots !== 'number') {
-      throw new Error('Invalid spots');
+      throw new BadInputError('Invalid spots');
     }
 
     if (params.spots < 1) {

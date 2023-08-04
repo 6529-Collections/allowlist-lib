@@ -3,8 +3,13 @@ import { ComponentSelectRandomPercentageWalletsParams } from './component-select
 import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
-import { pickRandomItemsWithSeed } from '../../../utils/app.utils';
 import { getComponentPath } from '../../../utils/path.utils';
+import {
+  getOwnersByCardStatistics,
+  pickRandomUniqueItemsWithSeed,
+} from '../../../utils/app.utils';
+import { getTokenPoolContractOrIdIfCustom } from '../../../utils/pool.utils';
+import { getWalletsByComponent } from '../../../utils/component.utils';
 
 export class ComponentSelectRandomPercentageWalletsOperation
   implements AllowlistOperationExecutor
@@ -37,7 +42,7 @@ export class ComponentSelectRandomPercentageWalletsOperation
     }
 
     if (typeof params.percentage !== 'number') {
-      throw new Error('Invalid percentage');
+      throw new BadInputError('Invalid percentage');
     }
 
     if (params.percentage < 0 || params.percentage > 100) {
@@ -69,27 +74,27 @@ export class ComponentSelectRandomPercentageWalletsOperation
     if (!this.validate(params)) {
       throw new BadInputError('Invalid params');
     }
-    const { componentId, percentage, seed } = params;
+    const { componentId, percentage, seed, weightType } = params;
     const { phaseId } = getComponentPath({ state, componentId });
     if (!phaseId) {
       throw new BadInputError(
         `COMPONENT_SELECT_RANDOM_PERCENTAGE_WALLETS: Component '${componentId}' does not exist, componentId: ${componentId}`,
       );
     }
-    const allWallets = Array.from(
-      new Set(
-        Object.values(
-          state.phases[phaseId].components[componentId].items,
-        ).flatMap((item) => item.tokens.flatMap((token) => token.owner)),
-      ),
-    );
+    const wallets = getWalletsByComponent({
+      state,
+      phaseId,
+      componentId,
+      weightType: weightType ?? null,
+    });
 
-    const count = Math.floor((allWallets.length * percentage) / 100);
+    const uniqueCount = new Set(wallets).size;
+    const count = Math.floor((uniqueCount * percentage) / 100);
 
     const selectedWallets = new Set(
-      pickRandomItemsWithSeed({
-        array: allWallets,
-        count: allWallets.length < count ? allWallets.length : count,
+      pickRandomUniqueItemsWithSeed({
+        array: wallets,
+        count: uniqueCount < count ? uniqueCount : count,
         seed,
       }),
     );

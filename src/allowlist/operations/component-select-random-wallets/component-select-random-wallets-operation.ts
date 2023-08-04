@@ -4,7 +4,13 @@ import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { getComponentPath } from '../../../utils/path.utils';
-import { pickRandomItemsWithSeed } from '../../../utils/app.utils';
+import {
+  getOwnersByCardStatistics,
+  pickRandomUniqueItemsWithSeed,
+} from '../../../utils/app.utils';
+import { Pool } from '../../../app-types';
+import { getTokenPoolContractOrIdIfCustom } from '../../../utils/pool.utils';
+import { getWalletsByComponent } from '../../../utils/component.utils';
 
 export class ComponentSelectRandomWalletsOperation
   implements AllowlistOperationExecutor
@@ -35,7 +41,7 @@ export class ComponentSelectRandomWalletsOperation
     }
 
     if (typeof params.count !== 'number') {
-      throw new Error('Invalid count');
+      throw new BadInputError('Invalid count');
     }
 
     if (params.count < 1) {
@@ -71,28 +77,27 @@ export class ComponentSelectRandomWalletsOperation
     if (!this.validate(params)) {
       throw new BadInputError('Invalid params');
     }
-    const { componentId, count, seed } = params;
+    const { componentId, count, seed, weightType } = params;
     const { phaseId } = getComponentPath({ state, componentId });
     if (!phaseId) {
       throw new BadInputError(
         `COMPONENT_SELECT_RANDOM_WALLETS: Component '${componentId}' does not exist, componentId: ${componentId}`,
       );
     }
-    const allWallets = Array.from(
-      new Set(
-        Object.values(
-          state.phases[phaseId].components[componentId].items,
-        ).flatMap((item) => item.tokens.flatMap((token) => token.owner)),
-      ),
-    );
 
-    const selectedWallets = new Set(
-      pickRandomItemsWithSeed({
-        array: allWallets,
-        count: allWallets.length < count ? allWallets.length : count,
-        seed,
-      }),
-    );
+    const wallets = getWalletsByComponent({
+      state,
+      phaseId,
+      componentId,
+      weightType: weightType ?? null,
+    });
+    const uniqueCount = new Set(wallets).size;
+
+    const selectedWallets = pickRandomUniqueItemsWithSeed({
+      array: wallets,
+      count: uniqueCount < count ? uniqueCount : count,
+      seed,
+    });
 
     for (const itemKey of Object.keys(
       state.phases[phaseId].components[componentId].items,

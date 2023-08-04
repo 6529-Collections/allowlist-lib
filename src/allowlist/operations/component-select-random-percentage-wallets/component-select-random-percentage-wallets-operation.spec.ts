@@ -10,6 +10,7 @@ import {
 } from '../../../allowlist/state-types/allowlist-state.test.fixture';
 import { anAllowlistLargeItemTokens } from '../../state-types/allowlist-state.test.fixture.large';
 import { getComponentPath } from '../../../utils/path.utils';
+import { CardStatistics } from '../../../app-types';
 
 describe('ComponentSelectRandomPercentageWalletsOperation', () => {
   const op = new ComponentSelectRandomPercentageWalletsOperation(
@@ -187,5 +188,73 @@ describe('ComponentSelectRandomPercentageWalletsOperation', () => {
         '0xF9e129817BC576f937e4774E3C3Aec98787Cfb91',
       ]),
     );
+  });
+
+  it('selects random wallets weighted by by TOTAL_CARDS', () => {
+    op.execute({
+      params: {
+        ...params,
+        weightType: CardStatistics.TOTAL_CARDS,
+      },
+      state,
+    });
+
+    const { phaseId } = getComponentPath({
+      state,
+      componentId: params.componentId,
+    });
+    const component = state.phases[phaseId].components[params.componentId];
+
+    expect(
+      Object.values(component.items).flatMap((item) =>
+        item.tokens.map((token) => token.owner),
+      ),
+    ).toEqual([
+      '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
+      '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
+      '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0x9769334FC882775F4951865aA473481880669D47',
+      '0xbDf82b13580b918ebc3c24b4034E8468EA168E21',
+      '0xaf5c021754Ab82Bf556BC6C90650dE21Cf92d1c7',
+    ]);
+  });
+
+  it('selects random wallets weighted by by UNIQUE_CARDS', () => {
+    op.execute({
+      params: {
+        ...params,
+        weightType: CardStatistics.UNIQUE_CARDS,
+      },
+      state,
+    });
+
+    const { phaseId } = getComponentPath({
+      state,
+      componentId: params.componentId,
+    });
+    const component = state.phases[phaseId].components[params.componentId];
+
+    expect(
+      Object.values(component.items).flatMap((item) =>
+        item.tokens.map((token) => token.owner),
+      ),
+    ).toEqual([
+      '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
+      '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
+      '0xA62DA2Ea9F5bB03a58174060535ae32131973178',
+      '0x88D3574660711e03196aF8A96f268697590000Fa',
+      '0x88D3574660711e03196aF8A96f268697590000Fa',
+      '0xddA3cb2741FaC4a87CAebec9EFC7963087304097',
+      '0x7f3774EAdae4beB01919deC7f32A72e417Ab5DE3',
+    ]);
   });
 });

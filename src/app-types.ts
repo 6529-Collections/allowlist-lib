@@ -10,6 +10,11 @@ export enum Pool {
   WALLET_POOL = 'WALLET_POOL',
 }
 
+export enum CardStatistics {
+  TOTAL_CARDS = 'TOTAL_CARDS',
+  UNIQUE_CARDS = 'UNIQUE_CARDS',
+}
+
 export type Mutable<T, K extends keyof T> = Omit<T, K> & {
   -readonly [P in K]: T[P];
 };

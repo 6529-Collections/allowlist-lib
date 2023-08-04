@@ -49,7 +49,7 @@ export class ItemSelectLastNTokensOperation
     state: AllowlistState;
   }) {
     if (!this.validate(params)) {
-      throw new Error('Invalid params');
+      throw new BadInputError('Invalid params');
     }
     const { itemId, count } = params;
     const { phaseId, componentId } = getItemPath({ state, itemId });

@@ -4,12 +4,7 @@ import { TokenPool } from './token-pool';
 import { DescribableEntity } from './describable-entity';
 import { TransferPool } from '../operations/get-collection-transfers/get-collection-transfers-operation.types';
 import { CustomTokenPool } from './custom-token-pool';
-import { SimpleTokenSorter } from '../sorters/simple-token-sorter';
 import { TokenSorter } from '../sorters/token-sorter';
-import { MemesTokenSorter } from '../sorters/memes-token-sorter';
-import { MEMES_CONTRACT } from '../../app-types';
-import { AlchemyService } from '../../services/alchemy.service';
-import { SeizeApi } from '../../services/seize/seize.api';
 
 export interface AllowlistState {
   allowlist: DescribableEntity | null;
@@ -21,22 +16,4 @@ export interface AllowlistState {
   readonly sorters: Record<string, TokenSorter>;
 
   getSorter(contractOrCustomPoolId: string): TokenSorter;
-}
-
-export function createAllowlistState(seizeApi: SeizeApi): AllowlistState {
-  const defaultSorter = new SimpleTokenSorter();
-  return {
-    allowlist: null,
-    transferPools: {},
-    tokenPools: {},
-    customTokenPools: {},
-    walletPools: {},
-    phases: {},
-    sorters: {
-      [MEMES_CONTRACT]: new MemesTokenSorter(seizeApi),
-    },
-    getSorter(contractOrCustomPoolId: string): TokenSorter {
-      return this.sorters[contractOrCustomPoolId] || defaultSorter;
-    },
-  };
 }

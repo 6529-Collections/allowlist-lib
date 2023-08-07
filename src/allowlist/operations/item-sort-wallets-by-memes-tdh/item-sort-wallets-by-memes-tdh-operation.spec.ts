@@ -9,20 +9,10 @@ import {
   anAllowlistState,
 } from '../../state-types/allowlist-state.test.fixture';
 import { anAllowlistRandomMemes100Tokens } from '../../state-types/allowlist-state.test.fixture.large';
-import * as fs from 'fs';
 import { Mutable } from '../../../app-types';
 
 describe('ItemSortWalletsByMemesTdhOperation', () => {
-  const op = new ItemSortWalletsByMemesTdhOperation(
-    {
-      getUploadsForBlock: jest
-        .fn()
-        .mockResolvedValue(
-          JSON.parse(fs.readFileSync(`mock-data/random100Tdh.json`, 'utf8')),
-        ),
-    } as any,
-    defaultLogFactory,
-  );
+  const op = new ItemSortWalletsByMemesTdhOperation(defaultLogFactory);
   let state: AllowlistState;
   let params: Mutable<
     ItemSortWalletsByMemesTdhParams,

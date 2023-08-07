@@ -1,8 +1,8 @@
-import { createAllowlistState } from '../../state-types/allowlist-state';
 import { CreateAllowlistOperation } from './create-allowlist-operation';
 import { anAllowlistState } from '../../state-types/allowlist-state.test.fixture';
 import { defaultLogFactory } from '../../../logging/logging-emitter';
 import { SeizeApi } from '../../../services/seize/seize.api';
+import { AllowlistCreator } from '../../allowlist-creator';
 
 describe('CreateAllowlistOperation', () => {
   const op = new CreateAllowlistOperation(defaultLogFactory);
@@ -119,7 +119,12 @@ describe('CreateAllowlistOperation', () => {
   });
 
   it('should add allowlist', () => {
-    const state = createAllowlistState(undefined as SeizeApi);
+    const state = new AllowlistCreator(
+      undefined,
+      undefined,
+      undefined,
+      defaultLogFactory,
+    ).createAllowlistState();
 
     op.execute({
       params: {

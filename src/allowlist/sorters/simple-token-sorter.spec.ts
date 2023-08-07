@@ -108,7 +108,7 @@ describe('Simple tokensorter', () => {
           },
         ],
         blockNo: null,
-        tdhs: [],
+        consolidateBlockNo: null,
       });
       throw new Error('Method should not be implemented');
     } catch (e) {

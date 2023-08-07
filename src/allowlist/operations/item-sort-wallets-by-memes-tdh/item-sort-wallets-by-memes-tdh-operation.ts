@@ -3,7 +3,6 @@ import { ItemSortWalletsByMemesTdhParams } from './item-sort-wallets-by-memes-td
 import { AllowlistState } from '../../state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
-import { SeizeApi } from '../../../services/seize/seize.api';
 import { getItemPath } from '../../../utils/path.utils';
 import { getTokenPoolContractOrIdIfCustom } from '../../../utils/pool.utils';
 import { MEMES_CONTRACT } from '../../../app-types';
@@ -14,10 +13,7 @@ export class ItemSortWalletsByMemesTdhOperation
 {
   private readonly logger: Logger;
 
-  constructor(
-    private readonly seizeApi: SeizeApi,
-    loggerFactory: LoggerFactory,
-  ) {
+  constructor(loggerFactory: LoggerFactory) {
     this.logger = loggerFactory.create(ItemSortWalletsByMemesTdhOperation.name);
   }
 
@@ -62,7 +58,7 @@ export class ItemSortWalletsByMemesTdhOperation
     if (!this.validate(params)) {
       throw new BadInputError('Invalid params');
     }
-    const { itemId, tdhBlockNumber } = params;
+    const { itemId } = params;
     const { phaseId, componentId } = getItemPath({ state, itemId });
     if (!phaseId || !componentId) {
       throw new BadInputError(`Item '${itemId}' not found`);
@@ -80,14 +76,13 @@ export class ItemSortWalletsByMemesTdhOperation
         `Item '${itemId}' is not a memes item and therefor operation ${AllowlistOperationCode.ITEM_SORT_WALLETS_BY_MEMES_TDH} is not supported`,
       );
     }
-
-    const tdhs = await this.seizeApi.getUploadsForBlock(tdhBlockNumber);
+    const { blockNo, consolidateBlockNo } =
+      state.phases[phaseId].components[componentId].items[itemId];
     const sorter = state.getSorter(contractOrCustomPoolId);
-    const blockNo = 17832569; // TODO: Get real block number from somewhere
     item.tokens = await sorter.sortByTdh({
       tokens: item.tokens,
-      tdhs,
-      blockNo,
+      blockNo: blockNo,
+      consolidateBlockNo: consolidateBlockNo,
     });
 
     this.logger.info('Executed ItemSortWalletsByMemesTdh operation');

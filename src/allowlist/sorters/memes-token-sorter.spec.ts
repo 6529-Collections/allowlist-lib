@@ -283,7 +283,22 @@ describe('Simple tokensorter', () => {
   });
 
   it('throws exception on tdh sort', async () => {
-    const sorter = new MemesTokenSorter({} as any);
+    const sorter = new MemesTokenSorter({
+      getUploadsForBlock: async (): Promise<TdhInfo[]> => [
+        {
+          wallet: '0x1',
+          boosted_memes_tdh: 1,
+        } as unknown as TdhInfo,
+        {
+          wallet: '0x2',
+          boosted_memes_tdh: 2,
+        } as unknown as TdhInfo,
+        {
+          wallet: '0x3',
+          boosted_memes_tdh: 3,
+        } as unknown as TdhInfo,
+      ],
+    } as any);
     const sorted = await sorter.sortByTdh({
       tokens: [
         {
@@ -308,20 +323,7 @@ describe('Simple tokensorter', () => {
         },
       ],
       blockNo: null,
-      tdhs: [
-        {
-          wallet: '0x1',
-          boosted_memes_tdh: 1,
-        } as unknown as TdhInfo,
-        {
-          wallet: '0x2',
-          boosted_memes_tdh: 2,
-        } as unknown as TdhInfo,
-        {
-          wallet: '0x3',
-          boosted_memes_tdh: 3,
-        } as unknown as TdhInfo,
-      ],
+      consolidateBlockNo: null,
     });
 
     expect(sorted).toEqual([

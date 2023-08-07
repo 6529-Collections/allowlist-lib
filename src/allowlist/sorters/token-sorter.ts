@@ -17,8 +17,8 @@ export interface TotalTokenSorterParams {
 
 export interface TdhTokenSorterParams {
   tokens: AllowlistItemToken[];
-  tdhs: TdhInfo[];
   blockNo: number | null;
+  consolidateBlockNo: number | null;
 }
 
 export interface TokenSorter {

@@ -1,8 +1,5 @@
 import { AllowlistOperation } from './allowlist-operation';
-import {
-  AllowlistState,
-  createAllowlistState,
-} from './state-types/allowlist-state';
+import { AllowlistState } from './state-types/allowlist-state';
 import { AllowlistOperationExecutor } from './allowlist-operation-executor';
 import { AllowlistOperationCode } from './allowlist-operation-code';
 import { BadInputError } from './bad-input.error';
@@ -51,6 +48,10 @@ import { ComponentSelectRandomPercentageWalletsOperation } from './operations/co
 import { TokenPoolConsolidateWalletsOperation } from './operations/token-pool-consolidate-wallets/token-pool-consolidate-wallets-operation';
 import { TokenPoolService } from '../services/token-pool.service';
 import { ItemRemoveWalletsFromCertainTokenPoolsOperation } from './operations/item-remove-wallets-from-certain-token-pools/item-remove-wallets-from-certain-token-pools-operation';
+import { SimpleTokenSorter } from './sorters/simple-token-sorter';
+import { MEMES_CONTRACT } from '../app-types';
+import { MemesTokenSorter } from './sorters/memes-token-sorter';
+import { TokenSorter } from './sorters/token-sorter';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -193,7 +194,6 @@ export class AllowlistCreator {
       COMPONENT_SELECT_RANDOM_WALLETS:
         new ComponentSelectRandomWalletsOperation(loggerFactoryImpl),
       ITEM_SORT_WALLETS_BY_MEMES_TDH: new ItemSortWalletsByMemesTdhOperation(
-        seizeApi,
         loggerFactoryImpl,
       ),
       TRANSFER_POOL_CONSOLIDATE_WALLETS:
@@ -243,6 +243,24 @@ export class AllowlistCreator {
     this.logger = loggerFactory.create(AllowlistCreator.name);
   }
 
+  public createAllowlistState(): AllowlistState {
+    const defaultSorter = new SimpleTokenSorter();
+    return {
+      allowlist: null,
+      transferPools: {},
+      tokenPools: {},
+      customTokenPools: {},
+      walletPools: {},
+      phases: {},
+      sorters: {
+        [MEMES_CONTRACT]: new MemesTokenSorter(this.seizeApi),
+      },
+      getSorter(contractOrCustomPoolId: string): TokenSorter {
+        return this.sorters[contractOrCustomPoolId] || defaultSorter;
+      },
+    };
+  }
+
   public async execute(
     operations: AllowlistOperation[],
   ): Promise<AllowlistState> {
@@ -258,7 +276,7 @@ export class AllowlistCreator {
       throw new BadInputError('First operation must be CREATE_ALLOWLIST');
     }
     const allowlistId = createAllowlistOperation.params?.id;
-    const state = createAllowlistState(this.seizeApi);
+    const state = this.createAllowlistState();
     const _uniqueIds = new Set<string>();
     for (const operation of operations) {
       if (this.onBeforeOperation) {

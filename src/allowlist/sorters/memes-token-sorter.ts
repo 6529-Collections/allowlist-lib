@@ -5,7 +5,6 @@ import {
   UniqueTokenSorterParams,
 } from './token-sorter';
 import { AllowlistItemToken } from '../state-types/allowlist-item';
-import { TdhInfo } from '../../services/seize/tdh-info';
 import { SeizeApi } from '../../services/seize/seize.api';
 
 export class MemesTokenSorter implements TokenSorter {
@@ -85,32 +84,16 @@ export class MemesTokenSorter implements TokenSorter {
   }
 
   async sortByTdh({
-    tdhs,
+    blockNo,
+    consolidateBlockNo,
     tokens,
   }: TdhTokenSorterParams): Promise<AllowlistItemToken[]> {
-    const tdhsMap = tdhs.reduce<Record<string, TdhInfo>>((acc, tdh) => {
-      acc[tdh.wallet] = tdh;
-      return acc;
-    }, {});
+    const tdhsMap = await this.getTdhs({ consolidateBlockNo, blockNo });
 
     return tokens.sort((a, d) => {
       const aTdh = tdhsMap[a.owner];
       const dTdh = tdhsMap[d.owner];
-      if (!aTdh && !dTdh) {
-        return 0;
-      }
-      if (!aTdh) {
-        return 1;
-      }
-      if (!dTdh) {
-        return -1;
-      }
-      if (dTdh.boosted_memes_tdh === aTdh.boosted_memes_tdh) {
-        return dTdh.unique_memes === aTdh.unique_memes
-          ? dTdh.memes_balance - aTdh.memes_balance
-          : dTdh.unique_memes - aTdh.unique_memes;
-      }
-      return dTdh.boosted_memes_tdh - aTdh.boosted_memes_tdh;
+      return dTdh - aTdh;
     });
   }
 

@@ -51,4 +51,13 @@ export class AlchemyService {
     }
     return result;
   }
+
+  public async resolveEnsToAddress(ens: string): Promise<string> {
+    const address = await this.alchemy.core.resolveName(ens);
+    return address?.toLowerCase();
+  }
+
+  public async resolveAddressToEns(address: string): Promise<string> {
+    return this.alchemy.core.lookupAddress(address);
+  }
 }

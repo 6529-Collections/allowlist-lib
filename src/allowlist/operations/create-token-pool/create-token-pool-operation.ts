@@ -171,7 +171,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     const savedTokenPoolTokens = await this.tokenPoolService.getTokenPoolTokens(
       id,
     );
-    if (savedTokenPoolTokens.length) {
+    if (savedTokenPoolTokens?.length) {
       return savedTokenPoolTokens;
     } else {
       const parsedTokenIds = parseTokenIds(

@@ -383,7 +383,7 @@ describe('AllowlistCreator e2e tests', () => {
     60 * 60 * 10000,
   );
 
-  it.skip('should create allowlist', async () => {
+  it('should create allowlist', async () => {
     const ops = [
       {
         code: AllowlistOperationCode.CREATE_ALLOWLIST,

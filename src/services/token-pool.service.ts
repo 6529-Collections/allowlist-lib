@@ -12,9 +12,7 @@ export class TokenPoolService {
     this.logger = loggerFactory.create(TokenPoolService.name);
   }
 
-  async getTokenPoolTokens(
-    tokenPoolId: string,
-  ): Promise<TokenOwnership[] | null> {
+  async getTokenPoolTokens(tokenPoolId: string): Promise<TokenOwnership[]> {
     return await this.tokenPoolStorage.getTokenPoolTokens(tokenPoolId);
   }
 }

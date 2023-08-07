@@ -106,7 +106,7 @@ export class MemesTokenSorter implements TokenSorter {
   }) {
     return consolidateBlockNo
       ? await this.seizeApi
-          .getConsolidatedUploadsForBlock(blockNo)
+          .getConsolidatedUploadsForBlock(consolidateBlockNo)
           .then((res) =>
             res.reduce((acc, cur) => {
               acc[cur.wallet] = cur.boosted_memes_tdh;

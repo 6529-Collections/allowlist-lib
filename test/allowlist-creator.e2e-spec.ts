@@ -382,4 +382,31 @@ describe('AllowlistCreator e2e tests', () => {
     },
     60 * 60 * 10000,
   );
+
+  it.skip('should create allowlist', async () => {
+    const ops = [
+      {
+        code: AllowlistOperationCode.CREATE_ALLOWLIST,
+        params: {
+          id: '372b93d3-9ecd-4dbc-8b59-04cab7d8d537',
+          name: '372b93d3-9ecd-4dbc-8b59-04cab7d8d537',
+          description: '372b93d3-9ecd-4dbc-8b59-04cab7d8d537',
+        },
+      },
+      {
+        code: AllowlistOperationCode.CREATE_TOKEN_POOL,
+        params: {
+          id: '6de28e1b-2a5a-45fe-ba2c-2cd84a637dee',
+          name: '6de28e1b-2a5a-45fe-ba2c-2cd84a637dee',
+          description: '6de28e1b-2a5a-45fe-ba2c-2cd84a637dee',
+          contract: '0x0c58ef43ff3032005e472cb5709f8908acb00205',
+          tokenIds: null,
+          blockNo: 17862438,
+          consolidateBlockNo: null,
+        },
+      },
+    ];
+    const state = await allowlistCreator.execute(ops);
+    console.log(state.tokenPools);
+  });
 });

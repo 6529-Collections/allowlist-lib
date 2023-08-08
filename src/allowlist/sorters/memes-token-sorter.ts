@@ -36,11 +36,10 @@ export class MemesTokenSorter implements TokenSorter {
     const blockTdhs = await this.getTdhs({ consolidateBlockNo, blockNo });
     return Object.values(wallets)
       .sort((a, d) => {
-        const tokensLenDiff = d.tokens.length - a.tokens.length;
-        if (tokensLenDiff === 0) {
+        if (d.tokens.length === a.tokens.length) {
           return blockTdhs[d.owner] - blockTdhs[a.owner];
         }
-        return tokensLenDiff;
+        return d.tokens.length - a.tokens.length;
       })
       .flatMap((w) => w.tokens);
   }
@@ -74,11 +73,10 @@ export class MemesTokenSorter implements TokenSorter {
     const blockTdhs = await this.getTdhs({ consolidateBlockNo, blockNo });
     return Object.values(wallets)
       .sort((a, d) => {
-        const uniqueTokensLength = d.uniqueTokens.size - a.uniqueTokens.size;
-        if (uniqueTokensLength === 0) {
+        if (d.uniqueTokens.size === a.uniqueTokens.size) {
           return blockTdhs[d.owner] - blockTdhs[a.owner];
         }
-        return uniqueTokensLength;
+        return d.uniqueTokens.size - a.uniqueTokens.size;
       })
       .flatMap((w) => w.tokens);
   }
@@ -89,12 +87,7 @@ export class MemesTokenSorter implements TokenSorter {
     tokens,
   }: TdhTokenSorterParams): Promise<AllowlistItemToken[]> {
     const tdhsMap = await this.getTdhs({ consolidateBlockNo, blockNo });
-
-    return tokens.sort((a, d) => {
-      const aTdh = tdhsMap[a.owner];
-      const dTdh = tdhsMap[d.owner];
-      return dTdh - aTdh;
-    });
+    return tokens.sort((a, d) => tdhsMap[d.owner] - tdhsMap[a.owner]);
   }
 
   private async getTdhs({

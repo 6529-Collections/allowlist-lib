@@ -399,7 +399,7 @@ describe('AllowlistCreator e2e tests', () => {
           id: '6de28e1b-2a5a-45fe-ba2c-2cd84a637dee',
           name: '6de28e1b-2a5a-45fe-ba2c-2cd84a637dee',
           description: '6de28e1b-2a5a-45fe-ba2c-2cd84a637dee',
-          contract: '0x0c58ef43ff3032005e472cb5709f8908acb00205',
+          contract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
           tokenIds: null,
           blockNo: 17862438,
           consolidateBlockNo: null,
@@ -407,6 +407,12 @@ describe('AllowlistCreator e2e tests', () => {
       },
     ];
     const state = await allowlistCreator.execute(ops);
-    console.log(state.tokenPools);
+    console.log(
+      new Set<string>(
+        state.tokenPools['6de28e1b-2a5a-45fe-ba2c-2cd84a637dee'].tokens.map(
+          (token) => token.owner.toLowerCase(),
+        ),
+      ).size,
+    );
   });
 });

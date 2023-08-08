@@ -328,13 +328,33 @@ export class SeizeApi {
     tokens: TokenOwnership[];
   }): Promise<TokenOwnership[]> {
     const { blockNo, tokens } = params;
-    const consolidations = await this.getAllConsolidations({
-      block: blockNo,
-    });
-    const consolidationsMap = consolidations.reduce<Record<string, string>>(
+
+    const [consolidatedSnapshot, singleSnapshot] = await Promise.all([
+      this.getConsolidatedUploadsForBlock(blockNo),
+      this.getUploadsForBlock(blockNo),
+    ]);
+
+    const walletTdhs = singleSnapshot.reduce<Record<string, number>>(
       (acc, curr) => {
+        acc[curr.wallet.toLowerCase()] = curr.boosted_memes_tdh;
+        return acc;
+      },
+      {},
+    );
+
+    const mainWallets = consolidatedSnapshot.reduce<Record<string, string>>(
+      (acc, curr) => {
+        let maxTdhWallet = curr.wallets.at(0).toLowerCase();
         for (const wallet of curr.wallets) {
-          acc[wallet.toLowerCase()] = curr.primary;
+          if (
+            walletTdhs[wallet.toLowerCase()] >
+            walletTdhs[maxTdhWallet.toLowerCase()]
+          ) {
+            maxTdhWallet = wallet.toLowerCase();
+          }
+        }
+        for (const wallet of curr.wallets) {
+          acc[wallet.toLowerCase()] = maxTdhWallet;
         }
         return acc;
       },
@@ -343,7 +363,7 @@ export class SeizeApi {
 
     return tokens.map((token) => ({
       ...token,
-      owner: consolidationsMap[token.owner] ?? token.owner,
+      owner: mainWallets[token.owner] ?? token.owner,
     }));
   }
 }

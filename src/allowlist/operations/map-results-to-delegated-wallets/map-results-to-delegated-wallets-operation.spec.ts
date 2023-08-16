@@ -15,11 +15,11 @@ describe('MapResultsToDelegatedWalletsOperation', () => {
   beforeEach(() => {
     state = anAllowlistState();
     params = {
-      delegationContract: '0x123',
+      delegationContract: '0x33fd426905f149f8376e227d0c9d3340aad17af1',
     };
   });
 
   it('validates params', () => {
-    expect(op.validate({})).toEqual(true);
+    expect(op.validate(params)).toEqual(true);
   });
 });

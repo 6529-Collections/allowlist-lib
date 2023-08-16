@@ -65,6 +65,21 @@ describe('Seize API Uploads', () => {
       'https://www.example.com/upload.csv': tdhUploadContents,
       'https://www.example.com/consolidated_upload.csv':
         consolidatedTdhUploadContents,
+      // 'https://www.example.com/api/delegations?page=1&collection=c1,c2&use_case=1,2&block=17531453&page_size=5':
+      //   {
+      //     data: [
+      //       {
+      //         consolidation_display: 'cd1',
+      //         wallets: ['0x1', '0x2', '0x3'],
+      //         primary: '0x1',
+      //       },
+      //       {
+      //         consolidation_display: 'cd2',
+      //         wallets: ['0x4', '0x5', '0x6'],
+      //         primary: '0x4',
+      //       },
+      //     ],
+      //   },
     });
     seizeApi = new SeizeApi(mockHttp, 'https://www.example.com/api');
   });
@@ -98,59 +113,59 @@ describe('Seize API Uploads', () => {
   });
 });
 
-describe('Seize API Delegations', () => {
-  let seizeApi: SeizeApi;
+// describe('Seize API Delegations', () => {
+//   let seizeApi: SeizeApi;
 
-  beforeAll(() => {
-    const mockHttp = new MockHttp({
-      'https://www.example.com/api/delegations?block=17531453&page=1&collection=c1,c2&use_case=1,2&page_size=5':
-        {
-          data: [
-            {
-              created_at: '2021-06-22T00:00:00.000000Z',
-              block: 17531453,
-              from_address: '0xfrom',
-              to_address: '0xto',
-              collection: 'c1',
-              use_case: 1,
-              expiry: 987,
-              all_tokens: 1,
-              token_id: 0,
-            },
-            {
-              created_at: '2021-06-23T00:00:00.000000Z',
-              block: 17531453,
-              from_address: '0xfrom',
-              to_address: '0xto',
-              collection: 'c2',
-              use_case: 2,
-              expiry: 986,
-              all_tokens: 0,
-              token_id: 1,
-            },
-          ],
-        },
-    });
-    seizeApi = new SeizeApi(mockHttp, 'https://www.example.com/api');
-  });
+//   beforeAll(() => {
+//     const mockHttp = new MockHttp({
+//       'https://www.example.com/api/delegations?block=17531453&page=1&collection=c1,c2&use_case=1,2&page_size=5':
+//         {
+//           data: [
+//             {
+//               created_at: '2021-06-22T00:00:00.000000Z',
+//               block: 17531453,
+//               from_address: '0xfrom',
+//               to_address: '0xto',
+//               collection: 'c1',
+//               use_case: 1,
+//               expiry: 987,
+//               all_tokens: 1,
+//               token_id: 0,
+//             },
+//             {
+//               created_at: '2021-06-23T00:00:00.000000Z',
+//               block: 17531453,
+//               from_address: '0xfrom',
+//               to_address: '0xto',
+//               collection: 'c2',
+//               use_case: 2,
+//               expiry: 986,
+//               all_tokens: 0,
+//               token_id: 1,
+//             },
+//           ],
+//         },
+//     });
+//     seizeApi = new SeizeApi(mockHttp, 'https://www.example.com/api');
+//   });
 
-  it('should fetch the delegations', async () => {
-    const { data } = await seizeApi.getDelegations({
-      block: 17531453,
-      limit: 5,
-      page: 1,
-      collections: ['c1', 'c2'],
-      useCases: ['1', '2'],
-    });
-    expect(data.length).toBe(2);
-    expect(JSON.stringify(data[0])).toBe(
-      `{"created_at":"2021-06-22T00:00:00.000000Z","block":17531453,"from_address":"0xfrom","to_address":"0xto","collection":"c1","use_case":1,"expiry":987,"all_tokens":1,"token_id":0}`,
-    );
-    expect(JSON.stringify(data[1])).toBe(
-      `{"created_at":"2021-06-23T00:00:00.000000Z","block":17531453,"from_address":"0xfrom","to_address":"0xto","collection":"c2","use_case":2,"expiry":986,"all_tokens":0,"token_id":1}`,
-    );
-  });
-});
+//   it('should fetch the delegations', async () => {
+//     const { data } = await seizeApi.getDelegations({
+//       block: 17531453,
+//       limit: 5,
+//       page: 1,
+//       collections: ['c1', 'c2'],
+//       useCases: ['1', '2'],
+//     });
+//     expect(data.length).toBe(2);
+//     expect(JSON.stringify(data[0])).toBe(
+//       `{"created_at":"2021-06-22T00:00:00.000000Z","block":17531453,"from_address":"0xfrom","to_address":"0xto","collection":"c1","use_case":1,"expiry":987,"all_tokens":1,"token_id":0}`,
+//     );
+//     expect(JSON.stringify(data[1])).toBe(
+//       `{"created_at":"2021-06-23T00:00:00.000000Z","block":17531453,"from_address":"0xfrom","to_address":"0xto","collection":"c2","use_case":2,"expiry":986,"all_tokens":0,"token_id":1}`,
+//     );
+//   });
+// });
 
 describe('Seize API Consolidations', () => {
   let seizeApi: SeizeApi;

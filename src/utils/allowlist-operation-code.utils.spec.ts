@@ -114,6 +114,7 @@ describe('AllowlistOperationCodeUtils', () => {
   it('should return correct codes for COMPONENTS', () => {
     expect(getCodesForType(AllowlistOperationType.COMPONENTS)).toEqual([
       AllowlistOperationCode.ADD_COMPONENT,
+      AllowlistOperationCode.MAP_RESULTS_TO_DELEGATED_WALLETS,
     ]);
 
     opertatinTypesToCheck = opertatinTypesToCheck.filter(

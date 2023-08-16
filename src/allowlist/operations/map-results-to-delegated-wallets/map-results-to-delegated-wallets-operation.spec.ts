@@ -16,7 +16,6 @@ describe('MapResultsToDelegatedWalletsOperation', () => {
     state = anAllowlistState();
     params = {
       delegationContract: '0x123',
-      blockNo: 1,
     };
   });
 

@@ -40,6 +40,54 @@ export class MapResultsToDelegatedWalletsOperation
     return true;
   }
 
+  private getWalletDelegation({
+    wallet,
+    delegationMap,
+  }: {
+    wallet: string;
+    delegationMap: {
+      mintingContract: Record<string, string>;
+      mintingAny: Record<string, string>;
+      allContract: Record<string, string>;
+      allAny: Record<string, string>;
+    };
+  }): string {
+    return (
+      delegationMap.mintingContract[wallet] ??
+      delegationMap.mintingAny[wallet] ??
+      delegationMap.allContract[wallet] ??
+      delegationMap.allAny[wallet] ??
+      wallet
+    );
+  }
+
+  private mapWinnersDelegations({
+    winners,
+    delegationMap,
+  }: {
+    winners: Record<string, number>;
+    delegationMap: {
+      mintingContract: Record<string, string>;
+      mintingAny: Record<string, string>;
+      allContract: Record<string, string>;
+      allAny: Record<string, string>;
+    };
+  }): Record<string, number> {
+    const mappedWinners: Record<string, number> = {};
+    for (const winner of Object.keys(winners)) {
+      const delegatedWallet = this.getWalletDelegation({
+        wallet: winner,
+        delegationMap,
+      });
+      if (!mappedWinners[delegatedWallet]) {
+        mappedWinners[delegatedWallet] = 0;
+      }
+
+      mappedWinners[delegatedWallet] += winners[winner];
+    }
+    return mappedWinners;
+  }
+
   async execute({
     params,
     state,
@@ -52,29 +100,57 @@ export class MapResultsToDelegatedWalletsOperation
     }
 
     const { delegationContract } = params;
+    const block = null;
+    const useCases = ['1', '2'];
+    const anyCollection = '0x8888888888888888888888888888888888888888';
 
-    const delegationsForTargetContract = await this.seizeApi.getAllDelegations({
-      block: null,
-      collections: [delegationContract],
-      useCases: ['1', '2'],
+    const delegations = await this.seizeApi.getAllDelegations({
+      block,
+      collections: [delegationContract, anyCollection],
+      useCases,
     });
 
-    const delectationsForAnyContract = await this.seizeApi.getAllDelegations({
-      block: null,
-      collections: ['0x8888888888888888888888888888888888888888'],
-      useCases: ['1', '2'],
-    });
+    const delegationMap = delegations.reduce<{
+      mintingContract: Record<string, string>;
+      mintingAny: Record<string, string>;
+      allContract: Record<string, string>;
+      allAny: Record<string, string>;
+    }>(
+      (acc, curr) => {
+        if (curr.collection === delegationContract && curr.use_case === 2) {
+          acc.mintingContract[curr.from_address] = curr.to_address;
+        } else if (
+          curr.collection === delegationContract &&
+          curr.use_case === 1
+        ) {
+          acc.allContract[curr.from_address] = curr.to_address;
+        } else if (curr.collection === anyCollection && curr.use_case === 2) {
+          acc.mintingAny[curr.from_address] = curr.to_address;
+        } else if (curr.collection === anyCollection && curr.use_case === 1) {
+          acc.allAny[curr.from_address] = curr.to_address;
+        }
+        return acc;
+      },
+      {
+        mintingContract: {},
+        mintingAny: {},
+        allContract: {},
+        allAny: {},
+      },
+    );
 
-    // console.log(delectationsForAnyContract);
-    // MAKE SURE IF THERE IS 2 DIFFERENT WALLETS TO DELEGATED TO THE SAME CONTRACT, THAT THEY ARE MERGED TOGETHER
-
-    // for (const phaseKey of Object.keys(state.phases)) {
-    //   for (const componentKey of Object.keys(
-    //     state.phases[phaseKey].components,
-    //   )) {
-    //     console.log(state.phases[phaseKey].components[componentKey].winners);
-    //   }
-    // }
+    for (const phaseKey of Object.keys(state.phases)) {
+      for (const componentKey of Object.keys(
+        state.phases[phaseKey].components,
+      )) {
+        const delegatedWinners = this.mapWinnersDelegations({
+          winners: state.phases[phaseKey].components[componentKey].winners,
+          delegationMap,
+        });
+        state.phases[phaseKey].components[componentKey].winners =
+          delegatedWinners;
+      }
+    }
     this.logger.info('Executed MapResultsToDelegatedWallets operation');
   }
 }

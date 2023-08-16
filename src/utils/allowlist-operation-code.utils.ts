@@ -31,6 +31,8 @@ export const ALLOWLIST_OPERATION_CODE_TO_TYPE: Record<
     AllowlistOperationType.COMPONENT,
   [AllowlistOperationCode.COMPONENT_SELECT_RANDOM_PERCENTAGE_WALLETS]:
     AllowlistOperationType.COMPONENT,
+  [AllowlistOperationCode.MAP_RESULTS_TO_DELEGATED_WALLETS]:
+    AllowlistOperationType.COMPONENTS,
   [AllowlistOperationCode.ADD_ITEM]: AllowlistOperationType.ITEMS,
   [AllowlistOperationCode.ITEM_EXCLUE_TOKEN_IDS]: AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_SELECT_TOKEN_IDS]: AllowlistOperationType.ITEM,
@@ -175,6 +177,10 @@ export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
   [AllowlistOperationCode.ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS]: {
     title: 'Remove Wallets from Certain Token Pools',
     description: 'Remove wallets from certain token pools in an item',
+  },
+  [AllowlistOperationCode.MAP_RESULTS_TO_DELEGATED_WALLETS]: {
+    title: 'Map Results to Delegated Wallets',
+    description: 'Map results to delegated wallets',
   },
 };
 

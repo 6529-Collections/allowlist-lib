@@ -52,6 +52,7 @@ import { SimpleTokenSorter } from './sorters/simple-token-sorter';
 import { MEMES_CONTRACT } from '../app-types';
 import { MemesTokenSorter } from './sorters/memes-token-sorter';
 import { TokenSorter } from './sorters/token-sorter';
+import { MapResultsToDelegatedWalletsOperation } from './operations/map-results-to-delegated-wallets/map-results-to-delegated-wallets-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -209,6 +210,8 @@ export class AllowlistCreator {
       ),
       ITEM_REMOVE_WALLETS_FROM_CERTAIN_TOKEN_POOLS:
         new ItemRemoveWalletsFromCertainTokenPoolsOperation(loggerFactoryImpl),
+      MAP_RESULTS_TO_DELEGATED_WALLETS:
+        new MapResultsToDelegatedWalletsOperation(seizeApi, loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

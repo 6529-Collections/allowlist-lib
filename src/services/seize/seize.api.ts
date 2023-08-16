@@ -71,7 +71,7 @@ export class SeizeApi {
     collections,
     useCases,
   }: {
-    block: number;
+    block: number | null;
     collections: string[];
     useCases: string[];
   }): Promise<DelegateMapping[]> {
@@ -83,7 +83,14 @@ export class SeizeApi {
         collections,
         useCases,
       });
-      result.push(...resultPage.data);
+      result.push(
+        ...resultPage.data.map((item) => ({
+          ...item,
+          from_address: item.from_address.toLowerCase(),
+          to_address: item.to_address.toLowerCase(),
+          collection: item.collection.toLowerCase(),
+        })),
+      );
       if (resultPage.next) {
         page++;
       } else {
@@ -100,7 +107,7 @@ export class SeizeApi {
     collections,
     useCases,
   }: {
-    block: number;
+    block: number | null;
     collections: string[];
     useCases: string[];
     limit?: number;
@@ -112,9 +119,13 @@ export class SeizeApi {
     }
     let endpoint = `${
       this.apiUri
-    }/delegations?block=${block}&page=${page}&collection=${collections.join(
+    }/delegations?page=${page}&collection=${collections.join(
       ',',
     )}&use_case=${useCases.join(',')}`;
+
+    if (block) {
+      endpoint += `&block=${block}`;
+    }
     if (limit) {
       endpoint += `&page_size=${limit}`;
     }

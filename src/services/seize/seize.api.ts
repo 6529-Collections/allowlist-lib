@@ -345,12 +345,9 @@ export class SeizeApi {
       this.getUploadsForBlock(blockNo),
     ]);
 
-    const walletBalances = singleSnapshot.reduce<Record<string, number>>(
+    const walletTdhs = singleSnapshot.reduce<Record<string, number>>(
       (acc, curr) => {
-        acc[curr.wallet.toLowerCase()] = curr.memes.reduce<number>(
-          (acc, curr) => (acc += curr.balance),
-          0,
-        );
+        acc[curr.wallet.toLowerCase()] = curr.boosted_memes_tdh;
         return acc;
       },
       {},
@@ -358,17 +355,17 @@ export class SeizeApi {
 
     const mainWallets = consolidatedSnapshot.reduce<Record<string, string>>(
       (acc, curr) => {
-        let maxBalanceWallet = curr.wallets.at(0).toLowerCase();
+        let maxTdhWallet = curr.wallets.at(0).toLowerCase();
         for (const wallet of curr.wallets) {
           if (
-            (walletBalances[wallet.toLowerCase()] ?? 0) >
-            (walletBalances[maxBalanceWallet.toLowerCase()] ?? 0)
+            (walletTdhs[wallet.toLowerCase()] ?? 0) >
+            (walletTdhs[maxTdhWallet.toLowerCase()] ?? 0)
           ) {
-            maxBalanceWallet = wallet.toLowerCase();
+            maxTdhWallet = wallet.toLowerCase();
           }
         }
         for (const wallet of curr.wallets) {
-          acc[wallet.toLowerCase()] = maxBalanceWallet;
+          acc[wallet.toLowerCase()] = maxTdhWallet;
         }
         return acc;
       },

@@ -76,13 +76,14 @@ export class SeizeApi {
     useCases: string[];
   }): Promise<DelegateMapping[]> {
     const result: DelegateMapping[] = [];
-    for (let page = 1; ; page++) {
+    for (let page = 1; ; ) {
       const resultPage = await this.getDelegations({
         block,
         page,
         collections,
         useCases,
       });
+
       result.push(
         ...resultPage.data.map((item) => ({
           ...item,

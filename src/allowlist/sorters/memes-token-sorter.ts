@@ -134,20 +134,20 @@ export class MemesTokenSorter implements TokenSorter {
         }
       }
 
-      // const walletTokens: Set<string> = new Set();
-      // for (const token of tokens) {
-      //   if (token.owner.toLowerCase() === maxTdhWallet) {
-      //     walletTokens.add(token.id);
-      //   }
-      // }
-      // const totalTdh =
-      //   curr.memes.reduce((acc, meme) => {
-      //     if (walletTokens.has(meme.id.toString())) {
-      //       acc += curr.tdh;
-      //     }
-      //     return acc;
-      // }, 0) * curr.boost;
-      acc[maxTdhWallet] = curr.boosted_memes_tdh;
+      const walletTokens: Set<string> = new Set();
+      for (const token of tokens) {
+        if (token.owner.toLowerCase() === maxTdhWallet) {
+          walletTokens.add(token.id);
+        }
+      }
+      const totalTdh =
+        curr.memes.reduce((acc, meme) => {
+          if (walletTokens.has(meme.id.toString())) {
+            acc += meme.tdh;
+          }
+          return acc;
+        }, 0) * curr.boost;
+      acc[maxTdhWallet] = totalTdh;
       return acc;
     }, {});
   }

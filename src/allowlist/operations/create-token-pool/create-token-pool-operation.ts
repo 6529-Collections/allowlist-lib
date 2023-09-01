@@ -122,7 +122,10 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       throw new BadInputError('Invalid params');
     }
     const { id, tokenIds, consolidateBlockNo, contract, blockNo } = params;
-    const tokens = await this.getTokens({ params, state });
+    const tokens = (await this.getTokens({ params, state })).filter(
+      (token) =>
+        !['0x0000000000000000000000000000000000000000'].includes(token.owner),
+    );
 
     state.tokenPools[id] = {
       id,

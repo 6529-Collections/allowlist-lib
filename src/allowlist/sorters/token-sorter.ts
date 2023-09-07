@@ -1,5 +1,5 @@
 import { AllowlistItemToken } from '../state-types/allowlist-item';
-import { TdhInfo } from '../../services/seize/tdh-info';
+
 
 export interface UniqueTokenSorterParams {
   tokens: AllowlistItemToken[];

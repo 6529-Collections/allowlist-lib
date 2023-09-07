@@ -1,6 +1,5 @@
 import { AllowlistItemToken } from '../state-types/allowlist-item';
 
-
 export interface UniqueTokenSorterParams {
   tokens: AllowlistItemToken[];
   contract: string | null;

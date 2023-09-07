@@ -5,7 +5,6 @@ import {
   UniqueTokenSorterParams,
 } from './token-sorter';
 import { AllowlistItemToken } from '../state-types/allowlist-item';
-import { TdhInfo } from '../../services/seize/tdh-info';
 
 export class SimpleTokenSorter implements TokenSorter {
   async sortByTotalTokensCount({

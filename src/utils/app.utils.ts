@@ -115,3 +115,12 @@ export const getOwnersByCardStatistics = ({
       assertUnreachable(type);
   }
 };
+
+export const setHasAnyOf = <T>(set: Set<T>, items: T[]): boolean => {
+  for (const item of items) {
+    if (set.has(item)) {
+      return true;
+    }
+  }
+  return false;
+};

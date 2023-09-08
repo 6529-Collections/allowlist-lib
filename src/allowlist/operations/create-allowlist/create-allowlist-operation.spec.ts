@@ -1,7 +1,6 @@
 import { CreateAllowlistOperation } from './create-allowlist-operation';
 import { anAllowlistState } from '../../state-types/allowlist-state.test.fixture';
 import { defaultLogFactory } from '../../../logging/logging-emitter';
-import { SeizeApi } from '../../../services/seize/seize.api';
 import { AllowlistCreator } from '../../allowlist-creator';
 
 describe('CreateAllowlistOperation', () => {

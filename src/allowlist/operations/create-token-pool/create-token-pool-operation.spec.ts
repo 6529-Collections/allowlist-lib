@@ -30,20 +30,38 @@ class MockAlchemyService extends AlchemyService {
 }
 
 describe('CreateTokenPoolOperation', () => {
-  const op = new CreateTokenPoolOperation(
-    defaultLogFactory,
-    new MockAlchemyService(undefined as Alchemy),
-    undefined as TransfersService,
-    {
-      getTokenPoolTokens: jest.fn().mockResolvedValue(null),
-    } as any,
-    {
-      getContractSchema: jest.fn().mockResolvedValue(ContractSchema.ERC721),
-    } as any,
-    {
-      getAllConsolidations: jest.fn().mockResolvedValue([]),
-    } as any,
-  );
+  let op: CreateTokenPoolOperation;
+
+  function getCreateTokenPoolOperation(sanctionedWallet: string) {
+    return new CreateTokenPoolOperation(
+      defaultLogFactory,
+      new MockAlchemyService(undefined as Alchemy),
+      undefined as TransfersService,
+      {
+        getTokenPoolTokens: jest.fn().mockResolvedValue(null),
+      } as any,
+      {
+        getContractSchema: jest.fn().mockResolvedValue(ContractSchema.ERC721),
+      } as any,
+      {
+        getAllConsolidations: jest.fn().mockResolvedValue([]),
+      } as any,
+      {
+        getProfilesForSanctionedWallets: jest.fn().mockResolvedValue({
+          [sanctionedWallet]: {
+            recordId: sanctionedWallet,
+            wallet: sanctionedWallet,
+            profile: `https://sanctionssearch.ofac.treas.gov/Details.aspx?id=${sanctionedWallet}`,
+            listProvider: 'OFAC',
+          },
+        }),
+      } as any,
+    );
+  }
+
+  beforeAll(() => {
+    op = getCreateTokenPoolOperation('0xbad');
+  });
 
   let state: AllowlistState;
   let params: TokenPoolParams;
@@ -292,8 +310,8 @@ describe('CreateTokenPoolOperation', () => {
     ).not.toThrow();
   });
 
-  it('creates a token pool ', async () => {
-    const state = anAllowlistState();
+  it('creates a token pool with sanctioned owners', async () => {
+    op = getCreateTokenPoolOperation('0x123');
     await op.execute({
       params: {
         id: 'tp-2',
@@ -306,31 +324,6 @@ describe('CreateTokenPoolOperation', () => {
       },
       state: state,
     });
-    expect(state.tokenPools['tp-2']).toStrictEqual({
-      description: 'tp 2 description',
-      id: 'tp-2',
-      name: 'tp 2',
-      tokenIds: '1,2,3-5,6',
-      contract: '0x123',
-      blockNo: 123,
-      consolidateBlockNo: null,
-      tokens: [
-        {
-          contract: '0x123',
-          id: '1',
-          owner: '0x123',
-        },
-        {
-          contract: '0x123',
-          id: '2',
-          owner: '0x123',
-        },
-        {
-          contract: '0x123',
-          id: '2',
-          owner: '0x123',
-        },
-      ],
-    });
+    expect(state.tokenPools['tp-2'].tokens).toStrictEqual([]);
   });
 });

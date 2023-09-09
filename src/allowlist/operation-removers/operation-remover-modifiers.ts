@@ -6,24 +6,24 @@ import { ComponentAddSpotsToWalletsExcludingCertainComponentsParams } from '../o
 import { ItemRemoveWalletsFromCertainComponentsParams } from '../operations/item-remove-wallets-from-certain-components/item-remove-wallets-from-certain-components.types';
 import { ItemRemoveWalletsFromCertainTokenPoolsParams } from '../operations/item-remove-wallets-from-certain-token-pools/item-remove-wallets-from-certain-token-pools.types';
 
-export interface OperationModifierParams {
+export interface OperationModifierParams<T extends AllowlistOperation> {
   targetIds: Set<string>;
-  operation: AllowlistOperation;
+  operation: T;
 }
 
-export interface OperationModifierResponse {
-  readonly operation: AllowlistOperation | null;
+export interface OperationModifierResponse<T extends AllowlistOperation> {
+  readonly operation: T | null;
   readonly id: string | null;
 }
 
-export interface OperationModifier {
-  (params: OperationModifierParams): OperationModifierResponse;
+export interface OperationModifier<T extends AllowlistOperation> {
+  (params: OperationModifierParams<T>): OperationModifierResponse<T>;
 }
 
-export const defaultModifier: OperationModifier = ({
+export const defaultModifier = <T extends AllowlistOperation>({
   targetIds,
   operation,
-}) => {
+}: OperationModifierParams<T>): OperationModifierResponse<T> => {
   const { params } = operation;
   if (params.id && targetIds.has(params.id)) {
     return {
@@ -37,10 +37,10 @@ export const defaultModifier: OperationModifier = ({
   };
 };
 
-export const addComponentModifier: OperationModifier = ({
+export const addComponentModifier = <T extends AllowlistOperation>({
   targetIds,
   operation,
-}) => {
+}: OperationModifierParams<T>): OperationModifierResponse<T> => {
   const { params } = operation as { params: AllowlistAddComponentParams };
   const { id: componentId, phaseId } = params;
   if (setHasAnyOf(targetIds, [componentId, phaseId])) {
@@ -56,10 +56,7 @@ export const addComponentModifier: OperationModifier = ({
   };
 };
 
-export const defaultComponentOperationModifier: OperationModifier = ({
-  targetIds,
-  operation,
-}) => {
+export const defaultComponentOperationModifier = ({ targetIds, operation }) => {
   const { params } = operation as { params: { componentId: string } };
   const { componentId } = params;
   return {
@@ -68,47 +65,46 @@ export const defaultComponentOperationModifier: OperationModifier = ({
   };
 };
 
-export const componentAddSpotsToWalletsExcludingCertainComponentsModifier: OperationModifier =
-  ({ targetIds, operation }) => {
-    const { params } = operation as {
-      params: ComponentAddSpotsToWalletsExcludingCertainComponentsParams;
-    };
-
-    const { componentId, excludedComponentIds } = params;
-    if (targetIds.has(componentId)) {
-      return {
-        operation: null,
-        id: null,
-      };
-    }
-
-    const modifiedExcludedComponentIds = excludedComponentIds.filter(
-      (id) => !targetIds.has(id),
-    );
-
-    if (!modifiedExcludedComponentIds.length) {
-      return {
-        operation: null,
-        id: null,
-      };
-    }
-
-    return {
-      operation: {
-        ...operation,
-        params: {
-          ...params,
-          excludedComponentIds: modifiedExcludedComponentIds,
-        },
-      },
-      id: null,
-    };
-  };
-
-export const addItemModifier: OperationModifier = ({
+export const componentAddSpotsToWalletsExcludingCertainComponentsModifier = ({
   targetIds,
   operation,
 }) => {
+  const { params } = operation as {
+    params: ComponentAddSpotsToWalletsExcludingCertainComponentsParams;
+  };
+
+  const { componentId, excludedComponentIds } = params;
+  if (targetIds.has(componentId)) {
+    return {
+      operation: null,
+      id: null,
+    };
+  }
+
+  const modifiedExcludedComponentIds = excludedComponentIds.filter(
+    (id) => !targetIds.has(id),
+  );
+
+  if (!modifiedExcludedComponentIds.length) {
+    return {
+      operation: null,
+      id: null,
+    };
+  }
+
+  return {
+    operation: {
+      ...operation,
+      params: {
+        ...params,
+        excludedComponentIds: modifiedExcludedComponentIds,
+      },
+    },
+    id: null,
+  };
+};
+
+export const addItemModifier = ({ targetIds, operation }) => {
   const { params } = operation as { params: AllowlistAddItemParams };
   const { id: itemId, componentId, poolId } = params;
   if (setHasAnyOf(targetIds, [itemId, componentId, poolId])) {
@@ -124,10 +120,7 @@ export const addItemModifier: OperationModifier = ({
   };
 };
 
-export const defaultItemOperationModifier: OperationModifier = ({
-  targetIds,
-  operation,
-}) => {
+export const defaultItemOperationModifier = ({ targetIds, operation }) => {
   const { params } = operation as { params: { itemId: string } };
   const { itemId } = params;
   return {
@@ -136,44 +129,44 @@ export const defaultItemOperationModifier: OperationModifier = ({
   };
 };
 
-export const itemRemoveWalletsFromCertainComponentsModifier: OperationModifier =
-  ({ targetIds, operation }) => {
-    const { params } = operation as {
-      params: ItemRemoveWalletsFromCertainComponentsParams;
-    };
-
-    const { itemId, componentIds } = params;
-    if (targetIds.has(itemId)) {
-      return {
-        operation: null,
-        id: null,
-      };
-    }
-
-    const modifiedComponentIds = componentIds.filter(
-      (id) => !targetIds.has(id),
-    );
-
-    if (!modifiedComponentIds.length) {
-      return {
-        operation: null,
-        id: null,
-      };
-    }
-
-    return {
-      operation: {
-        ...operation,
-        params: {
-          ...params,
-          componentIds: modifiedComponentIds,
-        },
-      },
-      id: null,
-    };
+export const itemRemoveWalletsFromCertainComponentsModifier = ({
+  targetIds,
+  operation,
+}) => {
+  const { params } = operation as {
+    params: ItemRemoveWalletsFromCertainComponentsParams;
   };
 
-export const defaultTransferPoolOperationModifier: OperationModifier = ({
+  const { itemId, componentIds } = params;
+  if (targetIds.has(itemId)) {
+    return {
+      operation: null,
+      id: null,
+    };
+  }
+
+  const modifiedComponentIds = componentIds.filter((id) => !targetIds.has(id));
+
+  if (!modifiedComponentIds.length) {
+    return {
+      operation: null,
+      id: null,
+    };
+  }
+
+  return {
+    operation: {
+      ...operation,
+      params: {
+        ...params,
+        componentIds: modifiedComponentIds,
+      },
+    },
+    id: null,
+  };
+};
+
+export const defaultTransferPoolOperationModifier = ({
   targetIds,
   operation,
 }) => {
@@ -185,10 +178,7 @@ export const defaultTransferPoolOperationModifier: OperationModifier = ({
   };
 };
 
-export const defaultTokenPoolOperationModifier: OperationModifier = ({
-  targetIds,
-  operation,
-}) => {
+export const defaultTokenPoolOperationModifier = ({ targetIds, operation }) => {
   const { params } = operation as { params: { tokenPoolId: string } };
   const { tokenPoolId } = params;
   return {
@@ -197,37 +187,39 @@ export const defaultTokenPoolOperationModifier: OperationModifier = ({
   };
 };
 
-export const itemRemoveWalletsFromCertainTokenPoolsModifier: OperationModifier =
-  ({ targetIds, operation }) => {
-    const { params } = operation as {
-      params: ItemRemoveWalletsFromCertainTokenPoolsParams;
-    };
+export const itemRemoveWalletsFromCertainTokenPoolsModifier = ({
+  targetIds,
+  operation,
+}) => {
+  const { params } = operation as {
+    params: ItemRemoveWalletsFromCertainTokenPoolsParams;
+  };
 
-    const { itemId, pools } = params;
-    if (targetIds.has(itemId)) {
-      return {
-        operation: null,
-        id: null,
-      };
-    }
-
-    const modifiedPools = pools.filter((pool) => !targetIds.has(pool.poolId));
-
-    if (!modifiedPools.length) {
-      return {
-        operation: null,
-        id: null,
-      };
-    }
-
+  const { itemId, pools } = params;
+  if (targetIds.has(itemId)) {
     return {
-      operation: {
-        ...operation,
-        params: {
-          ...params,
-          pools: modifiedPools,
-        },
-      },
+      operation: null,
       id: null,
     };
+  }
+
+  const modifiedPools = pools.filter((pool) => !targetIds.has(pool.poolId));
+
+  if (!modifiedPools.length) {
+    return {
+      operation: null,
+      id: null,
+    };
+  }
+
+  return {
+    operation: {
+      ...operation,
+      params: {
+        ...params,
+        pools: modifiedPools,
+      },
+    },
+    id: null,
   };
+};

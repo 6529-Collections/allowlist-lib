@@ -26,7 +26,7 @@ import {
 // each remover should answer with operation (modified or not) or null if operation should be removed
 // each remover should answer id field, if it's not null, it should be counted as removed
 
-const MODIFIERS: Record<AllowlistOperationCode, OperationModifier> = {
+const MODIFIERS: Record<AllowlistOperationCode, OperationModifier<any>> = {
   [AllowlistOperationCode.CREATE_ALLOWLIST]: defaultModifier,
   [AllowlistOperationCode.GET_COLLECTION_TRANSFERS]: defaultModifier,
   [AllowlistOperationCode.CREATE_TOKEN_POOL]: defaultModifier,
@@ -75,7 +75,9 @@ const MODIFIERS: Record<AllowlistOperationCode, OperationModifier> = {
   [AllowlistOperationCode.MAP_RESULTS_TO_DELEGATED_WALLETS]: defaultModifier,
 };
 
-const getModifier = (code: AllowlistOperationCode): OperationModifier => {
+const getModifier = <T extends AllowlistOperation>(
+  code: AllowlistOperationCode,
+): OperationModifier<T> => {
   const modifier = MODIFIERS[code];
   if (!modifier) {
     throw new BadInputError(`Unknown operation code: ${code}`);
@@ -83,20 +85,22 @@ const getModifier = (code: AllowlistOperationCode): OperationModifier => {
   return modifier;
 };
 
-export const removeEntity = ({
+export const removeEntity = <T extends AllowlistOperation>({
   entityId,
   operations,
 }: {
   readonly entityId: string;
-  readonly operations: AllowlistOperation[];
-}): AllowlistOperation[] => {
+  readonly operations: T[];
+}): T[] => {
   const targetIds = new Set([entityId]);
-  const filteredOperations: AllowlistOperation[] = [];
+  const filteredOperations: T[] = [];
   for (const operation of operations) {
-    const { operation: modifiedOperation, id } = getModifier(operation.code)({
-      targetIds,
-      operation,
-    });
+    const { operation: modifiedOperation, id } = getModifier<T>(operation.code)(
+      {
+        targetIds,
+        operation,
+      },
+    );
     if (modifiedOperation) {
       filteredOperations.push(modifiedOperation);
     }

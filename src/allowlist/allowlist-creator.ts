@@ -53,6 +53,8 @@ import { MEMES_CONTRACT } from '../app-types';
 import { MemesTokenSorter } from './sorters/memes-token-sorter';
 import { TokenSorter } from './sorters/token-sorter';
 import { MapResultsToDelegatedWalletsOperation } from './operations/map-results-to-delegated-wallets/map-results-to-delegated-wallets-operation';
+import { WalletScreener } from '../services/screening/wallet.screener';
+import { OfacApi } from '../services/screening/listproviders/ofac/ofac.api';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -149,6 +151,7 @@ export class AllowlistCreator {
         tokenPoolService,
         etherscanService,
         seizeApi,
+        new WalletScreener(new OfacApi(http)),
       ),
       CREATE_CUSTOM_TOKEN_POOL: new CreateCustomTokenPoolOperation(),
       CREATE_WALLET_POOL: new CreateWalletPoolOperation(loggerFactoryImpl),

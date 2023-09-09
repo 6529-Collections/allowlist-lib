@@ -1,5 +1,4 @@
 import { CommonTdhInfo, ConsolidatedTdhInfo, TdhInfo } from './tdh-info';
-import { parse } from 'csv-parse';
 import { Time } from '../../time';
 import { Http } from '../http';
 import { SeizeApiPage } from './seize-api-page';
@@ -9,6 +8,7 @@ import {
 } from './consolidation-mapping';
 import { DelegateMapping, DelegateMappingPage } from './delegation-mapping';
 import { TokenOwnership } from '../../allowlist/state-types/token-ownership';
+import { parseCsv } from '../../utils/csv';
 
 export class SeizeApi {
   constructor(
@@ -308,7 +308,22 @@ export class SeizeApi {
     const csvContents = await this.http.get<string>({
       endpoint: tdh,
     });
-    return this.parseCsv<any>(csvContents);
+    return parseCsv<any>(
+      csvContents,
+      { delimiter: ',' },
+      (records: string[][]) => {
+        const lines: any[] = [];
+        const header = records[0];
+        for (let i = 1; i < records.length; i++) {
+          const o = {};
+          for (let j = 0; j < header.length; j++) {
+            o[header[j]] = records[i][j];
+          }
+          lines.push(o);
+        }
+        return lines;
+      },
+    );
   }
 
   private getClosestTdh(apiResponseData: TdhInfoApiResponse, blockId: number) {
@@ -316,23 +331,6 @@ export class SeizeApi {
       .sort((a, b) => a.block - b.block)
       .filter((a) => a.block <= blockId)
       .at(-1)?.tdh;
-  }
-
-  private async parseCsv<T>(csvContents: string): Promise<T[]> {
-    return new Promise<T[]>((resolve) => {
-      parse(csvContents, { delimiter: ',' }, function (err, records) {
-        const lines: T[] = [];
-        const header = records[0];
-        for (let i = 1; i < records.length; i++) {
-          const o = {};
-          for (let j = 0; j < header.length; j++) {
-            o[header[j]] = records[i][j];
-          }
-          lines.push(o as T);
-        }
-        return resolve(lines);
-      });
-    });
   }
 
   async consolidate(params: {

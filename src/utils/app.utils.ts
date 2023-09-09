@@ -115,3 +115,10 @@ export const getOwnersByCardStatistics = ({
       assertUnreachable(type);
   }
 };
+
+export function numberToHex(n: number): string {
+  if (n === null || n === undefined) {
+    return null;
+  }
+  return `0x${n.toString(16)}`;
+}

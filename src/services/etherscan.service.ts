@@ -12,6 +12,8 @@ import {
 } from '../allowlist/state-types/transfer';
 import { assertUnreachable } from '../utils/app.utils';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
+import { Log } from '@ethersproject/abstract-provider';
+import { Time } from '../time';
 
 export class EtherscanService {
   private readonly logger: Logger;
@@ -21,6 +23,73 @@ export class EtherscanService {
     loggerFactory: LoggerFactory,
   ) {
     this.logger = loggerFactory.create(EtherscanService.name);
+  }
+
+  async *getLogs({
+    contract,
+    fromBlock,
+    toBlock,
+  }: {
+    contract: string;
+    fromBlock: number;
+    toBlock: number;
+  }): AsyncGenerator<Log, void, void> {
+    for (let page = 1; ; page++) {
+      const logsOnThisPage = await this.getLogsWithRetries(
+        contract,
+        fromBlock,
+        toBlock,
+        page,
+      );
+      for (const log of logsOnThisPage) {
+        yield log;
+      }
+      if (logsOnThisPage.length === 0) {
+        break;
+      }
+    }
+  }
+
+  private async getLogsWithRetries(
+    contract: string,
+    fromBlock: number,
+    toBlock: number,
+    page: number,
+  ) {
+    let logsOnThisPage = undefined;
+    let error = undefined;
+    for (let attempt = 1; attempt <= 10; attempt++) {
+      const url =
+        'https://api.etherscan.io/api' +
+        '?module=logs' +
+        '&action=getLogs' +
+        `&address=${contract}` +
+        `&fromBlock=${fromBlock}` +
+        `&toBlock=${toBlock}` +
+        `&page=${page}` +
+        `&apiKey=${this.config.apiKey}` +
+        '&offset=1000';
+      const axiosResponse = await axios.get(url);
+
+      if (Array.isArray(axiosResponse.data.result)) {
+        logsOnThisPage = axiosResponse.data.result;
+        break;
+      }
+
+      await Time.seconds(5).sleep();
+      error = `Attempt: ${attempt}. Params: ${JSON.stringify({
+        contract,
+        fromBlock,
+        toBlock,
+      })} Message: ${JSON.stringify(
+        axiosResponse.data.message,
+      )} Result: ${JSON.stringify(axiosResponse.data.result)}`;
+      this.logger.warn(error);
+    }
+    if (logsOnThisPage === undefined) {
+      throw new Error(error);
+    }
+    return logsOnThisPage;
   }
 
   async *getTransfers(param: {

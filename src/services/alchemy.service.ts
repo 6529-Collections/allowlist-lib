@@ -1,7 +1,7 @@
 import {
   Alchemy,
-  AlchemySettings,
   GetOwnersForContractWithTokenBalancesOptions,
+  TransactionResponse,
 } from 'alchemy-sdk';
 import { CollectionOwner } from './collection-owner';
 
@@ -52,6 +52,11 @@ export class AlchemyService {
     return result;
   }
 
+  public async getBlockTimestamp(blockNumber: number): Promise<number> {
+    const block = await this.alchemy.core.getBlock(blockNumber);
+    return block.timestamp;
+  }
+
   public async resolveEnsToAddress(ens: string): Promise<string> {
     const address = await this.alchemy.core.resolveName(ens);
     return address?.toLowerCase();
@@ -59,5 +64,9 @@ export class AlchemyService {
 
   public async resolveAddressToEns(address: string): Promise<string> {
     return this.alchemy.core.lookupAddress(address);
+  }
+
+  public async getTransaction(txHash: string): Promise<TransactionResponse> {
+    return this.alchemy.core.getTransaction(txHash);
   }
 }

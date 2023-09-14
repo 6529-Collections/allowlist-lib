@@ -154,7 +154,7 @@ export class SeizeApi {
     return rawData.map((rawColumn) => ({
       ...this.mapCommon(rawColumn),
       consolidation_display: rawColumn.consolidation_display,
-      wallets: JSON.parse(rawColumn.wallets),
+      wallets: JSON.parse(rawColumn.wallets).map((w) => w.toLowerCase()),
     }));
   }
 

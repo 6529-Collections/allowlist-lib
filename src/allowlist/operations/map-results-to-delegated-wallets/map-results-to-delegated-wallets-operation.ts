@@ -104,11 +104,13 @@ export class MapResultsToDelegatedWalletsOperation
     const useCases = ['1', '2'];
     const anyCollection = '0x8888888888888888888888888888888888888888';
 
-    const delegations = await this.seizeApi.getAllDelegations({
-      block,
-      collections: [delegationContract, anyCollection],
-      useCases,
-    });
+    const delegations = (
+      await this.seizeApi.getAllDelegations({
+        block,
+        collections: [delegationContract, anyCollection],
+        useCases,
+      })
+    ).sort((a, d) => a.block - d.block);
 
     const delegationMap = delegations.reduce<{
       mintingContract: Record<string, string>;

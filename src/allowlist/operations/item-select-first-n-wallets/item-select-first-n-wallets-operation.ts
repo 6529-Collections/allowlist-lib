@@ -5,7 +5,7 @@ import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { getItemPath } from '../../../utils/path.utils';
 import { AllowlistItemToken } from '../../state-types/allowlist-item';
-
+import * as fs from 'fs';
 export class ItemSelectFirstNWalletsOperation
   implements AllowlistOperationExecutor
 {

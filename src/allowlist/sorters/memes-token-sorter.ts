@@ -7,6 +7,7 @@ import {
 import { AllowlistItemToken } from '../state-types/allowlist-item';
 import { SeizeApi } from '../../services/seize/seize.api';
 
+
 export class MemesTokenSorter implements TokenSorter {
   constructor(private readonly seizeApi: SeizeApi) {}
 

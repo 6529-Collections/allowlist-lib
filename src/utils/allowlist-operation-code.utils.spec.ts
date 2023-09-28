@@ -153,6 +153,7 @@ describe('AllowlistOperationCodeUtils', () => {
       AllowlistOperationCode.ITEM_REMOVE_LAST_N_TOKENS,
       AllowlistOperationCode.ITEM_SELECT_FIRST_N_TOKENS,
       AllowlistOperationCode.ITEM_SELECT_LAST_N_TOKENS,
+      AllowlistOperationCode.ITEM_SELECT_WALLETS_OWNING_TOKEN_IDS,
       AllowlistOperationCode.ITEM_SORT_WALLETS_BY_TOTAL_TOKENS_COUNT,
       AllowlistOperationCode.ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT,
       AllowlistOperationCode.ITEM_SORT_WALLETS_BY_MEMES_TDH,

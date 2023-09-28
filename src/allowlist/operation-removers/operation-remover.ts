@@ -46,6 +46,8 @@ const MODIFIERS: Record<AllowlistOperationCode, OperationModifier<any>> = {
   [AllowlistOperationCode.ADD_ITEM]: addItemModifier,
   [AllowlistOperationCode.ITEM_EXCLUE_TOKEN_IDS]: defaultItemOperationModifier,
   [AllowlistOperationCode.ITEM_SELECT_TOKEN_IDS]: defaultItemOperationModifier,
+  [AllowlistOperationCode.ITEM_SELECT_WALLETS_OWNING_TOKEN_IDS]:
+    defaultItemOperationModifier,
   [AllowlistOperationCode.ITEM_REMOVE_FIRST_N_TOKENS]:
     defaultItemOperationModifier,
   [AllowlistOperationCode.ITEM_REMOVE_LAST_N_TOKENS]:

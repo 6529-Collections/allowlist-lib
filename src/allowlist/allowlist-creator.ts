@@ -55,6 +55,7 @@ import { TokenSorter } from './sorters/token-sorter';
 import { MapResultsToDelegatedWalletsOperation } from './operations/map-results-to-delegated-wallets/map-results-to-delegated-wallets-operation';
 import { WalletScreener } from '../services/screening/wallet.screener';
 import { OfacApi } from '../services/screening/listproviders/ofac/ofac.api';
+import { ItemSelectWalletsOwningTokenIdsOperation } from './operations/item-select-wallets-owning-token-ids/item-select-wallets-owning-token-ids-operation';
 // Placeholder for future imports (please keep this comment here, it's used by the code generator)
 
 export class AllowlistCreator {
@@ -215,6 +216,7 @@ export class AllowlistCreator {
         new ItemRemoveWalletsFromCertainTokenPoolsOperation(loggerFactoryImpl),
       MAP_RESULTS_TO_DELEGATED_WALLETS:
         new MapResultsToDelegatedWalletsOperation(seizeApi, loggerFactoryImpl),
+      ITEM_SELECT_WALLETS_OWNING_TOKEN_IDS: new ItemSelectWalletsOwningTokenIdsOperation(loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

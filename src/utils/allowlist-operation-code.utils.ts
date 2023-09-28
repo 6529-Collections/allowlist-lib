@@ -44,6 +44,8 @@ export const ALLOWLIST_OPERATION_CODE_TO_TYPE: Record<
     AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_SELECT_LAST_N_TOKENS]:
     AllowlistOperationType.ITEM,
+  [AllowlistOperationCode.ITEM_SELECT_WALLETS_OWNING_TOKEN_IDS]:
+    AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_TOTAL_TOKENS_COUNT]:
     AllowlistOperationType.ITEM,
   [AllowlistOperationCode.ITEM_SORT_WALLETS_BY_UNIQUE_TOKENS_COUNT]:
@@ -110,6 +112,10 @@ export const ALLOWLIST_CODE_DESCRIPTIONS: Record<
   [AllowlistOperationCode.ADD_ITEM]: {
     title: 'Add Item',
     description: 'Add a new item to a component',
+  },
+  [AllowlistOperationCode.ITEM_SELECT_WALLETS_OWNING_TOKEN_IDS]: {
+    title: 'Select Wallets Owning Token IDs',
+    description: 'Select wallets owning token IDs from an item',
   },
   [AllowlistOperationCode.ITEM_EXCLUE_TOKEN_IDS]: {
     title: 'Exclude Token IDs',

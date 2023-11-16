@@ -1,4 +1,3 @@
-
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { AllowlistAddComponentParams } from './add-component-operation.types';
 import { BadInputError } from '../../bad-input.error';

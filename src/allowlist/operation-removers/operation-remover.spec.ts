@@ -1,4 +1,3 @@
-import exp from 'constants';
 import { AllowlistOperation } from '../allowlist-operation';
 import { AllowlistOperationCode } from '../allowlist-operation-code';
 import { removeEntity } from './operation-remover';

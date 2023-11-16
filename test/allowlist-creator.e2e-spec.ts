@@ -2,8 +2,6 @@ import { AllowlistCreator } from '../src/allowlist/allowlist-creator';
 import { AllowlistOperation } from '../src/allowlist/allowlist-operation';
 import { AllowlistOperationCode } from '../src/allowlist/allowlist-operation-code';
 import axios from 'axios';
-import * as fs from 'fs';
-import { ConsolidatedTdhInfo } from '../src/services/seize/tdh-info';
 
 describe('AllowlistCreator e2e tests', () => {
   let allowlistCreator: AllowlistCreator;

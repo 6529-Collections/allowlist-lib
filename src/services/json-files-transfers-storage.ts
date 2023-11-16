@@ -83,7 +83,7 @@ export class JsonFilesTransfersStorage implements TransfersStorage {
   }
 
   async getTokenPoolTokenOwnerships(
-    tokenPoolId: string,
+    _: string,
   ): Promise<TokenOwnership[] | null> {
     return null;
   }

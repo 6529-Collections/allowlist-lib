@@ -9,10 +9,9 @@ import { WalletPool } from './wallet-pool';
 import { Transfer } from './transfer';
 import { TokenOwnership } from './token-ownership';
 import { CustomTokenOwnership, CustomTokenPool } from './custom-token-pool';
-import { MEMES_CONTRACT, Pool } from '../../app-types';
+import { Pool } from '../../app-types';
 import { TokenSorter } from '../sorters/token-sorter';
 import { SimpleTokenSorter } from '../sorters/simple-token-sorter';
-import { MemesTokenSorter } from '../sorters/memes-token-sorter';
 
 export function anAllowlistItemToken(params?: {
   id?: string;

@@ -1,5 +1,4 @@
 import { AllowlistState } from '../../state-types/allowlist-state';
-import { TokenPoolParams } from '../../state-types/token-pool';
 import { anAllowlistState } from '../../state-types/allowlist-state.test.fixture';
 import { defaultLogFactory } from '../../../logging/logging-emitter';
 import { AlchemyService } from '../../../services/alchemy.service';
@@ -10,10 +9,7 @@ import { TransfersService } from '../../../services/transfers.service';
 import { ContractSchema } from '../../../app-types';
 
 class MockAlchemyService extends AlchemyService {
-  async getCollectionOwnersInBlock({
-    contract,
-    block,
-  }: {
+  async getCollectionOwnersInBlock(_: {
     contract: string;
     block?: number;
   }): Promise<CollectionOwner[]> {
@@ -64,19 +60,9 @@ describe('CreateTokenPoolOperation', () => {
   });
 
   let state: AllowlistState;
-  let params: TokenPoolParams;
 
   beforeEach(() => {
     state = anAllowlistState();
-    params = {
-      id: 'tp-2',
-      name: 'tp 2',
-      description: 'tp 2 description',
-      tokenIds: '10,20-30,40',
-      contract: '0x123',
-      blockNo: 123,
-      consolidateBlockNo: null,
-    };
   });
 
   it('throws if id is missing', () => {

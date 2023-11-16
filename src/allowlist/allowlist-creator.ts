@@ -216,7 +216,8 @@ export class AllowlistCreator {
         new ItemRemoveWalletsFromCertainTokenPoolsOperation(loggerFactoryImpl),
       MAP_RESULTS_TO_DELEGATED_WALLETS:
         new MapResultsToDelegatedWalletsOperation(seizeApi, loggerFactoryImpl),
-      ITEM_SELECT_WALLETS_OWNING_TOKEN_IDS: new ItemSelectWalletsOwningTokenIdsOperation(loggerFactoryImpl),
+      ITEM_SELECT_WALLETS_OWNING_TOKEN_IDS:
+        new ItemSelectWalletsOwningTokenIdsOperation(loggerFactoryImpl),
       // Placeholder for future operations (please keep this comment here, it's used by the code generator)
     };
     return new AllowlistCreator(

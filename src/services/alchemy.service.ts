@@ -1,6 +1,5 @@
 import {
   Alchemy,
-  AlchemySettings,
   GetOwnersForContractWithTokenBalancesOptions,
 } from 'alchemy-sdk';
 import { CollectionOwner } from './collection-owner';

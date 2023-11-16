@@ -69,7 +69,7 @@ export class SimpleTokenSorter implements TokenSorter {
       .flatMap((w) => w.tokens);
   }
 
-  async sortByTdh({}: TdhTokenSorterParams): Promise<AllowlistItemToken[]> {
+  async sortByTdh(_: TdhTokenSorterParams): Promise<AllowlistItemToken[]> {
     throw new Error('Method not implemented in SimpleTokenSorter');
   }
 }

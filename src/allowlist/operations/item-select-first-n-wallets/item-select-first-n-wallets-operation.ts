@@ -1,11 +1,11 @@
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { ItemSelectFirstNWalletsParams } from './item-select-first-n-wallets.types';
-import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
+import { AllowlistState } from '../../state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { getItemPath } from '../../../utils/path.utils';
 import { AllowlistItemToken } from '../../state-types/allowlist-item';
-import * as fs from 'fs';
+
 export class ItemSelectFirstNWalletsOperation
   implements AllowlistOperationExecutor
 {

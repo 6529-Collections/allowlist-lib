@@ -1,17 +1,14 @@
 import { ItemSortWalletsByUniqueTokensCountOperation } from './item-sort-wallets-by-unique-tokens-count-operation';
-import { defaultLogFactory } from './../../../logging/logging-emitter';
-import { AllowlistState } from './../../../allowlist/state-types/allowlist-state';
+import { defaultLogFactory } from '../../../logging/logging-emitter';
+import { AllowlistState } from '../../state-types/allowlist-state';
 import { ItemSortWalletsByUniqueTokensCountParams } from './item-sort-wallets-by-unique-tokens-count.types';
 import {
   anAllowlistComponent,
   anAllowlistItem,
   anAllowlistPhase,
   anAllowlistState,
-} from '../../../allowlist/state-types/allowlist-state.test.fixture';
-import {
-  anAllowlistLargeItemTokens,
-  anAllowlistSmallItemTokens,
-} from '../../state-types/allowlist-state.test.fixture.large';
+} from '../../state-types/allowlist-state.test.fixture';
+import { anAllowlistSmallItemTokens } from '../../state-types/allowlist-state.test.fixture.large';
 
 describe('ItemSortWalletsByUniqueTokensCountOperation', () => {
   const op = new ItemSortWalletsByUniqueTokensCountOperation(defaultLogFactory);

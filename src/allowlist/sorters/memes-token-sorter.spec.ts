@@ -1,6 +1,5 @@
-import { SimpleTokenSorter } from './simple-token-sorter';
 import { MemesTokenSorter } from './memes-token-sorter';
-import { ConsolidatedTdhInfo, TdhInfo } from '../../services/seize/tdh-info';
+import { TdhInfo } from '../../services/seize/tdh-info';
 
 describe('Simple tokensorter', () => {
   it('sorts total tokens', async () => {

@@ -2,6 +2,8 @@ import { Http } from '../../../http';
 import { parseCsv } from '../../../../utils/csv';
 import { SanctionedWallet } from '../../sanctioned-wallet';
 
+const SPECIAL_CHARACTER_REGEX = /[\x00-\x08\x0B-\x1F\x7F]+/g;
+
 export class OfacApi {
   constructor(private readonly http: Http) {}
 
@@ -10,8 +12,7 @@ export class OfacApi {
       endpoint: 'https://www.treasury.gov/ofac/downloads/sdn_comments.csv',
     });
     const idsAndWallets = await parseCsv<{ wallet: string; id: string }>(
-      // NOSONAR
-      response.replace(/[\x00-\x08\x0B-\x1F\x7F]+/g, ''),
+      response.replace(SPECIAL_CHARACTER_REGEX, ''),
       { delimiter: ',' },
       (records: string[][]) => {
         return records

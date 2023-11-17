@@ -1,6 +1,6 @@
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { ComponentSelectRandomWalletsParams } from './component-select-random-wallets.types';
-import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
+import { AllowlistState } from '../../state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { getComponentPath } from '../../../utils/path.utils';
@@ -20,18 +20,44 @@ export class ComponentSelectRandomWalletsOperation
   }
 
   validate(params: any): params is ComponentSelectRandomWalletsParams {
-    if (!params.hasOwnProperty('componentId')) {
-      throw new BadInputError('Missing componentId');
+    this.assertComponentIdValid(params);
+    this.assertCountValid(params);
+    this.assertSeedValid(params);
+    this.assertWeightTypeValid(params);
+    return true;
+  }
+
+  private assertWeightTypeValid(params: any) {
+    if (params.hasOwnProperty('weightType')) {
+      if (typeof params.weightType !== 'string') {
+        throw new BadInputError('Invalid weightType');
+      }
+
+      if (!params.weightType.length) {
+        throw new BadInputError('Invalid weightType');
+      }
+
+      if (!Object.values(CardStatistics).includes(params.weightType)) {
+        throw new BadInputError('Invalid weightType');
+      }
+    }
+  }
+
+  private assertSeedValid(params: any) {
+    if (!params.hasOwnProperty('seed')) {
+      throw new BadInputError('Missing seed');
     }
 
-    if (typeof params.componentId !== 'string') {
-      throw new BadInputError('Invalid componentId');
+    if (typeof params.seed !== 'string') {
+      throw new BadInputError('Invalid seed');
     }
 
-    if (!params.componentId.length) {
-      throw new BadInputError('Invalid componentId');
+    if (!params.seed.length) {
+      throw new BadInputError('Invalid seed');
     }
+  }
 
+  private assertCountValid(params: any) {
     if (!params.hasOwnProperty('count')) {
       throw new BadInputError('Missing count');
     }
@@ -47,34 +73,20 @@ export class ComponentSelectRandomWalletsOperation
     if (!Number.isInteger(params.count)) {
       throw new BadInputError('Invalid count');
     }
+  }
 
-    if (!params.hasOwnProperty('seed')) {
-      throw new BadInputError('Missing seed');
+  private assertComponentIdValid(params: any) {
+    if (!params.hasOwnProperty('componentId')) {
+      throw new BadInputError('Missing componentId');
     }
 
-    if (typeof params.seed !== 'string') {
-      throw new BadInputError('Invalid seed');
+    if (typeof params.componentId !== 'string') {
+      throw new BadInputError('Invalid componentId');
     }
 
-    if (!params.seed.length) {
-      throw new BadInputError('Invalid seed');
+    if (!params.componentId.length) {
+      throw new BadInputError('Invalid componentId');
     }
-
-    if (params.hasOwnProperty('weightType')) {
-      if (typeof params.weightType !== 'string') {
-        throw new BadInputError('Invalid weightType');
-      }
-
-      if (!params.weightType.length) {
-        throw new BadInputError('Invalid weightType');
-      }
-
-      if (!Object.values(CardStatistics).includes(params.weightType)) {
-        throw new BadInputError('Invalid weightType');
-      }
-    }
-
-    return true;
   }
 
   execute({

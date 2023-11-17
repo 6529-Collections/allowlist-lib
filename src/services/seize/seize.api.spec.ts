@@ -35,17 +35,17 @@ describe('Seize API Uploads', () => {
           {
             date: '20230622',
             block: 17531462,
-            tdh: 'https://www.example.com/upload-future.csv',
+            url: 'https://www.example.com/upload-future.csv',
           },
           {
             date: '20230622',
             block: 17531451,
-            tdh: 'https://www.example.com/upload-expired.csv',
+            url: 'https://www.example.com/upload-expired.csv',
           },
           {
             date: '20230622',
             block: 17531452,
-            tdh: 'https://www.example.com/upload.csv',
+            url: 'https://www.example.com/upload.csv',
           },
         ],
       },
@@ -55,7 +55,7 @@ describe('Seize API Uploads', () => {
             {
               date: '20230622',
               block: 17531451,
-              tdh: 'https://www.example.com/consolidated_upload.csv',
+              url: 'https://www.example.com/consolidated_upload.csv',
             },
           ],
         },

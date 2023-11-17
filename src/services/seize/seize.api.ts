@@ -330,7 +330,7 @@ export class SeizeApi {
     return apiResponseData.data
       .sort((a, b) => a.block - b.block)
       .filter((a) => a.block <= blockId)
-      .at(-1)?.tdh;
+      .at(-1)?.url;
   }
 
   async consolidate(params: {
@@ -381,5 +381,5 @@ export class SeizeApi {
 type TdhInfoApiResponse = SeizeApiPage<{
   readonly date: string;
   readonly block: number;
-  readonly tdh: string;
+  readonly url: string;
 }>;

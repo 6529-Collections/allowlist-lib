@@ -102,7 +102,7 @@ export class EtherscanService {
     });
 
     switch (contractSchema) {
-      case ContractSchema.ERC721:
+      case ContractSchema.ERC721: {
         const transfers = await this.getAllTransfersAtOnce({
           contractAddress,
           contractSchema,
@@ -111,7 +111,8 @@ export class EtherscanService {
           transferType: 'single',
         });
         return sortAndLowercaseTransfers(transfers);
-      case ContractSchema.ERC1155:
+      }
+      case ContractSchema.ERC1155: {
         const [singleTransfers, batchTransfers] = await Promise.all([
           this.getAllTransfersAtOnce({
             contractAddress,
@@ -133,7 +134,8 @@ export class EtherscanService {
           ...singleTransfers,
           ...batchTransfers,
         ]);
-      case ContractSchema.ERC721Old:
+      }
+      case ContractSchema.ERC721Old: {
         const erc721OldTransfers = await this.getAllTransfersAtOnce({
           contractAddress,
           contractSchema,
@@ -142,6 +144,7 @@ export class EtherscanService {
           transferType: 'single',
         });
         return sortAndLowercaseTransfers(erc721OldTransfers);
+      }
       default:
         assertUnreachable(contractSchema);
         break;

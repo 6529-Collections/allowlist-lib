@@ -1,6 +1,6 @@
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { ComponentSelectRandomPercentageWalletsParams } from './component-select-random-percentage-wallets.types';
-import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
+import { AllowlistState } from '../../state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { BadInputError } from '../../bad-input.error';
 import { getComponentPath } from '../../../utils/path.utils';
@@ -23,42 +23,14 @@ export class ComponentSelectRandomPercentageWalletsOperation
   validate(
     params: any,
   ): params is ComponentSelectRandomPercentageWalletsParams {
-    if (!params.hasOwnProperty('componentId')) {
-      throw new BadInputError('Missing componentId');
-    }
+    this.assertComponentIdValid(params);
+    this.assertPercentageValid(params);
+    this.assertSeedValid(params);
+    this.assertWeightTypeValid(params);
+    return true;
+  }
 
-    if (typeof params.componentId !== 'string') {
-      throw new BadInputError('Invalid componentId');
-    }
-
-    if (!params.componentId.length) {
-      throw new BadInputError('Invalid componentId');
-    }
-
-    if (!params.hasOwnProperty('percentage')) {
-      throw new BadInputError('Missing percentage');
-    }
-
-    if (typeof params.percentage !== 'number') {
-      throw new BadInputError('Invalid percentage');
-    }
-
-    if (params.percentage < 0 || params.percentage > 100) {
-      throw new BadInputError('Invalid percentage');
-    }
-
-    if (!params.hasOwnProperty('seed')) {
-      throw new BadInputError('Missing seed');
-    }
-
-    if (typeof params.seed !== 'string') {
-      throw new BadInputError('Invalid seed');
-    }
-
-    if (!params.seed.length) {
-      throw new BadInputError('Invalid seed');
-    }
-
+  private assertWeightTypeValid(params: any) {
     if (params.hasOwnProperty('weightType')) {
       if (typeof params.weightType !== 'string') {
         throw new BadInputError('Invalid weightType');
@@ -72,8 +44,48 @@ export class ComponentSelectRandomPercentageWalletsOperation
         throw new BadInputError('Invalid weightType');
       }
     }
+  }
 
-    return true;
+  private assertSeedValid(params: any) {
+    if (!params.hasOwnProperty('seed')) {
+      throw new BadInputError('Missing seed');
+    }
+
+    if (typeof params.seed !== 'string') {
+      throw new BadInputError('Invalid seed');
+    }
+
+    if (!params.seed.length) {
+      throw new BadInputError('Invalid seed');
+    }
+  }
+
+  private assertPercentageValid(params: any) {
+    if (!params.hasOwnProperty('percentage')) {
+      throw new BadInputError('Missing percentage');
+    }
+
+    if (typeof params.percentage !== 'number') {
+      throw new BadInputError('Invalid percentage');
+    }
+
+    if (params.percentage < 0 || params.percentage > 100) {
+      throw new BadInputError('Invalid percentage');
+    }
+  }
+
+  private assertComponentIdValid(params: any) {
+    if (!params.hasOwnProperty('componentId')) {
+      throw new BadInputError('Missing componentId');
+    }
+
+    if (typeof params.componentId !== 'string') {
+      throw new BadInputError('Invalid componentId');
+    }
+
+    if (!params.componentId.length) {
+      throw new BadInputError('Invalid componentId');
+    }
   }
 
   execute({

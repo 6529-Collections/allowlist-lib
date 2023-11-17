@@ -6,6 +6,7 @@ import {
 } from './token-sorter';
 import { AllowlistItemToken } from '../state-types/allowlist-item';
 import { SeizeApi } from '../../services/seize/seize.api';
+import { ConsolidatedTdhInfo } from '../../services/seize/tdh-info';
 
 export class MemesTokenSorter implements TokenSorter {
   constructor(private readonly seizeApi: SeizeApi) {}
@@ -123,6 +124,18 @@ export class MemesTokenSorter implements TokenSorter {
     const consolidatedSnapshot =
       await this.seizeApi.getConsolidatedUploadsForBlock(consolidateBlockNo);
 
+    return this.aggregateTdhsByWallets(
+      consolidatedSnapshot,
+      singleTdhMap,
+      tokens,
+    );
+  }
+
+  private aggregateTdhsByWallets(
+    consolidatedSnapshot: ConsolidatedTdhInfo[],
+    singleTdhMap: Record<string, number>,
+    tokens: AllowlistItemToken[],
+  ) {
     return consolidatedSnapshot.reduce<Record<string, number>>((acc, curr) => {
       let maxTdhWallet = curr.wallets.at(0).toLowerCase();
       for (const wallet of curr.wallets) {
@@ -140,14 +153,13 @@ export class MemesTokenSorter implements TokenSorter {
           walletTokens.add(token.id);
         }
       }
-      const totalTdh =
+      acc[maxTdhWallet] =
         curr.memes.reduce((acc, meme) => {
           if (walletTokens.has(meme.id.toString())) {
             acc += meme.tdh;
           }
           return acc;
         }, 0) * curr.boost;
-      acc[maxTdhWallet] = totalTdh;
       return acc;
     }, {});
   }

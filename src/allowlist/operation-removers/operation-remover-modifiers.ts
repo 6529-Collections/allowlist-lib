@@ -16,9 +16,9 @@ export interface OperationModifierResponse<T extends AllowlistOperation> {
   readonly id: string | null;
 }
 
-export interface OperationModifier<T extends AllowlistOperation> {
+export type OperationModifier<T extends AllowlistOperation> = {
   (params: OperationModifierParams<T>): OperationModifierResponse<T>;
-}
+};
 
 export const defaultModifier = <T extends AllowlistOperation>({
   targetIds,

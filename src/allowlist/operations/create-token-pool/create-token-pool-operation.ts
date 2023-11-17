@@ -31,69 +31,16 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   }
 
   validate(params: any): params is TokenPoolParams {
-    if (!params.hasOwnProperty('id')) {
-      throw new BadInputError('Missing id');
-    }
+    this.assertIdValid(params);
+    this.assertContractValid(params);
+    this.assertBlockNoValid(params);
+    this.assertConsolidateBlockNoValid(params);
+    this.assertTokenIdsValid(params);
 
-    if (typeof params.id !== 'string') {
-      throw new BadInputError('Invalid id');
-    }
+    return true;
+  }
 
-    if (!params.id.length) {
-      throw new BadInputError('Invalid id');
-    }
-
-    if (!params.hasOwnProperty('contract')) {
-      throw new BadInputError('Missing contract');
-    }
-
-    if (typeof params.contract !== 'string') {
-      throw new BadInputError('Invalid contract');
-    }
-
-    if (!params.contract.length) {
-      throw new BadInputError('Invalid contract');
-    }
-
-    if (!params.hasOwnProperty('contract')) {
-      throw new BadInputError('Missing contract');
-    }
-
-    if (params.blockNo === undefined || params.blockNo === null) {
-      throw new BadInputError('Invalid blockNo');
-    }
-
-    if (typeof params.blockNo !== 'number') {
-      throw new BadInputError('Invalid blockNo');
-    }
-
-    if (params.blockNo < 0) {
-      throw new BadInputError('Invalid blockNo');
-    }
-
-    if (params.blockNo % 1 !== 0) {
-      throw new BadInputError('Invalid blockNo');
-    }
-
-    if (!params.hasOwnProperty('consolidateBlockNo')) {
-      throw new BadInputError('Missing consolidateBlockNo');
-    }
-
-    if (
-      typeof params.consolidateBlockNo !== 'number' &&
-      params.consolidateBlockNo !== null
-    ) {
-      throw new BadInputError('Invalid consolidateBlockNo');
-    }
-
-    if (params.consolidateBlockNo < 0) {
-      throw new BadInputError('Invalid consolidateBlockNo');
-    }
-
-    if (params.consolidateBlockNo % 1 !== 0) {
-      throw new BadInputError('Invalid consolidateBlockNo');
-    }
-
+  private assertTokenIdsValid(params: any) {
     if (
       params.hasOwnProperty('tokenIds') &&
       params.tokenIds !== null &&
@@ -114,8 +61,77 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     ) {
       throw new BadInputError('Invalid tokenIds');
     }
+  }
 
-    return true;
+  private assertConsolidateBlockNoValid(params: any) {
+    if (!params.hasOwnProperty('consolidateBlockNo')) {
+      throw new BadInputError('Missing consolidateBlockNo');
+    }
+
+    if (
+      typeof params.consolidateBlockNo !== 'number' &&
+      params.consolidateBlockNo !== null
+    ) {
+      throw new BadInputError('Invalid consolidateBlockNo');
+    }
+
+    if (params.consolidateBlockNo < 0) {
+      throw new BadInputError('Invalid consolidateBlockNo');
+    }
+
+    if (params.consolidateBlockNo % 1 !== 0) {
+      throw new BadInputError('Invalid consolidateBlockNo');
+    }
+  }
+
+  private assertBlockNoValid(params: any) {
+    if (params.blockNo === undefined || params.blockNo === null) {
+      throw new BadInputError('Invalid blockNo');
+    }
+
+    if (typeof params.blockNo !== 'number') {
+      throw new BadInputError('Invalid blockNo');
+    }
+
+    if (params.blockNo < 0) {
+      throw new BadInputError('Invalid blockNo');
+    }
+
+    if (params.blockNo % 1 !== 0) {
+      throw new BadInputError('Invalid blockNo');
+    }
+  }
+
+  private assertContractValid(params: any) {
+    if (!params.hasOwnProperty('contract')) {
+      throw new BadInputError('Missing contract');
+    }
+
+    if (typeof params.contract !== 'string') {
+      throw new BadInputError('Invalid contract');
+    }
+
+    if (!params.contract.length) {
+      throw new BadInputError('Invalid contract');
+    }
+
+    if (!params.hasOwnProperty('contract')) {
+      throw new BadInputError('Missing contract');
+    }
+  }
+
+  private assertIdValid(params: any) {
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
+    }
+
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
   }
 
   async execute(p: { params: any; state: AllowlistState }) {

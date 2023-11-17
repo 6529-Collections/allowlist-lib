@@ -102,7 +102,7 @@ export const getOwnersByCardStatistics = ({
   switch (type) {
     case CardStatistics.TOTAL_CARDS:
       return cards.map((card) => card.owner);
-    case CardStatistics.UNIQUE_CARDS:
+    case CardStatistics.UNIQUE_CARDS: {
       const owners = new Set<string>(cards.map((card) => card.owner));
       return Array.from(owners).flatMap((owner) => {
         const uniqueCards = new Set(
@@ -110,7 +110,7 @@ export const getOwnersByCardStatistics = ({
         );
         return Array.from({ length: uniqueCards.size }, () => owner);
       });
-
+    }
     default:
       assertUnreachable(type);
   }

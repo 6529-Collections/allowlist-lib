@@ -16,7 +16,6 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-    "lib": ["ESNext.Array"]
+    "noFallthroughCasesInSwitch": false
   }
 }

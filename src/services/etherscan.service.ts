@@ -241,10 +241,6 @@ export class EtherscanService {
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 
     switch (contractSchema) {
-      case ContractSchema.ERC721:
-        return {
-          topic0: ERC721TransferTopic,
-        };
       case ContractSchema.ERC1155:
         if (transferType === 'batch') {
           return {
@@ -258,6 +254,7 @@ export class EtherscanService {
           };
         }
       case ContractSchema.ERC721Old:
+      case ContractSchema.ERC721:
         return {
           topic0: ERC721TransferTopic,
         };

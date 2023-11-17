@@ -43,7 +43,7 @@ export const parseTokenIds = (
 
   for (const part of parts) {
     // Check if the part is a range (e.g., 4-6)
-    const rangeMatch = part.match(/^(\d+)-(\d+)$/);
+    const rangeMatch = /^(\d+)-(\d+)$/.exec(part);
 
     if (rangeMatch) {
       const start = BigInt(rangeMatch[1]);

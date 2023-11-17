@@ -28,6 +28,16 @@ export const sortAndLowercaseTransfers = (transfers: Transfer[]): Transfer[] =>
     from: transfer.from.toLowerCase(),
   }));
 
+function transfersSorter(a: Transfer, b: Transfer) {
+  if (a.blockNumber !== b.blockNumber) {
+    return a.blockNumber - b.blockNumber;
+  }
+  if (a.transactionIndex !== b.transactionIndex) {
+    return a.transactionIndex - b.transactionIndex;
+  }
+  return a.logIndex - b.logIndex;
+}
+
 /**
  * The `sortTransfers` function sorts array of transfers sorted by block number, transaction index, and log index.
  * @param transfers Array of transfers to sort.
@@ -36,13 +46,4 @@ export const sortAndLowercaseTransfers = (transfers: Transfer[]): Transfer[] =>
  * // => [{ blockNumber: 1, transactionIndex: 1, logIndex: 1 }, { blockNumber: 1, transactionIndex: 1, logIndex: 2 }]
  */
 export const sortTransfers = (transfers: Transfer[]): Transfer[] =>
-  transfers.sort((a, b) => {
-    if (a.blockNumber !== b.blockNumber) {
-      return a.blockNumber - b.blockNumber;
-    }
-    if (a.transactionIndex !== b.transactionIndex) {
-      return a.transactionIndex - b.transactionIndex;
-    }
-
-    return a.logIndex - b.logIndex;
-  });
+  transfers.sort(transfersSorter);

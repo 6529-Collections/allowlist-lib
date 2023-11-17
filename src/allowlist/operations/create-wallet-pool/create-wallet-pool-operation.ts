@@ -13,54 +13,15 @@ export class CreateWalletPoolOperation implements AllowlistOperationExecutor {
   }
 
   validate(params: any): params is WalletPool {
-    if (!params.hasOwnProperty('id')) {
-      throw new BadInputError('Missing id');
-    }
+    this.assertIdValid(params);
+    this.assertNameValid(params);
+    this.assertDescriptionValid(params);
+    this.assertWalletsValid(params);
+    this.assertWalletsUnique(params);
+    return true;
+  }
 
-    if (typeof params.id !== 'string') {
-      throw new BadInputError('Invalid id');
-    }
-
-    if (!params.id.length) {
-      throw new BadInputError('Invalid id');
-    }
-
-    if (!params.hasOwnProperty('name')) {
-      throw new BadInputError('Missing name');
-    }
-
-    if (typeof params.name !== 'string') {
-      throw new BadInputError('Invalid name');
-    }
-
-    if (!params.name.length) {
-      throw new BadInputError('Invalid name');
-    }
-
-    if (!params.hasOwnProperty('description')) {
-      throw new BadInputError('Missing description');
-    }
-
-    if (typeof params.description !== 'string') {
-      throw new BadInputError('Invalid description');
-    }
-
-    if (!params.description.length) {
-      throw new BadInputError('Invalid description');
-    }
-
-    if (!params.hasOwnProperty('wallets')) {
-      throw new BadInputError('Missing wallets');
-    }
-
-    if (!Array.isArray(params.wallets)) {
-      throw new BadInputError('Invalid wallets');
-    }
-
-    if (!params.wallets.length) {
-      throw new BadInputError('Invalid wallets');
-    }
-
+  private assertWalletsUnique(params: any) {
     const uniqueWallets = new Set();
     for (const wallet of params.wallets) {
       if (typeof wallet !== 'string') {
@@ -81,8 +42,62 @@ export class CreateWalletPoolOperation implements AllowlistOperationExecutor {
 
       uniqueWallets.add(wallet);
     }
+  }
 
-    return true;
+  private assertWalletsValid(params: any) {
+    if (!params.hasOwnProperty('wallets')) {
+      throw new BadInputError('Missing wallets');
+    }
+
+    if (!Array.isArray(params.wallets)) {
+      throw new BadInputError('Invalid wallets');
+    }
+
+    if (!params.wallets.length) {
+      throw new BadInputError('Invalid wallets');
+    }
+  }
+
+  private assertDescriptionValid(params: any) {
+    if (!params.hasOwnProperty('description')) {
+      throw new BadInputError('Missing description');
+    }
+
+    if (typeof params.description !== 'string') {
+      throw new BadInputError('Invalid description');
+    }
+
+    if (!params.description.length) {
+      throw new BadInputError('Invalid description');
+    }
+  }
+
+  private assertNameValid(params: any) {
+    if (!params.hasOwnProperty('name')) {
+      throw new BadInputError('Missing name');
+    }
+
+    if (typeof params.name !== 'string') {
+      throw new BadInputError('Invalid name');
+    }
+
+    if (!params.name.length) {
+      throw new BadInputError('Invalid name');
+    }
+  }
+
+  private assertIdValid(params: any) {
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
+    }
+
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
   }
 
   execute({ params, state }: { params: WalletPool; state: AllowlistState }) {

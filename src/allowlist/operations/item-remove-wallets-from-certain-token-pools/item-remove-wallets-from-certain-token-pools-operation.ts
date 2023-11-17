@@ -1,6 +1,6 @@
 import { AllowlistOperationExecutor } from '../../allowlist-operation-executor';
 import { ItemRemoveWalletsFromCertainTokenPoolsParams } from './item-remove-wallets-from-certain-token-pools.types';
-import { AllowlistState } from '../../../allowlist/state-types/allowlist-state';
+import { AllowlistState } from '../../state-types/allowlist-state';
 import { Logger, LoggerFactory } from '../../../logging/logging-emitter';
 import { Pool } from '../../../app-types';
 import { BadInputError } from '../../bad-input.error';
@@ -21,18 +21,50 @@ export class ItemRemoveWalletsFromCertainTokenPoolsOperation
   validate(
     params: any,
   ): params is ItemRemoveWalletsFromCertainTokenPoolsParams {
-    if (!params.hasOwnProperty('itemId')) {
-      throw new BadInputError('Missing itemId');
+    this.validateItemId(params);
+    this.validatePools(params);
+
+    for (const pool of params.pools) {
+      this.validatePoolType(pool);
+      this.validatePoolId(pool);
     }
 
-    if (typeof params.itemId !== 'string') {
-      throw new BadInputError('Invalid itemId');
+    return true;
+  }
+
+  private validatePoolId(pool) {
+    if (!pool.hasOwnProperty('poolId')) {
+      throw new BadInputError('Missing poolId');
     }
 
-    if (!params.itemId.length) {
-      throw new BadInputError('Invalid itemId');
+    if (typeof pool.poolId !== 'string') {
+      throw new BadInputError('Invalid poolId');
     }
 
+    if (!pool.poolId.length) {
+      throw new BadInputError('Invalid poolId');
+    }
+  }
+
+  private validatePoolType(pool) {
+    if (!pool.hasOwnProperty('poolType')) {
+      throw new BadInputError('Missing poolType');
+    }
+
+    if (typeof pool.poolType !== 'string') {
+      throw new BadInputError('Invalid poolType');
+    }
+
+    if (!pool.poolType.length) {
+      throw new BadInputError('Invalid poolType');
+    }
+
+    if (!Object.values(Pool).includes(pool.poolType as Pool)) {
+      throw new BadInputError('Invalid poolType');
+    }
+  }
+
+  private validatePools(params: any) {
     if (!params.hasOwnProperty('pools')) {
       throw new BadInputError('Missing pools');
     }
@@ -44,38 +76,20 @@ export class ItemRemoveWalletsFromCertainTokenPoolsOperation
     if (!params.pools.length) {
       throw new BadInputError('Invalid pools');
     }
+  }
 
-    for (const pool of params.pools) {
-      if (!pool.hasOwnProperty('poolType')) {
-        throw new BadInputError('Missing poolType');
-      }
-
-      if (typeof pool.poolType !== 'string') {
-        throw new BadInputError('Invalid poolType');
-      }
-
-      if (!pool.poolType.length) {
-        throw new BadInputError('Invalid poolType');
-      }
-
-      if (!Object.values(Pool).includes(pool.poolType as Pool)) {
-        throw new BadInputError('Invalid poolType');
-      }
-
-      if (!pool.hasOwnProperty('poolId')) {
-        throw new BadInputError('Missing poolId');
-      }
-
-      if (typeof pool.poolId !== 'string') {
-        throw new BadInputError('Invalid poolId');
-      }
-
-      if (!pool.poolId.length) {
-        throw new BadInputError('Invalid poolId');
-      }
+  private validateItemId(params: any) {
+    if (!params.hasOwnProperty('itemId')) {
+      throw new BadInputError('Missing itemId');
     }
 
-    return true;
+    if (typeof params.itemId !== 'string') {
+      throw new BadInputError('Invalid itemId');
+    }
+
+    if (!params.itemId.length) {
+      throw new BadInputError('Invalid itemId');
+    }
   }
 
   private getTokenPoolWallets(params: {

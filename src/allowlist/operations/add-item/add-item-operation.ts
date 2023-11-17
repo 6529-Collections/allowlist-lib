@@ -25,7 +25,7 @@ export class AddItemOperation implements AllowlistOperationExecutor {
   } {
     const { poolType, poolId, itemId } = param;
     switch (poolType) {
-      case Pool.TOKEN_POOL:
+      case Pool.TOKEN_POOL: {
         const tokenPool = state.tokenPools[poolId];
         if (!tokenPool) {
           throw new BadInputError(
@@ -41,6 +41,7 @@ export class AddItemOperation implements AllowlistOperationExecutor {
           blockNo: tokenPool.blockNo,
           consolidateBlockNo: tokenPool.consolidateBlockNo,
         };
+      }
       case Pool.CUSTOM_TOKEN_POOL:
         const customTokenPool = state.customTokenPools[poolId];
         if (!customTokenPool) {

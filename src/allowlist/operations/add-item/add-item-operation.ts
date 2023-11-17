@@ -42,7 +42,7 @@ export class AddItemOperation implements AllowlistOperationExecutor {
           consolidateBlockNo: tokenPool.consolidateBlockNo,
         };
       }
-      case Pool.CUSTOM_TOKEN_POOL:
+      case Pool.CUSTOM_TOKEN_POOL: {
         const customTokenPool = state.customTokenPools[poolId];
         if (!customTokenPool) {
           throw new BadInputError(
@@ -58,6 +58,7 @@ export class AddItemOperation implements AllowlistOperationExecutor {
           blockNo: null,
           consolidateBlockNo: null,
         };
+      }
       case Pool.WALLET_POOL:
         throw new BadInputError(
           `Wallet pool '${poolId}' cannot be used for item, itemId: ${itemId}`,

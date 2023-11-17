@@ -1,5 +1,1 @@
-export class BadInputError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+export class BadInputError extends Error {}

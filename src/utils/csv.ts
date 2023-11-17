@@ -1,5 +1,4 @@
-import { parse } from 'csv-parse';
-import { Options } from 'csv-parse';
+import { parse, Options } from 'csv-parse';
 
 export async function parseCsv<T>(
   csvContents: string,

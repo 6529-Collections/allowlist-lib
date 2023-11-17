@@ -10,7 +10,7 @@ class MockOfacApi extends OfacApi {
 
   public async getSanctionedWallets(): Promise<SanctionedWallet[]> {
     if (this.askedOnce) {
-      throw `Should not be called more than once`;
+      throw new Error(`Should not be called more than once`);
     }
     this.askedOnce = true;
     return [

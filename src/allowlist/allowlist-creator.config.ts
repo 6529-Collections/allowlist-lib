@@ -45,6 +45,6 @@ export class LocalFileSystemStorageImplementations
       },
       loggerFactory,
     );
-    this.tokenPoolStorage = new JsonFilesTokenPoolStorage(loggerFactory);
+    this.tokenPoolStorage = new JsonFilesTokenPoolStorage();
   }
 }

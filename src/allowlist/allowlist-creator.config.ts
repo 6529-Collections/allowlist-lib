@@ -22,11 +22,11 @@ export interface AllowlistCreatorConfig {
   readonly onBeforeOperation?: (
     operation: AllowlistOperation,
     allowlistId: string,
-  ) => void;
+  ) => Promise<void> | void;
   readonly onAfterOperation?: (
     operation: AllowlistOperation,
     allowlistId: string,
-  ) => void;
+  ) => Promise<void> | void;
 }
 
 export class LocalFileSystemStorageImplementations

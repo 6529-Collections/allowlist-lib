@@ -243,11 +243,11 @@ export class AllowlistCreator {
     private readonly onBeforeOperation?: (
       operation: AllowlistOperation,
       allowlistId: string,
-    ) => void,
+    ) => Promise<void> | void,
     private readonly onAfterOperation?: (
       operation: AllowlistOperation,
       allowlistId: string,
-    ) => void,
+    ) => Promise<void> | void,
   ) {
     this.logger = loggerFactory.create(AllowlistCreator.name);
   }

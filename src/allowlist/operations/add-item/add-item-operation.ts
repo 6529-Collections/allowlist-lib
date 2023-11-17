@@ -69,66 +69,16 @@ export class AddItemOperation implements AllowlistOperationExecutor {
   }
 
   validate(params: any): params is AllowlistAddItemParams {
-    if (!params.hasOwnProperty('componentId')) {
-      throw new BadInputError('Missing componentId');
-    }
+    this.assertComponentIdValid(params);
+    this.assertIdValid(params);
+    this.assertNameValid(params);
+    this.assertDescriptionValid(params);
+    this.assertPoolIdValid(params);
+    this.assertPoolTypeValid(params);
+    return true;
+  }
 
-    if (typeof params.componentId !== 'string') {
-      throw new BadInputError('Invalid componentId');
-    }
-
-    if (!params.componentId.length) {
-      throw new BadInputError('Invalid componentId');
-    }
-
-    if (!params.hasOwnProperty('id')) {
-      throw new BadInputError('Missing id');
-    }
-
-    if (typeof params.id !== 'string') {
-      throw new BadInputError('Invalid id');
-    }
-
-    if (!params.id.length) {
-      throw new BadInputError('Invalid id');
-    }
-
-    if (!params.hasOwnProperty('name')) {
-      throw new BadInputError('Missing name');
-    }
-
-    if (typeof params.name !== 'string') {
-      throw new BadInputError('Invalid name');
-    }
-
-    if (!params.name.length) {
-      throw new BadInputError('Invalid name');
-    }
-
-    if (!params.hasOwnProperty('description')) {
-      throw new BadInputError('Missing description');
-    }
-
-    if (typeof params.description !== 'string') {
-      throw new BadInputError('Invalid description');
-    }
-
-    if (!params.description.length) {
-      throw new BadInputError('Invalid description');
-    }
-
-    if (!params.hasOwnProperty('poolId')) {
-      throw new BadInputError('Missing poolId');
-    }
-
-    if (typeof params.poolId !== 'string') {
-      throw new BadInputError('Invalid poolId');
-    }
-
-    if (!params.poolId.length) {
-      throw new BadInputError('Invalid poolId');
-    }
-
+  private assertPoolTypeValid(params: any) {
     if (!params.hasOwnProperty('poolType')) {
       throw new BadInputError('Missing poolType');
     }
@@ -144,8 +94,76 @@ export class AddItemOperation implements AllowlistOperationExecutor {
     ) {
       throw new BadInputError('Invalid poolType');
     }
+  }
 
-    return true;
+  private assertPoolIdValid(params: any) {
+    if (!params.hasOwnProperty('poolId')) {
+      throw new BadInputError('Missing poolId');
+    }
+
+    if (typeof params.poolId !== 'string') {
+      throw new BadInputError('Invalid poolId');
+    }
+
+    if (!params.poolId.length) {
+      throw new BadInputError('Invalid poolId');
+    }
+  }
+
+  private assertDescriptionValid(params: any) {
+    if (!params.hasOwnProperty('description')) {
+      throw new BadInputError('Missing description');
+    }
+
+    if (typeof params.description !== 'string') {
+      throw new BadInputError('Invalid description');
+    }
+
+    if (!params.description.length) {
+      throw new BadInputError('Invalid description');
+    }
+  }
+
+  private assertNameValid(params: any) {
+    if (!params.hasOwnProperty('name')) {
+      throw new BadInputError('Missing name');
+    }
+
+    if (typeof params.name !== 'string') {
+      throw new BadInputError('Invalid name');
+    }
+
+    if (!params.name.length) {
+      throw new BadInputError('Invalid name');
+    }
+  }
+
+  private assertIdValid(params: any) {
+    if (!params.hasOwnProperty('id')) {
+      throw new BadInputError('Missing id');
+    }
+
+    if (typeof params.id !== 'string') {
+      throw new BadInputError('Invalid id');
+    }
+
+    if (!params.id.length) {
+      throw new BadInputError('Invalid id');
+    }
+  }
+
+  private assertComponentIdValid(params: any) {
+    if (!params.hasOwnProperty('componentId')) {
+      throw new BadInputError('Missing componentId');
+    }
+
+    if (typeof params.componentId !== 'string') {
+      throw new BadInputError('Invalid componentId');
+    }
+
+    if (!params.componentId.length) {
+      throw new BadInputError('Invalid componentId');
+    }
   }
 
   execute({

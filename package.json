@@ -18,7 +18,7 @@
     "new-operation": "node new-operation-wrapper.js"
   },
   "dependencies": {
-    "alchemy-sdk": "^2.10.1",
+    "alchemy-sdk": "^3.0.0",
     "axios": "^1.6.2",
     "csv": "^6.3.1",
     "seedrandom": "^3.0.5"

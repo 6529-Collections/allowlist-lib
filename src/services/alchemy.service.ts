@@ -37,7 +37,7 @@ export class AlchemyService {
             tokenId: BigInt(
               `0x${token.tokenId.replace('0x', '').substring(0, 64)}`,
             ).toString(),
-            balance: token.balance,
+            balance: +token.balance,
           })),
         }),
       );

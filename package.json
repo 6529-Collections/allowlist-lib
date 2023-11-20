@@ -24,7 +24,6 @@
     "seedrandom": "^3.0.5"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "@types/jest": "29.2.4",
     "@types/node": "18.11.18",
     "@types/supertest": "^2.0.11",

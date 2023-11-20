@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
+import { Time } from '../time';
 
 export class Http {
   private readonly logger: Logger;
@@ -11,23 +12,30 @@ export class Http {
   async get<T>({
     endpoint,
     headers,
+    options,
   }: {
     endpoint: string;
     headers?: Record<string, string>;
+    options?: { maxRetries?: number; pauseBetweenRetries?: Time };
   }): Promise<T> {
-    try {
-      const apiResponse = await axios.get<T>(endpoint, { headers });
-      if (+`${apiResponse.status}`.at(0) !== 2) {
-        throw new Error(`NOT-OK HTTP Status: ${apiResponse.status}`);
+    const maxRetries = options?.maxRetries ?? 1;
+    const pauseBetweenRetries = options?.pauseBetweenRetries ?? Time.zero();
+    for (let retry = 1; retry <= maxRetries; retry++) {
+      try {
+        const apiResponse = await axios.get<T>(endpoint, { headers });
+        if (+`${apiResponse.status}`.at(0) !== 2) {
+          throw new Error(`NOT-OK HTTP Status: ${apiResponse.status}`);
+        }
+        return apiResponse.data;
+      } catch (e) {
+        this.logger.error(
+          `Failed to fetch ${endpoint}. Pausing for ${pauseBetweenRetries}. Error: ${
+            e.message ? e.message : JSON.stringify(e)
+          }`,
+        );
+        await pauseBetweenRetries.sleep();
       }
-      return apiResponse.data;
-    } catch (e) {
-      this.logger.error(
-        `Failed to fetch ${endpoint}: ${
-          e.message ? e.message : JSON.stringify(e)
-        }`,
-      );
-      throw new Error(`Failed to fetch from ${endpoint}`);
     }
+    throw new Error(`Failed to fetch from ${endpoint}`);
   }
 }

@@ -26,6 +26,10 @@ export class Time {
     }
   }
 
+  static zero(): Time {
+    return Time.millis(0);
+  }
+
   static millis(amount: number): Time {
     return new Time(amount);
   }

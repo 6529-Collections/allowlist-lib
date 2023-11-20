@@ -1,6 +1,7 @@
 import { Http } from '../../../http';
 import { parseCsv } from '../../../../utils/csv';
 import { SanctionedWallet } from '../../sanctioned-wallet';
+import { Time } from '../../../../time';
 
 const SPECIAL_CHARACTER_REGEX = /[\x00-\x08\x0B-\x1F\x7F]+/g;
 
@@ -10,6 +11,10 @@ export class OfacApi {
   public async getSanctionedWallets(): Promise<SanctionedWallet[]> {
     const response = await this.http.get<string>({
       endpoint: 'https://www.treasury.gov/ofac/downloads/sdn_comments.csv',
+      options: {
+        maxRetries: 3,
+        pauseBetweenRetries: Time.seconds(5),
+      },
     });
     const idsAndWallets = await parseCsv<{ wallet: string; id: string }>(
       response.replace(SPECIAL_CHARACTER_REGEX, ''),

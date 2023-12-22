@@ -1248,10 +1248,10 @@ ajv@^6.12.4:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-alchemy-sdk@^2.10.1:
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/alchemy-sdk/-/alchemy-sdk-2.11.0.tgz#a6c9e32c56150492760c44debcc5ad73672d8aa5"
-  integrity sha512-0fiMINLaDQvok9b3FehZkZ71QJmaM5dLe9VP1IXxDQjEJ4e+CJyASpvZVXf9A9ydfTfskRW5J9kiyYQCwZhkfg==
+alchemy-sdk@^2.12.0:
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/alchemy-sdk/-/alchemy-sdk-2.12.0.tgz#af431249dc125bdc8583bb67b978db0975c7aae3"
+  integrity sha512-M0jYlreH1aUZ6O6V9hgaWhnai2Ry9cueqswhAUI2hgnoRCgIJ9ke2/+VSKGemdEKhAtD114bU5bdyh3PmvyefA==
   dependencies:
     "@ethersproject/abi" "^5.7.0"
     "@ethersproject/abstract-provider" "^5.7.0"

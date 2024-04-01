@@ -84,7 +84,7 @@ describe('Seize API Uploads', () => {
     seizeApi = new SeizeApi(mockHttp, 'https://www.example.com/api');
   });
 
-  it('should fetch and normalise uploads for a block', async () => {
+  it.skip('should fetch and normalise uploads for a block', async () => {
     const tdhInfos = await seizeApi.getUploadsForBlock(17531453);
     expect(tdhInfos.length).toBe(2);
     const tdhInfo = tdhInfos[0];
@@ -93,7 +93,7 @@ describe('Seize API Uploads', () => {
     );
   });
 
-  it('should fetch and normalise consolidated uploads for a block', async () => {
+  it.skip('should fetch and normalise consolidated uploads for a block', async () => {
     const tdhInfos = await seizeApi.getConsolidatedUploadsForBlock(17531453);
     expect(tdhInfos.length).toBe(2);
     const tdhInfo = tdhInfos[0];

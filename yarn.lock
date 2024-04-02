@@ -1789,30 +1789,30 @@ cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-csv-generate@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/csv-generate/-/csv-generate-4.3.0.tgz#e9004172ab1995815580f2253d8fc1bbd43a5d1f"
-  integrity sha512-7KdVId/2RgwPIKfWHaHtjBq7I9mgdi8ICzsUyIhP8is6UwpwVGGSC/aPnrZ8/SkgBcCP20lXrdPuP64Irs1VBg==
+csv-generate@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/csv-generate/-/csv-generate-4.3.1.tgz#3ff7c481e07c7dc70fb2a95d50c6a7092a836a80"
+  integrity sha512-7YeeJq+44/I/O5N2sr2qBMcHZXhpfe38eh7DOFxyMtYO+Pir7kIfgFkW5MPksqKqqR6+/wX7UGoZm1Ot11151w==
 
-csv-parse@^5.5.2:
-  version "5.5.2"
-  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.5.2.tgz#ab525e642093dccff7c5cca5c7b71fd3e99fe8f2"
-  integrity sha512-YRVtvdtUNXZCMyK5zd5Wty1W6dNTpGKdqQd4EQ8tl/c6KW1aMBB1Kg1ppky5FONKmEqGJ/8WjLlTNLPne4ioVA==
+csv-parse@^5.5.3:
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.5.3.tgz#0261050761ee46cd0e46421854bf9bf4de1317bf"
+  integrity sha512-v0KW6C0qlZzoGjk6u5tLmVfyZxNgPGXZsWTXshpAgKVGmGXzaVWGdlCFxNx5iuzcXT/oJN1HHM9DZKwtAtYa+A==
 
-csv-stringify@^6.4.4:
-  version "6.4.4"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.4.4.tgz#92ef52e21b5cc39d20e7db9b6b913367460e2659"
-  integrity sha512-NDshLupGa7gp4UG4sSNIqwYJqgSwvds0SvENntxoVoVvTzXcrHvd5gG2MWpbRpSNvk59dlmIe1IwNvSxN4IVmg==
+csv-stringify@^6.4.5:
+  version "6.4.5"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.4.5.tgz#99808b40ec30b86cc0e1c7d707c1d6ecbc4e1a00"
+  integrity sha512-SPu1Vnh8U5EnzpNOi1NDBL5jU5Rx7DVHr15DNg9LXDTAbQlAVAmEbVt16wZvEW9Fu9Qt4Ji8kmeCJ2B1+4rFTQ==
 
-csv@^6.3.1:
-  version "6.3.5"
-  resolved "https://registry.yarnpkg.com/csv/-/csv-6.3.5.tgz#af8c9f76fef21974cb8968a044fdeb1f84556011"
-  integrity sha512-Y+KTCAUljtq2JaGP42ZL1bymqlU5BkfnFpZhxRczGFDZox2VXhlRHnG5DRshyUrwQzmCdEiLjSqNldCfm1OVCA==
+csv@^6.3.6:
+  version "6.3.6"
+  resolved "https://registry.yarnpkg.com/csv/-/csv-6.3.6.tgz#f29e171b7e557a1c77c32c9d5ac82d14f659d1da"
+  integrity sha512-jsEsX2HhGp7xiwrJu5srQavKsh+HUJcCi78Ar3m4jlmFKRoTkkMy7ZZPP+LnQChmaztW+uj44oyfMb59daAs/Q==
   dependencies:
-    csv-generate "^4.3.0"
-    csv-parse "^5.5.2"
-    csv-stringify "^6.4.4"
-    stream-transform "^3.2.10"
+    csv-generate "^4.3.1"
+    csv-parse "^5.5.3"
+    csv-stringify "^6.4.5"
+    stream-transform "^3.3.0"
 
 d@1, d@^1.0.1:
   version "1.0.1"
@@ -3895,10 +3895,10 @@ stack-utils@^2.0.3:
   dependencies:
     escape-string-regexp "^2.0.0"
 
-stream-transform@^3.2.10:
-  version "3.2.10"
-  resolved "https://registry.yarnpkg.com/stream-transform/-/stream-transform-3.2.10.tgz#1c59b9656d787de210ba17095933f5a88cb8e31b"
-  integrity sha512-Yu+x7zcWbWdyB0Td8dFzHt2JEyD6694CNq2lqh1rbuEBVxPtjb/GZ7xDnZcdYiU5E/RtufM54ClSEOzZDeWguA==
+stream-transform@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/stream-transform/-/stream-transform-3.3.0.tgz#b9d51b173acd94f195a941cb8856897f0a2af536"
+  integrity sha512-pG1NeDdmErNYKtvTpFayrEueAmL0xVU5wd22V7InGnatl4Ocq3HY7dcXIKj629kXvYQvglCC7CeDIGAlx1RNGA==
 
 string-length@^4.0.1:
   version "4.0.2"

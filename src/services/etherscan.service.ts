@@ -206,11 +206,11 @@ export class EtherscanService {
     contractAddress: string;
     interfaceId: string;
   }): string {
-    return `https://api.etherscan.io/api?module=proxy&action=eth_call&to=${
+    return `https://api.etherscan.io/v2/api?module=proxy&action=eth_call&to=${
       param.contractAddress
     }&data=${this.supportsInterfaceData(param.interfaceId)}&tag=latest&apikey=${
       this.config.apiKey
-    }`;
+    }&chainid=1`;
   }
 
   private async getEtherscanLogsRaw(param: {
@@ -219,7 +219,7 @@ export class EtherscanService {
   }): Promise<EtherscanApiTokensRawResponse> {
     const { contractAddress, params } = param;
     const logs = await axios.get<EtherscanApiTokensRawResponse>(
-      `https://api.etherscan.io/api?module=logs&action=getLogs&address=${contractAddress}&apikey=${this.config.apiKey}`,
+      `https://api.etherscan.io/v2/api?module=logs&action=getLogs&address=${contractAddress}&apikey=${this.config.apiKey}&chainid=1`,
       { params: { ...params } },
     );
 

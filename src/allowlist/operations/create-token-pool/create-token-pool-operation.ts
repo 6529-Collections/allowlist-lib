@@ -352,7 +352,9 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
           contract,
         })),
     );
-    this.logger.info(`Token owners state built for contract ${contract}`);
+    this.logger.info(
+      `Token owners state built for contract ${contract}. ${tokenOwnersState?.length} tokenowners`,
+    );
     return tokenOwnersState;
   }
 }

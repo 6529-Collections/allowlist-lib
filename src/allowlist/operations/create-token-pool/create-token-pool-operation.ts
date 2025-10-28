@@ -230,27 +230,38 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
           tokenIds: parsedTokenIds,
         });
       } else {
-        try {
+        if (parsedTokenIds?.length) {
           this.logger.info(
-            `Attempting to retrieve tokens for contract ${contract} from archive node`,
+            `Getting tokens from transfer pool since tokenIds are set`,
           );
-          const tokenOwnerships = await this.getTokensFromArchiveNode({
+          await this.getTokensFromTransferPool({
             ...p,
             tokenIds: parsedTokenIds,
           });
-          this.logger.info(
-            `Retrieved tokens for contract ${contract} from archive node`,
-          );
-          return tokenOwnerships;
-        } catch (e) {
-          console.error(e);
-          this.logger.error(
-            `Error creating tokenpool ${id}: ${e.message}. Will fall back to transfer pool based token pool creation`,
-          );
-          return await this.getTokensFromTransferPool({
-            ...p,
-            tokenIds: parsedTokenIds,
-          });
+          this.logger.info(`Got tokens from transfer pool`);
+        } else {
+          try {
+            this.logger.info(
+              `Attempting to retrieve tokens for contract ${contract} from archive node`,
+            );
+            const tokenOwnerships = await this.getTokensFromArchiveNode({
+              ...p,
+              tokenIds: parsedTokenIds,
+            });
+            this.logger.info(
+              `Retrieved tokens for contract ${contract} from archive node`,
+            );
+            return tokenOwnerships;
+          } catch (e) {
+            console.error(e);
+            this.logger.error(
+              `Error creating tokenpool ${id}: ${e.message}. Will fall back to transfer pool based token pool creation`,
+            );
+            return await this.getTokensFromTransferPool({
+              ...p,
+              tokenIds: parsedTokenIds,
+            });
+          }
         }
       }
     }

@@ -230,15 +230,19 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
           tokenIds: parsedTokenIds,
         });
       } else {
-        if (parsedTokenIds?.length) {
+        if (
+          [
+            '0x495f947276749ce646f68ac8c248420045cb7b5e',
+            '0x3b3ee1931dc30c1957379fac9aba94d1c48a5405',
+          ].includes(contract)
+        ) {
           this.logger.info(
-            `Getting tokens from transfer pool since tokenIds are set`,
+            `Getting tokens from transfer pool since a special contract`,
           );
-          await this.getTokensFromTransferPool({
+          return await this.getTokensFromTransferPool({
             ...p,
             tokenIds: parsedTokenIds,
           });
-          this.logger.info(`Got tokens from transfer pool`);
         } else {
           try {
             this.logger.info(

@@ -5,6 +5,7 @@ import {
 import { EtherscanService } from './etherscan.service';
 import { TransfersStorage } from './transfers.storage';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
+import { parseTokenIds } from '../utils/app.utils';
 
 export class TransfersService {
   private logger: Logger;
@@ -20,13 +21,17 @@ export class TransfersService {
   async getCollectionTransfers({
     contract,
     blockNo,
+    tokenIds,
   }: {
     contract: string;
     blockNo: number;
+    tokenIds?: string;
   }): Promise<Transfer[]> {
+    const tokenIdsArray = parseTokenIds(tokenIds ?? null) ?? [];
     const savedTransfers = await this.getSavedTransfersOrEmpty(
       contract,
       blockNo,
+      tokenIdsArray,
     );
 
     const newestSavedBlock = await this.getSavedTransfersLastBlockNoOrZero(
@@ -61,17 +66,21 @@ export class TransfersService {
       ...newTransfers,
     ]);
     this.logger.info(`All transfers for ${contract} saved`);
-    return allTransfers;
+    return allTransfers.filter(
+      (it) => !tokenIds.length || tokenIds.includes(it.tokenID),
+    );
   }
 
   private async getSavedTransfersOrEmpty(
     contract: string,
     blockNo: number,
+    tokenIds: string[],
   ): Promise<Transfer[]> {
     try {
       return await this.transfersStorage.getContractTransfersOrdered(
         contract,
         blockNo,
+        tokenIds,
       );
     } catch (e) {
       return [];

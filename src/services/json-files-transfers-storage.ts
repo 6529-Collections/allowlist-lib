@@ -46,11 +46,16 @@ export class JsonFilesTransfersStorage implements TransfersStorage {
   async getContractTransfersOrdered(
     contract: string,
     blockNo: number,
+    tokenIds: string[],
   ): Promise<Transfer[]> {
     const now = Time.now();
     const transfers: Transfer[] = JSON.parse(
       fs.readFileSync(`${this.conf.rootFolder}${contract}.json`, 'utf8'),
-    ).filter((t: Transfer) => t.blockNumber <= blockNo);
+    ).filter(
+      (t: Transfer) =>
+        t.blockNumber <= blockNo &&
+        (!tokenIds.length || tokenIds.includes(t.tokenID)),
+    );
     const sortedTransfers = sortAndLowercaseTransfers(transfers);
     this.logger.debug(`getContractTransfersOrdered took ${now.diffFromNow()}`);
     return sortedTransfers;

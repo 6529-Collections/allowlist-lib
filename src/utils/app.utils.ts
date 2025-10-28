@@ -23,8 +23,8 @@ export const isValidTokenIds = (tokenIds: string): boolean => {
 
 export const parseTokenIds = (
   input: string | null,
-  poolId: string,
-  code: AllowlistOperationCode,
+  poolId?: string,
+  code?: AllowlistOperationCode,
 ): string[] | null => {
   if (!input) {
     return null;
@@ -32,7 +32,11 @@ export const parseTokenIds = (
 
   if (!isValidTokenIds(input)) {
     throw new BadInputError(
-      `${code}: TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999, id: ${poolId}`,
+      `${
+        code ? `${code}: ` : ''
+      }TokenIds must be in format: 1, 2, 3, 45, 100-115, 203-780, 999${
+        poolId ? `, id: ${poolId}` : ''
+      }`,
     );
   }
   const cleanedInput = input.replace(/\s+/g, '');

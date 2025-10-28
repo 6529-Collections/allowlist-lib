@@ -145,11 +145,15 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         !['0x0000000000000000000000000000000000000000'].includes(token.owner),
     );
     const allOwners = allTokens.map((token) => token.owner);
+    this.logger.info(`Doing sanctions check for owners`);
     const sanctionedProfiles =
       await this.walletScreener.getProfilesForSanctionedWallets({
         walletsToScreen: allOwners,
       });
     const sanctionedWallets = Object.keys(sanctionedProfiles);
+    this.logger.info(
+      `Sanctions check done for owners. Found ${sanctionedWallets.length} wallets which will be eliminated based on sanctions`,
+    );
     const tokens = allTokens.filter((token) => {
       const isSanctioned = sanctionedWallets.includes(token.owner);
       if (isSanctioned) {
@@ -161,6 +165,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
       return !isSanctioned;
     });
 
+    this.logger.info(`Constructing the final tokenpool state`);
     state.tokenPools[id] = {
       id,
       name: params.name,
@@ -187,8 +192,13 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   }): Promise<TokenOwnership[]> {
     const { params } = p;
     const { id, contract, tokenIds } = params;
+    this.logger.info(`Retreiving tokenpool tokens for pool ${id}`);
     const savedTokenPoolTokens = await this.tokenPoolService.getTokenPoolTokens(
       id,
+    );
+
+    this.logger.info(
+      `Retreived tokenpool tokens for pool ${id}. Got ${savedTokenPoolTokens.length}`,
     );
     if (savedTokenPoolTokens?.length) {
       return savedTokenPoolTokens;
@@ -199,9 +209,11 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         AllowlistOperationCode.CREATE_TOKEN_POOL,
       );
 
+      this.logger.info(`Figuring out contract ${contract} schema`);
       const contractSchema = await this.etherscan.getContractSchema({
         contractAddress: contract,
       });
+      this.logger.info(`Contract ${contract} schema is ${contractSchema}`);
 
       if (!contractSchema) {
         throw new BadInputError('Invalid contract');
@@ -217,10 +229,17 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         });
       } else {
         try {
-          return await this.getTokensFromArchiveNode({
+          this.logger.info(
+            `Attempting to retrieve tokens for contract ${contract} from archive node`,
+          );
+          const tokenOwnerships = await this.getTokensFromArchiveNode({
             ...p,
             tokenIds: parsedTokenIds,
           });
+          this.logger.info(
+            `Retrieved tokens for contract ${contract} from archive node`,
+          );
+          return tokenOwnerships;
         } catch (e) {
           console.error(e);
           this.logger.error(
@@ -274,11 +293,17 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   }): Promise<TokenOwnership[]> {
     const { params } = p;
     const { contract, tokenIds, blockNo } = params;
+    this.logger.info(
+      `Attempting to retrieve tokens for contract ${contract} from transfer pool`,
+    );
     const transfers = await this.transfersService.getCollectionTransfers({
       contract,
       blockNo,
       tokenIds,
     });
+    this.logger.info(
+      `Got ${transfers.length} tokens for contract ${contract} from transfer pool. Building token owners state from it`,
+    );
     const tokenToOwningWallets = transfers
       .filter((transfer) => transfer.amount <= 1000000)
       .reduce((acc, transfer) => {
@@ -306,7 +331,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         }
         return acc;
       }, {} as Record<string, { wallet: string }[]>);
-    return Object.entries(tokenToOwningWallets).flatMap(
+    const tokenOwnersState = Object.entries(tokenToOwningWallets).flatMap(
       ([tokenId, tokenOwnerships]) =>
         tokenOwnerships.map(({ wallet }) => ({
           id: tokenId,
@@ -314,5 +339,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
           contract,
         })),
     );
+    this.logger.info(`Token owners state built for contract ${contract}`);
+    return tokenOwnersState;
   }
 }

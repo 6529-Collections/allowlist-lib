@@ -198,7 +198,9 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     );
 
     this.logger.info(
-      `Retreived tokenpool tokens for pool ${id}. Got ${savedTokenPoolTokens.length}`,
+      `Retreived tokenpool tokens for pool ${id}. Got ${
+        savedTokenPoolTokens?.length ?? 0
+      }`,
     );
     if (savedTokenPoolTokens?.length) {
       return savedTokenPoolTokens;

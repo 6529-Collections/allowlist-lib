@@ -11,6 +11,7 @@ export interface TransfersStorage {
   getContractTransfersOrdered(
     contract: string,
     blockNo: number,
+    tokenIds: string[],
   ): Promise<Transfer[]>;
   saveContractTransfers(contract: string, transfers: Transfer[]): Promise<void>;
 }

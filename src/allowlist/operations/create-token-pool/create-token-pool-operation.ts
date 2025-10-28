@@ -277,6 +277,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     const transfers = await this.transfersService.getCollectionTransfers({
       contract,
       blockNo,
+      tokenIds,
     });
     const tokenToOwningWallets = transfers
       .filter((transfer) => transfer.amount <= 1000000)

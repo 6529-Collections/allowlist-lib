@@ -12,6 +12,7 @@ import {
 } from '../allowlist/state-types/transfer';
 import { assertUnreachable } from '../utils/app.utils';
 import { Logger, LoggerFactory } from '../logging/logging-emitter';
+import { Time } from '../time';
 
 export class EtherscanService {
   private readonly logger: Logger;
@@ -218,18 +219,35 @@ export class EtherscanService {
     params: Record<string, any>;
   }): Promise<EtherscanApiTokensRawResponse> {
     const { contractAddress, params } = param;
-    const logs = await axios.get<EtherscanApiTokensRawResponse>(
-      `https://api.etherscan.io/v2/api?module=logs&action=getLogs&address=${contractAddress}&apikey=${this.config.apiKey}&chainid=1`,
-      { params: { ...params } },
-    );
+    const maxAttempts = 10;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const logs = await axios.get<EtherscanApiTokensRawResponse>(
+        `https://api.etherscan.io/v2/api?module=logs&action=getLogs&address=${contractAddress}&apikey=${this.config.apiKey}&chainid=1`,
+        { params: { ...params } },
+      );
 
-    if (logs.data.status === '0' && logs.data.message === 'No records found') {
+      if (
+        logs.data.status === '0' &&
+        logs.data.message === 'No records found'
+      ) {
+        return logs.data;
+      }
+      if (logs.data?.message !== 'OK' || logs.data?.status !== '1') {
+        const message = `Attempting request https://api.etherscan.io/v2/api?module=logs&action=getLogs&address=${contractAddress}&apikey=***&chainid=1 resulted into error: ${JSON.stringify(
+          logs.data,
+        )}`;
+        if (attempt !== maxAttempts) {
+          const delay = Time.seconds(attempt * 3);
+          this.logger.warn(
+            `Attempt #${attempt}. Error: ${message}. Waiting for ${delay} and trying again`,
+          );
+          await delay.sleep();
+          continue;
+        }
+        throw new BadInputError(message);
+      }
       return logs.data;
     }
-    if (logs.data?.message !== 'OK' || logs.data?.status !== '1') {
-      throw new BadInputError(logs.data?.message ?? 'Something went wrong');
-    }
-    return logs.data;
   }
 
   private getEtherscanApiTopics(param: {

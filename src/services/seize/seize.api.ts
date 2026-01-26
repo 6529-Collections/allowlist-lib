@@ -230,9 +230,15 @@ export class SeizeApi {
       endpoint: `${this.apiUri}${path}?block=${blockId}&page_size=1`,
       headers,
     });
-    const tdh = this.getClosestTdh(apiResponseData, blockId);
+    let tdh = this.getClosestTdh(apiResponseData, blockId);
     if (!tdh) {
       throw new Error(`No TDH found for block ${blockId}`);
+    }
+    if (
+      tdh.startsWith('https://arweave.net/') &&
+      !tdh.endsWith('https://arweave.net/raw')
+    ) {
+      tdh = tdh.replace('https://arweave.net/', 'https://arweave.net/raw/');
     }
     const csvContents = await this.http.get<string>({
       endpoint: tdh,
@@ -312,7 +318,6 @@ type TdhInfoApiResponse = SeizeApiPage<{
   readonly block: number;
   readonly url: string;
 }>;
-
 
 // const x =    {
 //       wallet: '0xc6400a5584db71e41b0e5dfbdc769b54b91256cd',

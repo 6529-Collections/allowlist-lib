@@ -240,9 +240,19 @@ export class SeizeApi {
     ) {
       tdh = tdh.replace('https://arweave.net/', 'https://arweave.net/raw/');
     }
-    const csvContents = await this.http.get<string>({
-      endpoint: tdh,
-    });
+    let csvContents: string;
+    try {
+      csvContents = await this.http.get<string>({
+        endpoint: tdh,
+      });
+    } catch (error) {
+      if (!tdh.startsWith('https://arweave.net/')) {
+        throw error;
+      }
+      csvContents = await this.http.get<string>({
+        endpoint: tdh.replace('https://arweave.net/', 'https://ar-io.net/'),
+      });
+    }
     return parseCsv<any>(
       csvContents,
       { delimiter: ',' },

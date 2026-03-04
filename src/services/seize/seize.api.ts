@@ -10,6 +10,150 @@ import { DelegateMapping, DelegateMappingPage } from './delegation-mapping';
 import { TokenOwnership } from '../../allowlist/state-types/token-ownership';
 import { parseCsv } from '../../utils/csv';
 
+const ARWEAVE_GATEWAYS_PRIORITY: readonly string[] = [
+  'arweave.net',
+  'gateway.arweave.net',
+  'g8way.io',
+] as const;
+
+const ARWEAVE_GATEWAYS_LONG_TAIL: readonly string[] = [
+  'arweave.org',
+  'arweave.dev',
+  'ar-io.net',
+  'arweave.live',
+  'arweave.surf',
+  'arweave.team',
+  'arweavetoday.com',
+  'arweave.fyi',
+  'arweave.guide',
+] as const;
+
+const ARWEAVE_GATEWAYS: readonly string[] = dedupe([
+  ...ARWEAVE_GATEWAYS_PRIORITY,
+  ...ARWEAVE_GATEWAYS_LONG_TAIL,
+]);
+
+function dedupe(list: readonly string[]): string[] {
+  return Array.from(new Set(list));
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+}
+
+const ARWEAVE_HOSTS_PATTERN = ARWEAVE_GATEWAYS.map(escapeRegex).join('|');
+
+const ARWEAVE_URL_RE = new RegExp(
+  String.raw`^https?:\/\/(?:www\.)?(${ARWEAVE_HOSTS_PATTERN})(?=(?::\d+)?(?:\/|$|\?|#))(\/[^#?]*)?(\?[^#]*)?`,
+  'i',
+);
+
+function parseArweaveUrl(url: string): { host: string; suffix: string } | null {
+  const match = ARWEAVE_URL_RE.exec(url);
+  if (!match?.[1]) {
+    return null;
+  }
+
+  const host = match[1].toLowerCase();
+  const path = match[2] ?? '/';
+  const query = match[3] ?? '';
+
+  return { host, suffix: `${path}${query}` };
+}
+
+function toArweaveRawUrl(url: string): string {
+  const parsed = parseArweaveUrl(url);
+  if (!parsed) {
+    return url;
+  }
+
+  if (
+    parsed.suffix === '/raw' ||
+    parsed.suffix.startsWith('/raw/') ||
+    parsed.suffix.startsWith('/raw?')
+  ) {
+    return `https://${parsed.host}${parsed.suffix}`;
+  }
+
+  return `https://${parsed.host}/raw${parsed.suffix}`;
+}
+
+/**
+ * Returns all gateway variants for the given URL (in priority order),
+ * preserving full path and query string.
+ */
+export function getArweaveFallbackUrls(url: string): string[] {
+  const parsed = parseArweaveUrl(url);
+  if (!parsed) {
+    return [];
+  }
+
+  return ARWEAVE_GATEWAYS.map((host) => `https://${host}${parsed.suffix}`);
+}
+
+/**
+ * Returns the next gateway URL after the current URL's host.
+ * If current host isn't in the list, returns the first gateway URL.
+ * If current host is the last, returns null.
+ */
+export function getArweaveFallbackUrl(url: string): string | null {
+  const parsed = parseArweaveUrl(url);
+  if (!parsed) {
+    return null;
+  }
+
+  const urls = ARWEAVE_GATEWAYS.map((host) => `https://${host}${parsed.suffix}`);
+  if (urls.length < 2) {
+    return null;
+  }
+
+  const idx = ARWEAVE_GATEWAYS.indexOf(parsed.host);
+
+  if (idx < 0) {
+    return urls[0] ?? null;
+  }
+  if (idx >= urls.length - 1) {
+    return null;
+  }
+
+  return urls[idx + 1] ?? null;
+}
+
+function stringifyErr(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
+/**
+ * Tries the URL across gateways in order until fetchFn succeeds.
+ * If url isn't a recognised gateway URL, it just tries url once.
+ */
+export async function withArweaveFallback<T>(
+  url: string,
+  fetchFn: (url: string) => Promise<T>,
+): Promise<T> {
+  const urls = getArweaveFallbackUrls(url);
+  const toTry = urls.length > 0 ? urls : [url];
+  const uniqueToTry = dedupe(toTry);
+
+  let lastErr: unknown;
+  for (const tryUrl of uniqueToTry) {
+    try {
+      return await fetchFn(tryUrl);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+
+  const msg =
+    uniqueToTry.length > 1
+      ? `Arweave: all ${uniqueToTry.length} gateways failed. Last: ${stringifyErr(
+          lastErr,
+        )}`
+      : stringifyErr(lastErr);
+
+  throw Object.assign(new Error(msg), { cause: lastErr });
+}
+
 export class SeizeApi {
   constructor(
     private readonly http: Http,
@@ -230,29 +374,16 @@ export class SeizeApi {
       endpoint: `${this.apiUri}${path}?block=${blockId}&page_size=1`,
       headers,
     });
-    let tdh = this.getClosestTdh(apiResponseData, blockId);
+    const tdh = this.getClosestTdh(apiResponseData, blockId);
     if (!tdh) {
       throw new Error(`No TDH found for block ${blockId}`);
     }
-    if (
-      tdh.startsWith('https://arweave.net/') &&
-      !tdh.endsWith('https://arweave.net/raw')
-    ) {
-      tdh = tdh.replace('https://arweave.net/', 'https://arweave.net/raw/');
-    }
-    let csvContents: string;
-    try {
-      csvContents = await this.http.get<string>({
-        endpoint: tdh,
-      });
-    } catch (error) {
-      if (!tdh.startsWith('https://arweave.net/')) {
-        throw error;
-      }
-      csvContents = await this.http.get<string>({
-        endpoint: tdh.replace('https://arweave.net/', 'https://ar-io.net/'),
-      });
-    }
+    const tdhRawUrl = toArweaveRawUrl(tdh);
+    const csvContents = await withArweaveFallback(tdhRawUrl, async (endpoint) =>
+      this.http.get<string>({
+        endpoint,
+      }),
+    );
     return parseCsv<any>(
       csvContents,
       { delimiter: ',' },

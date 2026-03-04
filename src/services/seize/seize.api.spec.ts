@@ -82,6 +82,15 @@ describe('Seize API Uploads', () => {
           },
         ],
       },
+      'https://www.example.com/api/uploads?block=17531455&page_size=1': {
+        data: [
+          {
+            date: '20230622',
+            block: 17531455,
+            url: 'https://arweave.net/raw/abc123',
+          },
+        ],
+      },
       'https://www.example.com/upload.csv': tdhUploadContents,
       'https://www.example.com/consolidated_upload.csv':
         consolidatedTdhUploadContents,
@@ -127,20 +136,53 @@ describe('Seize API Uploads', () => {
     );
   });
 
-  it('should retry upload download with ar-io if arweave download fails', async () => {
+  it('should retry upload download across gateway priority list', async () => {
     const tdhInfos = await seizeApi.getUploadsForBlock(17531454);
     expect(tdhInfos.length).toBeGreaterThan(0);
 
     expect(mockHttp.calledEndpoints).toContain('https://arweave.net/raw/abc123');
+    expect(mockHttp.calledEndpoints).toContain(
+      'https://gateway.arweave.net/raw/abc123',
+    );
+    expect(mockHttp.calledEndpoints).toContain('https://g8way.io/raw/abc123');
+    expect(mockHttp.calledEndpoints).toContain('https://arweave.org/raw/abc123');
+    expect(mockHttp.calledEndpoints).toContain('https://arweave.dev/raw/abc123');
     expect(mockHttp.calledEndpoints).toContain('https://ar-io.net/raw/abc123');
 
     const arweaveAttempt = mockHttp.calledEndpoints.indexOf(
       'https://arweave.net/raw/abc123',
     );
+    const gatewayAttempt = mockHttp.calledEndpoints.indexOf(
+      'https://gateway.arweave.net/raw/abc123',
+    );
+    const g8wayAttempt = mockHttp.calledEndpoints.indexOf(
+      'https://g8way.io/raw/abc123',
+    );
+    const arweaveOrgAttempt = mockHttp.calledEndpoints.indexOf(
+      'https://arweave.org/raw/abc123',
+    );
+    const arweaveDevAttempt = mockHttp.calledEndpoints.indexOf(
+      'https://arweave.dev/raw/abc123',
+    );
     const arIoAttempt = mockHttp.calledEndpoints.indexOf(
       'https://ar-io.net/raw/abc123',
     );
     expect(arweaveAttempt).toBeLessThan(arIoAttempt);
+    expect(arweaveAttempt).toBeLessThan(gatewayAttempt);
+    expect(gatewayAttempt).toBeLessThan(g8wayAttempt);
+    expect(g8wayAttempt).toBeLessThan(arweaveOrgAttempt);
+    expect(arweaveOrgAttempt).toBeLessThan(arweaveDevAttempt);
+    expect(arweaveDevAttempt).toBeLessThan(arIoAttempt);
+  });
+
+  it('should not duplicate /raw when source upload URL already has raw path', async () => {
+    const tdhInfos = await seizeApi.getUploadsForBlock(17531455);
+    expect(tdhInfos.length).toBeGreaterThan(0);
+
+    expect(mockHttp.calledEndpoints).toContain('https://arweave.net/raw/abc123');
+    expect(mockHttp.calledEndpoints).not.toContain(
+      'https://arweave.net/raw/raw/abc123',
+    );
   });
 
   it('should throw error if there is no data for given block', async () => {

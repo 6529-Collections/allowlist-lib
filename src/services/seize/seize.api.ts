@@ -1,5 +1,4 @@
 import { CommonTdhInfo, ConsolidatedTdhInfo, TdhInfo } from './tdh-info';
-import { Time } from '../../time';
 import { Http } from '../http';
 import { SeizeApiPage } from './seize-api-page';
 import {
@@ -61,23 +60,6 @@ function parseArweaveUrl(url: string): { host: string; suffix: string } | null {
   return { host, suffix: `${path}${query}` };
 }
 
-function toArweaveRawUrl(url: string): string {
-  const parsed = parseArweaveUrl(url);
-  if (!parsed) {
-    return url;
-  }
-
-  if (
-    parsed.suffix === '/raw' ||
-    parsed.suffix.startsWith('/raw/') ||
-    parsed.suffix.startsWith('/raw?')
-  ) {
-    return `https://${parsed.host}${parsed.suffix}`;
-  }
-
-  return `https://${parsed.host}/raw${parsed.suffix}`;
-}
-
 /**
  * Returns all gateway variants for the given URL (in priority order),
  * preserving full path and query string.
@@ -89,34 +71,6 @@ export function getArweaveFallbackUrls(url: string): string[] {
   }
 
   return ARWEAVE_GATEWAYS.map((host) => `https://${host}${parsed.suffix}`);
-}
-
-/**
- * Returns the next gateway URL after the current URL's host.
- * If current host isn't in the list, returns the first gateway URL.
- * If current host is the last, returns null.
- */
-export function getArweaveFallbackUrl(url: string): string | null {
-  const parsed = parseArweaveUrl(url);
-  if (!parsed) {
-    return null;
-  }
-
-  const urls = ARWEAVE_GATEWAYS.map((host) => `https://${host}${parsed.suffix}`);
-  if (urls.length < 2) {
-    return null;
-  }
-
-  const idx = ARWEAVE_GATEWAYS.indexOf(parsed.host);
-
-  if (idx < 0) {
-    return urls[0] ?? null;
-  }
-  if (idx >= urls.length - 1) {
-    return null;
-  }
-
-  return urls[idx + 1] ?? null;
 }
 
 function stringifyErr(err: unknown): string {
@@ -138,7 +92,9 @@ export async function withArweaveFallback<T>(
   let lastErr: unknown;
   for (const tryUrl of uniqueToTry) {
     try {
-      return await fetchFn(tryUrl);
+      const t = await fetchFn(tryUrl);
+      console.log('arweave call succeeded with final url' + tryUrl);
+      return t;
     } catch (err) {
       lastErr = err;
     }
@@ -146,9 +102,9 @@ export async function withArweaveFallback<T>(
 
   const msg =
     uniqueToTry.length > 1
-      ? `Arweave: all ${uniqueToTry.length} gateways failed. Last: ${stringifyErr(
-          lastErr,
-        )}`
+      ? `Arweave: all ${
+          uniqueToTry.length
+        } gateways failed. Last: ${stringifyErr(lastErr)}`
       : stringifyErr(lastErr);
 
   throw Object.assign(new Error(msg), { cause: lastErr });
@@ -359,7 +315,7 @@ export class SeizeApi {
     };
   }
 
-  private async getDataForBlock({
+  public async getDataForBlock({
     path,
     blockId,
   }: {
@@ -374,12 +330,11 @@ export class SeizeApi {
       endpoint: `${this.apiUri}${path}?block=${blockId}&page_size=1`,
       headers,
     });
-    const tdh = this.getClosestTdh(apiResponseData, blockId);
-    if (!tdh) {
+    const tdhUrl = this.getClosestTdh(apiResponseData, blockId);
+    if (!tdhUrl) {
       throw new Error(`No TDH found for block ${blockId}`);
     }
-    const tdhRawUrl = toArweaveRawUrl(tdh);
-    const csvContents = await withArweaveFallback(tdhRawUrl, async (endpoint) =>
+    const csvContents = await withArweaveFallback(tdhUrl, async (endpoint) =>
       this.http.get<string>({
         endpoint,
       }),

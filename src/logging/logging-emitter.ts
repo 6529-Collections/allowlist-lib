@@ -8,7 +8,7 @@ export class LoggerFactory {
   }
 }
 
-class ConsoleLogListener implements LogListener {
+export class ConsoleLogListener implements LogListener {
   debug(message: string) {
     console.debug(`[${ConsoleLogListener.timeNow()}] ${message}`);
   }

@@ -1,7 +1,13 @@
 import { SeizeApi } from './seize.api';
-import { Http } from '../http';
+import { Http, HttpResponse } from '../http';
 import { defaultLogFactory } from '../../logging/logging-emitter';
 import * as fs from 'fs';
+
+type MockTextResponse = {
+  readonly body: string;
+  readonly headers?: Record<string, string>;
+  readonly status?: number;
+};
 
 class MockHttp extends Http {
   public readonly calledEndpoints: string[] = [];
@@ -14,13 +20,54 @@ class MockHttp extends Http {
     this.calledEndpoints.length = 0;
   }
 
-  override async get<T>({ endpoint }: { endpoint: string }): Promise<T> {
+  override async get<T>({
+    endpoint,
+  }: {
+    endpoint: string;
+    headers?: Record<string, string>;
+    options?: unknown;
+    requestConfig?: unknown;
+  }): Promise<T> {
     this.calledEndpoints.push(endpoint);
     const resp = this.mockReqResponses[endpoint];
     if (!resp) {
       throw new Error(`No response mocked for ${endpoint}`);
     }
     return resp;
+  }
+
+  override async getResponse<T>({
+    endpoint,
+  }: {
+    endpoint: string;
+    headers?: Record<string, string>;
+    options?: unknown;
+    requestConfig?: unknown;
+  }): Promise<HttpResponse<T>> {
+    this.calledEndpoints.push(endpoint);
+    const resp = this.mockReqResponses[endpoint];
+    if (!resp) {
+      throw new Error(`No response mocked for ${endpoint}`);
+    }
+
+    if (
+      typeof resp === 'object' &&
+      resp !== null &&
+      Object.prototype.hasOwnProperty.call(resp, 'body')
+    ) {
+      const textResponse = resp as MockTextResponse;
+      return {
+        data: textResponse.body as T,
+        headers: textResponse.headers ?? {},
+        status: textResponse.status ?? 200,
+      };
+    }
+
+    return {
+      data: resp,
+      headers: {},
+      status: 200,
+    };
   }
 }
 
@@ -87,14 +134,30 @@ describe('Seize API Uploads', () => {
           {
             date: '20230622',
             block: 17531455,
-            url: 'https://arweave.net/raw/abc123',
+            url: 'https://arweave.net/raw/def456',
           },
         ],
       },
-      'https://www.example.com/upload.csv': tdhUploadContents,
-      'https://www.example.com/consolidated_upload.csv':
-        consolidatedTdhUploadContents,
-      'https://ar-io.net/raw/abc123': minimalTdhUploadContents,
+      'https://www.example.com/upload.csv': {
+        body: tdhUploadContents,
+        headers: { 'content-type': 'text/csv; charset=utf-8' },
+      },
+      'https://www.example.com/consolidated_upload.csv': {
+        body: consolidatedTdhUploadContents,
+        headers: { 'content-type': 'text/csv; charset=utf-8' },
+      },
+      'https://arweave.net/abc123': {
+        body: '<html lang="en"><body>bad gateway</body></html>',
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      },
+      'https://gateway.arweave.net/abc123': {
+        body: minimalTdhUploadContents,
+        headers: { 'content-type': 'text/csv; charset=utf-8' },
+      },
+      'https://arweave.net/def456': {
+        body: minimalTdhUploadContents,
+        headers: { 'content-type': 'text/csv; charset=utf-8' },
+      },
       // 'https://www.example.com/api/delegations?page=1&collection=c1,c2&use_case=1,2&block=17531453&page_size=5':
       //   {
       //     data: [
@@ -136,53 +199,61 @@ describe('Seize API Uploads', () => {
     );
   });
 
-  it('should retry upload download across gateway priority list', async () => {
-    const tdhInfos = await seizeApi.getUploadsForBlock(17531454);
-    expect(tdhInfos.length).toBeGreaterThan(0);
+  it('should retry upload download across gateway priority list with normal urls', async () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(mockHttp.calledEndpoints).toContain('https://arweave.net/raw/abc123');
-    expect(mockHttp.calledEndpoints).toContain(
-      'https://gateway.arweave.net/raw/abc123',
-    );
-    expect(mockHttp.calledEndpoints).toContain('https://g8way.io/raw/abc123');
-    expect(mockHttp.calledEndpoints).toContain('https://arweave.org/raw/abc123');
-    expect(mockHttp.calledEndpoints).toContain('https://arweave.dev/raw/abc123');
-    expect(mockHttp.calledEndpoints).toContain('https://ar-io.net/raw/abc123');
+    try {
+      const tdhInfos = await seizeApi.getUploadsForBlock(17531454);
+      expect(tdhInfos.length).toBeGreaterThan(0);
 
-    const arweaveAttempt = mockHttp.calledEndpoints.indexOf(
-      'https://arweave.net/raw/abc123',
-    );
-    const gatewayAttempt = mockHttp.calledEndpoints.indexOf(
-      'https://gateway.arweave.net/raw/abc123',
-    );
-    const g8wayAttempt = mockHttp.calledEndpoints.indexOf(
-      'https://g8way.io/raw/abc123',
-    );
-    const arweaveOrgAttempt = mockHttp.calledEndpoints.indexOf(
-      'https://arweave.org/raw/abc123',
-    );
-    const arweaveDevAttempt = mockHttp.calledEndpoints.indexOf(
-      'https://arweave.dev/raw/abc123',
-    );
-    const arIoAttempt = mockHttp.calledEndpoints.indexOf(
-      'https://ar-io.net/raw/abc123',
-    );
-    expect(arweaveAttempt).toBeLessThan(arIoAttempt);
-    expect(arweaveAttempt).toBeLessThan(gatewayAttempt);
-    expect(gatewayAttempt).toBeLessThan(g8wayAttempt);
-    expect(g8wayAttempt).toBeLessThan(arweaveOrgAttempt);
-    expect(arweaveOrgAttempt).toBeLessThan(arweaveDevAttempt);
-    expect(arweaveDevAttempt).toBeLessThan(arIoAttempt);
+      expect(mockHttp.calledEndpoints).toContain('https://arweave.net/abc123');
+      expect(mockHttp.calledEndpoints).toContain(
+        'https://gateway.arweave.net/abc123',
+      );
+      expect(mockHttp.calledEndpoints).not.toContain(
+        'https://arweave.net/raw/abc123',
+      );
+      expect(mockHttp.calledEndpoints).not.toContain(
+        'https://gateway.arweave.net/raw/abc123',
+      );
+
+      const arweaveAttempt = mockHttp.calledEndpoints.indexOf(
+        'https://arweave.net/abc123',
+      );
+      const gatewayAttempt = mockHttp.calledEndpoints.indexOf(
+        'https://gateway.arweave.net/abc123',
+      );
+      expect(arweaveAttempt).toBeLessThan(gatewayAttempt);
+      expect(logSpy).toHaveBeenCalledWith(
+        'Downloading from URL: https://arweave.net/abc123',
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        'Downloading from URL: https://gateway.arweave.net/abc123',
+      );
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Failed to download from URL: https://arweave.net/abc123 because of error: Unexpected content-type for https://arweave.net/abc123: text/html; charset=utf-8',
+      );
+    } finally {
+      logSpy.mockRestore();
+      errorSpy.mockRestore();
+    }
   });
 
-  it('should not duplicate /raw when source upload URL already has raw path', async () => {
-    const tdhInfos = await seizeApi.getUploadsForBlock(17531455);
-    expect(tdhInfos.length).toBeGreaterThan(0);
+  it('should normalize raw upload urls back to normal gateway urls', async () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
-    expect(mockHttp.calledEndpoints).toContain('https://arweave.net/raw/abc123');
-    expect(mockHttp.calledEndpoints).not.toContain(
-      'https://arweave.net/raw/raw/abc123',
-    );
+    try {
+      const tdhInfos = await seizeApi.getUploadsForBlock(17531455);
+      expect(tdhInfos.length).toBeGreaterThan(0);
+
+      expect(mockHttp.calledEndpoints).toContain('https://arweave.net/def456');
+      expect(mockHttp.calledEndpoints).not.toContain(
+        'https://arweave.net/raw/def456',
+      );
+    } finally {
+      logSpy.mockRestore();
+    }
   });
 
   it('should throw error if there is no data for given block', async () => {

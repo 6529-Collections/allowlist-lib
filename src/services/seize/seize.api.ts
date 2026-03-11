@@ -1,5 +1,5 @@
 import { CommonTdhInfo, ConsolidatedTdhInfo, TdhInfo } from './tdh-info';
-import { Http } from '../http';
+import { Http, HttpResponse } from '../http';
 import { SeizeApiPage } from './seize-api-page';
 import {
   ConsolidationMapping,
@@ -32,6 +32,17 @@ const ARWEAVE_GATEWAYS: readonly string[] = dedupe([
   ...ARWEAVE_GATEWAYS_LONG_TAIL,
 ]);
 
+const CSV_CONTENT_TYPES: readonly string[] = [
+  'text/csv',
+  'application/csv',
+  'application/x-csv',
+  'text/x-csv',
+  'text/comma-separated-values',
+  'application/vnd.ms-excel',
+  'text/plain',
+  'application/octet-stream',
+] as const;
+
 function dedupe(list: readonly string[]): string[] {
   return Array.from(new Set(list));
 }
@@ -47,6 +58,16 @@ const ARWEAVE_URL_RE = new RegExp(
   'i',
 );
 
+function normalizeArweavePath(path: string): string {
+  if (path === '/raw') {
+    return '/';
+  }
+  if (path.startsWith('/raw/')) {
+    return path.slice('/raw'.length);
+  }
+  return path;
+}
+
 function parseArweaveUrl(url: string): { host: string; suffix: string } | null {
   const match = ARWEAVE_URL_RE.exec(url);
   if (!match?.[1]) {
@@ -54,7 +75,7 @@ function parseArweaveUrl(url: string): { host: string; suffix: string } | null {
   }
 
   const host = match[1].toLowerCase();
-  const path = match[2] ?? '/';
+  const path = normalizeArweavePath(match[2] ?? '/');
   const query = match[3] ?? '';
 
   return { host, suffix: `${path}${query}` };
@@ -77,6 +98,66 @@ function stringifyErr(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+function getHeaderValue(
+  headers: HttpResponse<string>['headers'],
+  headerName: string,
+): string | undefined {
+  const match = Object.entries(headers).find(
+    ([key]) => key.toLowerCase() === headerName.toLowerCase(),
+  )?.[1];
+
+  if (Array.isArray(match)) {
+    return match.join(', ');
+  }
+  return match;
+}
+
+function hasCsvCompatibleContentType(contentType?: string): boolean {
+  if (!contentType) {
+    return true;
+  }
+
+  const normalized = contentType.split(';', 1)[0].trim().toLowerCase();
+  return CSV_CONTENT_TYPES.includes(normalized);
+}
+
+function looksLikeHtml(body: string): boolean {
+  const normalized = body.trimStart().toLowerCase();
+  return (
+    normalized.startsWith('<!doctype html') || normalized.startsWith('<html')
+  );
+}
+
+function assertCsvResponse(params: {
+  endpoint: string;
+  response: HttpResponse<string>;
+}) {
+  const { endpoint, response } = params;
+  const contentType = getHeaderValue(response.headers, 'content-type');
+  if (!hasCsvCompatibleContentType(contentType)) {
+    throw new Error(
+      `Unexpected content-type for ${endpoint}: ${contentType ?? 'missing'}`,
+    );
+  }
+
+  if (looksLikeHtml(response.data)) {
+    throw new Error(`Unexpected HTML response for ${endpoint}`);
+  }
+}
+
+function mapCsvRecords(records: string[][]): any[] {
+  const lines: any[] = [];
+  const header = records[0];
+  for (let i = 1; i < records.length; i++) {
+    const o = {};
+    for (let j = 0; j < header.length; j++) {
+      o[header[j]] = records[i][j];
+    }
+    lines.push(o);
+  }
+  return lines;
+}
+
 /**
  * Tries the URL across gateways in order until fetchFn succeeds.
  * If url isn't a recognised gateway URL, it just tries url once.
@@ -91,12 +172,16 @@ export async function withArweaveFallback<T>(
 
   let lastErr: unknown;
   for (const tryUrl of uniqueToTry) {
+    console.log(`Downloading from URL: ${tryUrl}`);
     try {
-      const t = await fetchFn(tryUrl);
-      console.log('arweave call succeeded with final url' + tryUrl);
-      return t;
+      return await fetchFn(tryUrl);
     } catch (err) {
       lastErr = err;
+      console.error(
+        `Failed to download from URL: ${tryUrl} because of error: ${stringifyErr(
+          err,
+        )}`,
+      );
     }
   }
 
@@ -334,27 +419,21 @@ export class SeizeApi {
     if (!tdhUrl) {
       throw new Error(`No TDH found for block ${blockId}`);
     }
-    const csvContents = await withArweaveFallback(tdhUrl, async (endpoint) =>
-      this.http.get<string>({
-        endpoint,
-      }),
+    return withArweaveFallback(tdhUrl, async (endpoint) =>
+      this.downloadAndParseCsv(endpoint),
     );
-    return parseCsv<any>(
-      csvContents,
-      { delimiter: ',' },
-      (records: string[][]) => {
-        const lines: any[] = [];
-        const header = records[0];
-        for (let i = 1; i < records.length; i++) {
-          const o = {};
-          for (let j = 0; j < header.length; j++) {
-            o[header[j]] = records[i][j];
-          }
-          lines.push(o);
-        }
-        return lines;
+  }
+
+  private async downloadAndParseCsv(endpoint: string): Promise<any[]> {
+    const response = await this.http.getResponse<string>({
+      endpoint,
+      requestConfig: {
+        responseType: 'text',
+        transformResponse: [(data) => data],
       },
-    );
+    });
+    assertCsvResponse({ endpoint, response });
+    return parseCsv<any>(response.data, { delimiter: ',' }, mapCsvRecords);
   }
 
   private getClosestTdh(apiResponseData: TdhInfoApiResponse, blockId: number) {

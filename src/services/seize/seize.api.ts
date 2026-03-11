@@ -12,24 +12,15 @@ import { parseCsv } from '../../utils/csv';
 const ARWEAVE_GATEWAYS_PRIORITY: readonly string[] = [
   'arweave.net',
   'gateway.arweave.net',
-  'g8way.io',
-] as const;
-
-const ARWEAVE_GATEWAYS_LONG_TAIL: readonly string[] = [
-  'arweave.org',
-  'arweave.dev',
+  'gateway.ar.io',
   'ar-io.net',
-  'arweave.live',
-  'arweave.surf',
-  'arweave.team',
-  'arweavetoday.com',
-  'arweave.fyi',
-  'arweave.guide',
 ] as const;
 
-const ARWEAVE_GATEWAYS: readonly string[] = dedupe([
+const SEIZE_CLOUDFRONT = 'https://d3lqz0a4bldqgf.cloudfront.net/arweave';
+
+const CSV_DOWNLOAD_GATEWAYS: readonly string[] = dedupe([
   ...ARWEAVE_GATEWAYS_PRIORITY,
-  ...ARWEAVE_GATEWAYS_LONG_TAIL,
+  SEIZE_CLOUDFRONT,
 ]);
 
 const CSV_CONTENT_TYPES: readonly string[] = [
@@ -51,7 +42,7 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
-const ARWEAVE_HOSTS_PATTERN = ARWEAVE_GATEWAYS.map(escapeRegex).join('|');
+const ARWEAVE_HOSTS_PATTERN = CSV_DOWNLOAD_GATEWAYS.map(escapeRegex).join('|');
 
 const ARWEAVE_URL_RE = new RegExp(
   String.raw`^https?:\/\/(?:www\.)?(${ARWEAVE_HOSTS_PATTERN})(?=(?::\d+)?(?:\/|$|\?|#))(\/[^#?]*)?(\?[^#]*)?`,
@@ -91,7 +82,7 @@ export function getArweaveFallbackUrls(url: string): string[] {
     return [];
   }
 
-  return ARWEAVE_GATEWAYS.map((host) => `https://${host}${parsed.suffix}`);
+  return CSV_DOWNLOAD_GATEWAYS.map((host) => `https://${host}${parsed.suffix}`);
 }
 
 function stringifyErr(err: unknown): string {

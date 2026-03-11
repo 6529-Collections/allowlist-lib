@@ -16,7 +16,8 @@ const ARWEAVE_GATEWAYS_PRIORITY: readonly string[] = [
   'ar-io.net',
 ] as const;
 
-const SEIZE_CLOUDFRONT = 'https://d3lqz0a4bldqgf.cloudfront.net/arweave';
+const SEIZE_CLOUDFRONT =
+  'd3lqz0a4bldqgf.cloudfront.net/arweave/qYDbRwVhHPSRft8wv3BWMPpCkl4ToAnk86OCaAXPxPY';
 
 const CSV_DOWNLOAD_GATEWAYS: readonly string[] = dedupe([
   ...ARWEAVE_GATEWAYS_PRIORITY,

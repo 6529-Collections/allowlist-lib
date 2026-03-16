@@ -83,6 +83,9 @@ describe('Seize API Uploads', () => {
     const minimalTdhUploadContents =
       'wallet,ens,consolidation_key,consolidation_display,block,date,total_balance,boosted_tdh,tdh_rank,tdh,tdh__raw,boost,memes_balance,unique_memes,memes_cards_sets,memes_cards_sets_minus1,memes_cards_sets_minus2,genesis,nakamoto,boosted_memes_tdh,memes_tdh,memes_tdh__raw,tdh_rank_memes,memes,gradients_balance,boosted_gradients_tdh,gradients_tdh,gradients_tdh__raw,tdh_rank_gradients,gradients,nextgen_balance,boosted_nextgen_tdh,nextgen_tdh,nextgen_tdh__raw,nextgen\n' +
       '0xAbC,test.eth,key,display,1,20240101,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,[],0,0,0,0,1,[],0,0,0,0,[]\n';
+    const invalidJsonFieldUploadContents =
+      'wallet,ens,consolidation_key,consolidation_display,block,date,total_balance,boosted_tdh,tdh_rank,tdh,tdh__raw,boost,memes_balance,unique_memes,memes_cards_sets,memes_cards_sets_minus1,memes_cards_sets_minus2,genesis,nakamoto,boosted_memes_tdh,memes_tdh,memes_tdh__raw,tdh_rank_memes,memes,gradients_balance,boosted_gradients_tdh,gradients_tdh,gradients_tdh__raw,tdh_rank_gradients,gradients,nextgen_balance,boosted_nextgen_tdh,nextgen_tdh,nextgen_tdh__raw,nextgen\n' +
+      '0xAbC,test.eth,key,display,1,20240101,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,undefined,0,0,0,0,1,[],0,0,0,0,[]\n';
     const consolidatedTdhUploadContents = fs.readFileSync(
       `mock-data/tdh_consolidated_upload.csv`,
       'utf8',
@@ -138,6 +141,15 @@ describe('Seize API Uploads', () => {
           },
         ],
       },
+      'https://www.example.com/api/uploads?block=17531456&page_size=1': {
+        data: [
+          {
+            date: '20230622',
+            block: 17531456,
+            url: 'https://arweave.net/ghi789',
+          },
+        ],
+      },
       'https://www.example.com/upload.csv': {
         body: tdhUploadContents,
         headers: { 'content-type': 'text/csv; charset=utf-8' },
@@ -156,6 +168,10 @@ describe('Seize API Uploads', () => {
       },
       'https://arweave.net/def456': {
         body: minimalTdhUploadContents,
+        headers: { 'content-type': 'text/csv; charset=utf-8' },
+      },
+      'https://arweave.net/ghi789': {
+        body: invalidJsonFieldUploadContents,
         headers: { 'content-type': 'text/csv; charset=utf-8' },
       },
       // 'https://www.example.com/api/delegations?page=1&collection=c1,c2&use_case=1,2&block=17531453&page_size=5':
@@ -232,7 +248,14 @@ describe('Seize API Uploads', () => {
         'Downloading from URL: https://gateway.arweave.net/abc123',
       );
       expect(errorSpy).toHaveBeenCalledWith(
-        'Failed to download from URL: https://arweave.net/abc123 because of error: Unexpected content-type for https://arweave.net/abc123: text/html; charset=utf-8',
+        expect.stringContaining(
+          'Failed to download from URL: https://arweave.net/abc123 because of error: [ARWEAVE_CSV_DOWNLOAD_ATTEMPT_FAILED]',
+        ),
+      );
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Unexpected content-type for https://arweave.net/abc123: text/html; charset=utf-8',
+        ),
       );
     } finally {
       logSpy.mockRestore();
@@ -264,6 +287,19 @@ describe('Seize API Uploads', () => {
       error = e.message;
     }
     expect(error).toBe(`No TDH found for block 1`);
+  });
+
+  it('returns step-aware metadata when a TDH JSON field cannot be parsed', async () => {
+    await expect(seizeApi.getUploadsForBlock(17531456)).rejects.toMatchObject({
+      code: 'SEIZE_UPLOAD_JSON_FIELD_PARSE_FAILED',
+      metadata: expect.objectContaining({
+        field: 'memes',
+        sourcePath: '/uploads',
+        requestedBlockId: 17531456,
+        rawValuePrefix: 'undefined',
+      }),
+      cause: expect.any(SyntaxError),
+    });
   });
 });
 

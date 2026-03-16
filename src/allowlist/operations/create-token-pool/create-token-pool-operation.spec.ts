@@ -312,4 +312,57 @@ describe('CreateTokenPoolOperation', () => {
     });
     expect(state.tokenPools['tp-2'].tokens).toStrictEqual([]);
   });
+
+  it('wraps consolidate failures with token-pool context', async () => {
+    op = new CreateTokenPoolOperation(
+      defaultLogFactory,
+      new MockAlchemyService(undefined as Alchemy),
+      undefined as TransfersService,
+      {
+        getTokenPoolTokens: jest.fn().mockResolvedValue(null),
+      } as any,
+      {
+        getContractSchema: jest.fn().mockResolvedValue(ContractSchema.ERC721),
+      } as any,
+      {
+        consolidate: jest.fn().mockRejectedValue({
+          code: 'SEIZE_UPLOAD_JSON_FIELD_PARSE_FAILED',
+          message: 'Failed to parse JSON field "memes" from Seize /uploads row',
+          metadata: {
+            field: 'memes',
+            sourcePath: '/uploads',
+          },
+        }),
+      } as any,
+      {
+        getProfilesForSanctionedWallets: jest.fn().mockResolvedValue({}),
+      } as any,
+    );
+
+    await expect(
+      op.execute({
+        params: {
+          id: 'tp-2',
+          name: 'tp 2',
+          description: 'tp 2 description',
+          tokenIds: null,
+          contract: '0x123',
+          blockNo: 123,
+          consolidateBlockNo: 456,
+        },
+        state,
+      }),
+    ).rejects.toMatchObject({
+      code: 'CREATE_TOKEN_POOL_CONSOLIDATION_FAILED',
+      metadata: expect.objectContaining({
+        tokenPoolId: 'tp-2',
+        contract: '0x123',
+        blockNo: 123,
+        consolidateBlockNo: 456,
+      }),
+      cause: expect.objectContaining({
+        code: 'SEIZE_UPLOAD_JSON_FIELD_PARSE_FAILED',
+      }),
+    });
+  });
 });

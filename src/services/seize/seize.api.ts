@@ -8,6 +8,11 @@ import {
 import { DelegateMapping, DelegateMappingPage } from './delegation-mapping';
 import { TokenOwnership } from '../../allowlist/state-types/token-ownership';
 import { parseCsv } from '../../utils/csv';
+import {
+  formatErrorWithCauses,
+  StepErrorMetadataValue,
+  toStepError,
+} from '../../errors/step-error';
 
 const ARWEAVE_GATEWAYS_PRIORITY: readonly string[] = [
   'arweave.net',
@@ -87,7 +92,7 @@ export function getArweaveFallbackUrls(url: string): string[] {
 }
 
 function stringifyErr(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
+  return formatErrorWithCauses(err);
 }
 
 function getHeaderValue(
@@ -148,6 +153,85 @@ function mapCsvRecords(records: string[][]): any[] {
     lines.push(o);
   }
   return lines;
+}
+
+function getRawValuePrefix(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  return value.length > 120 ? `${value.slice(0, 120)}...` : value;
+}
+
+function getRowMetadata(rawColumn: Record<string, any>): Record<
+  string,
+  StepErrorMetadataValue
+> {
+  return {
+    rowWallet:
+      typeof rawColumn.wallet === 'string' ? rawColumn.wallet : undefined,
+    rowConsolidationKey:
+      typeof rawColumn.consolidation_key === 'string'
+        ? rawColumn.consolidation_key
+        : undefined,
+    rowConsolidationDisplay:
+      typeof rawColumn.consolidation_display === 'string'
+        ? rawColumn.consolidation_display
+        : undefined,
+    rowBlock:
+      typeof rawColumn.block === 'string' || typeof rawColumn.block === 'number'
+        ? Number(rawColumn.block)
+        : undefined,
+  };
+}
+
+function parseJsonArrayField<T>(params: {
+  readonly rawColumn: Record<string, any>;
+  readonly field: string;
+  readonly sourcePath: string;
+  readonly requestedBlockId: number;
+  readonly itemMapper: (item: any) => T;
+}): T[] {
+  const { rawColumn, field, sourcePath, requestedBlockId, itemMapper } = params;
+  const rawValue = rawColumn[field];
+  const metadata = {
+    sourcePath,
+    requestedBlockId,
+    field,
+    rawValueType: rawValue === null ? 'null' : typeof rawValue,
+    rawValuePrefix: getRawValuePrefix(rawValue),
+    ...getRowMetadata(rawColumn),
+  };
+
+  if (typeof rawValue !== 'string') {
+    throw toStepError({
+      code: 'SEIZE_UPLOAD_JSON_FIELD_MISSING',
+      message: `Seize ${sourcePath} row is missing JSON field "${field}"`,
+      metadata,
+    });
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawValue);
+  } catch (error) {
+    throw toStepError({
+      code: 'SEIZE_UPLOAD_JSON_FIELD_PARSE_FAILED',
+      message: `Failed to parse JSON field "${field}" from Seize ${sourcePath} row`,
+      metadata,
+      cause: error,
+    });
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw toStepError({
+      code: 'SEIZE_UPLOAD_JSON_FIELD_INVALID',
+      message: `Expected JSON array in field "${field}" from Seize ${sourcePath} row`,
+      metadata,
+    });
+  }
+
+  return parsed.map(itemMapper);
 }
 
 /**
@@ -316,7 +400,11 @@ export class SeizeApi {
   async getUploadsForBlock(blockId: number): Promise<TdhInfo[]> {
     const rawData = await this.getDataForBlock({ path: '/uploads', blockId });
     return rawData.map((rawColumn) => ({
-      ...this.mapCommon(rawColumn),
+      ...this.mapCommon({
+        rawColumn,
+        sourcePath: '/uploads',
+        requestedBlockId: blockId,
+      }),
       ens: rawColumn.ens,
       wallet: rawColumn.wallet.toLowerCase(),
     }));
@@ -330,13 +418,28 @@ export class SeizeApi {
       blockId,
     });
     return rawData.map((rawColumn) => ({
-      ...this.mapCommon(rawColumn),
+      ...this.mapCommon({
+        rawColumn,
+        sourcePath: '/consolidated_uploads',
+        requestedBlockId: blockId,
+      }),
       consolidation_display: rawColumn.consolidation_display,
-      wallets: JSON.parse(rawColumn.wallets).map((w) => w.toLowerCase()),
+      wallets: parseJsonArrayField<string>({
+        rawColumn,
+        field: 'wallets',
+        sourcePath: '/consolidated_uploads',
+        requestedBlockId: blockId,
+        itemMapper: (wallet) => wallet.toLowerCase(),
+      }),
     }));
   }
 
-  private mapCommon(rawColumn: any): CommonTdhInfo {
+  private mapCommon(params: {
+    readonly rawColumn: Record<string, any>;
+    readonly sourcePath: string;
+    readonly requestedBlockId: number;
+  }): CommonTdhInfo {
+    const { rawColumn, sourcePath, requestedBlockId } = params;
     return {
       consolidation_key: rawColumn.consolidation_key,
       consolidation_display: rawColumn.consolidation_display,
@@ -359,36 +462,54 @@ export class SeizeApi {
       memes_tdh: +rawColumn.memes_tdh,
       memes_tdh__raw: +rawColumn.memes_tdh__raw,
       tdh_rank_memes: +rawColumn.tdh_rank_memes,
-      memes: JSON.parse(rawColumn.memes).map((m) => ({
-        id: +m.id,
-        tdh: +m.tdh,
-        balance: +m.balance,
-        tdh__raw: +m.tdh__raw,
-        rank: +m.rank,
-      })),
+      memes: parseJsonArrayField({
+        rawColumn,
+        field: 'memes',
+        sourcePath,
+        requestedBlockId,
+        itemMapper: (m) => ({
+          id: +m.id,
+          tdh: +m.tdh,
+          balance: +m.balance,
+          tdh__raw: +m.tdh__raw,
+          rank: +m.rank,
+        }),
+      }),
       gradients_balance: +rawColumn.gradients_balance,
       boosted_gradients_tdh: +rawColumn.boosted_gradients_tdh,
       gradients_tdh: +rawColumn.gradients_tdh,
       gradients_tdh__raw: +rawColumn.gradients_tdh__raw,
       tdh_rank_gradients: +rawColumn.tdh_rank_gradients,
-      gradients: JSON.parse(rawColumn.gradients).map((g) => ({
-        id: +g.id,
-        tdh: +g.tdh,
-        balance: +g.balance,
-        tdh__raw: +g.tdh__raw,
-        rank: +g.rank,
-      })),
+      gradients: parseJsonArrayField({
+        rawColumn,
+        field: 'gradients',
+        sourcePath,
+        requestedBlockId,
+        itemMapper: (g) => ({
+          id: +g.id,
+          tdh: +g.tdh,
+          balance: +g.balance,
+          tdh__raw: +g.tdh__raw,
+          rank: +g.rank,
+        }),
+      }),
       nextgen_balance: +rawColumn.nextgen_balance,
       boosted_nextgen_tdh: +rawColumn.boosted_nextgen_tdh,
       nextgen_tdh: +rawColumn.nextgen_tdh,
       nextgen_tdh__raw: +rawColumn.nextgen_tdh__raw,
-      nextgen: JSON.parse(rawColumn.nextgen).map((n) => ({
-        id: +n.id,
-        tdh: +n.tdh,
-        balance: +n.balance,
-        tdh__raw: +n.tdh__raw,
-        rank: +n.rank,
-      })),
+      nextgen: parseJsonArrayField({
+        rawColumn,
+        field: 'nextgen',
+        sourcePath,
+        requestedBlockId,
+        itemMapper: (n) => ({
+          id: +n.id,
+          tdh: +n.tdh,
+          balance: +n.balance,
+          tdh__raw: +n.tdh__raw,
+          rank: +n.rank,
+        }),
+      }),
     };
   }
 
@@ -403,29 +524,107 @@ export class SeizeApi {
     if (this.apiToken) {
       headers = { 'x-6529-auth': this.apiToken };
     }
-    const apiResponseData = await this.http.get<TdhInfoApiResponse>({
-      endpoint: `${this.apiUri}${path}?block=${blockId}&page_size=1`,
-      headers,
-    });
+    const endpoint = `${this.apiUri}${path}?block=${blockId}&page_size=1`;
+    let apiResponseData: TdhInfoApiResponse;
+    try {
+      apiResponseData = await this.http.get<TdhInfoApiResponse>({
+        endpoint,
+        headers,
+      });
+    } catch (error) {
+      throw toStepError({
+        code: 'SEIZE_INDEX_REQUEST_FAILED',
+        message: `Failed to fetch Seize ${path} index`,
+        metadata: {
+          endpoint,
+          sourcePath: path,
+          requestedBlockId: blockId,
+        },
+        cause: error,
+      });
+    }
     const tdhUrl = this.getClosestTdh(apiResponseData, blockId);
     if (!tdhUrl) {
-      throw new Error(`No TDH found for block ${blockId}`);
+      throw toStepError({
+        code: 'SEIZE_INDEX_URL_NOT_FOUND',
+        message: `No TDH found for block ${blockId}`,
+        metadata: {
+          endpoint,
+          sourcePath: path,
+          requestedBlockId: blockId,
+          candidatesCount: apiResponseData.data?.length ?? 0,
+        },
+      });
     }
-    return withArweaveFallback(tdhUrl, async (endpoint) =>
-      this.downloadAndParseCsv(endpoint),
-    );
+    try {
+      return await withArweaveFallback(tdhUrl, async (downloadUrl) =>
+        this.downloadAndParseCsv({
+          endpoint: downloadUrl,
+          requestedBlockId: blockId,
+          sourcePath: path,
+          sourceUrl: tdhUrl,
+        }),
+      );
+    } catch (error) {
+      throw toStepError({
+        code: 'ARWEAVE_CSV_DOWNLOAD_FAILED',
+        message: `Failed to download TDH CSV for Seize ${path}`,
+        metadata: {
+          sourcePath: path,
+          requestedBlockId: blockId,
+          sourceUrl: tdhUrl,
+        },
+        cause: error,
+      });
+    }
   }
 
-  private async downloadAndParseCsv(endpoint: string): Promise<any[]> {
-    const response = await this.http.getResponse<string>({
-      endpoint,
-      requestConfig: {
-        responseType: 'text',
-        transformResponse: [(data) => data],
-      },
-    });
-    assertCsvResponse({ endpoint, response });
-    return parseCsv<any>(response.data, { delimiter: ',' }, mapCsvRecords);
+  private async downloadAndParseCsv(params: {
+    readonly endpoint: string;
+    readonly requestedBlockId: number;
+    readonly sourcePath: string;
+    readonly sourceUrl: string;
+  }): Promise<any[]> {
+    const { endpoint, requestedBlockId, sourcePath, sourceUrl } = params;
+    let response: HttpResponse<string>;
+    try {
+      response = await this.http.getResponse<string>({
+        endpoint,
+        requestConfig: {
+          responseType: 'text',
+          transformResponse: [(data) => data],
+        },
+      });
+      assertCsvResponse({ endpoint, response });
+    } catch (error) {
+      throw toStepError({
+        code: 'ARWEAVE_CSV_DOWNLOAD_ATTEMPT_FAILED',
+        message: `Failed to download or validate TDH CSV attempt`,
+        metadata: {
+          endpoint,
+          sourcePath,
+          requestedBlockId,
+          sourceUrl,
+        },
+        cause: error,
+      });
+    }
+
+    try {
+      return await parseCsv<any>(response.data, { delimiter: ',' }, mapCsvRecords);
+    } catch (error) {
+      throw toStepError({
+        code: 'ARWEAVE_CSV_PARSE_FAILED',
+        message: `Failed to parse TDH CSV body`,
+        metadata: {
+          endpoint,
+          sourcePath,
+          requestedBlockId,
+          sourceUrl,
+        },
+        cause: error,
+      });
+    }
   }
 
   private getClosestTdh(apiResponseData: TdhInfoApiResponse, blockId: number) {

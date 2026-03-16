@@ -14,6 +14,7 @@ import { ContractSchema } from '../../../app-types';
 import { TokenPoolService } from '../../../services/token-pool.service';
 import { SeizeApi } from '../../../services/seize/seize.api';
 import { WalletScreener } from '../../../services/screening/wallet.screener';
+import { toStepError } from '../../../errors/step-error';
 
 export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   private logger: Logger;
@@ -166,17 +167,33 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     });
 
     this.logger.info(`Constructing the final tokenpool state`);
+    let finalTokens = tokens;
+    if (consolidateBlockNo && consolidateBlockNo > 0) {
+      try {
+        finalTokens = await this.seizeApi.consolidate({
+          blockNo: consolidateBlockNo,
+          tokens,
+        });
+      } catch (error) {
+        throw toStepError({
+          code: 'CREATE_TOKEN_POOL_CONSOLIDATION_FAILED',
+          message: `Failed to consolidate token pool ${id}`,
+          metadata: {
+            tokenPoolId: id,
+            contract,
+            blockNo,
+            consolidateBlockNo,
+          },
+          cause: error,
+        });
+      }
+    }
+
     state.tokenPools[id] = {
       id,
       name: params.name,
       description: params.description,
-      tokens:
-        consolidateBlockNo && consolidateBlockNo > 0
-          ? await this.seizeApi.consolidate({
-              blockNo: consolidateBlockNo,
-              tokens,
-            })
-          : tokens,
+      tokens: finalTokens,
       tokenIds,
       contract,
       blockNo,

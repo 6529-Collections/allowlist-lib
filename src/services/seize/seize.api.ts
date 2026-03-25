@@ -21,8 +21,7 @@ const ARWEAVE_GATEWAYS_PRIORITY: readonly string[] = [
   'ar-io.net',
 ] as const;
 
-const SEIZE_CLOUDFRONT =
-  'd3lqz0a4bldqgf.cloudfront.net/arweave/qYDbRwVhHPSRft8wv3BWMPpCkl4ToAnk86OCaAXPxPY';
+const SEIZE_CLOUDFRONT = 'd3lqz0a4bldqgf.cloudfront.net/arweave';
 
 const CSV_DOWNLOAD_GATEWAYS: readonly string[] = dedupe([
   ...ARWEAVE_GATEWAYS_PRIORITY,
@@ -163,10 +162,9 @@ function getRawValuePrefix(value: unknown): string | undefined {
   return value.length > 120 ? `${value.slice(0, 120)}...` : value;
 }
 
-function getRowMetadata(rawColumn: Record<string, any>): Record<
-  string,
-  StepErrorMetadataValue
-> {
+function getRowMetadata(
+  rawColumn: Record<string, any>,
+): Record<string, StepErrorMetadataValue> {
   return {
     rowWallet:
       typeof rawColumn.wallet === 'string' ? rawColumn.wallet : undefined,
@@ -611,7 +609,11 @@ export class SeizeApi {
     }
 
     try {
-      return await parseCsv<any>(response.data, { delimiter: ',' }, mapCsvRecords);
+      return await parseCsv<any>(
+        response.data,
+        { delimiter: ',' },
+        mapCsvRecords,
+      );
     } catch (error) {
       throw toStepError({
         code: 'ARWEAVE_CSV_PARSE_FAILED',

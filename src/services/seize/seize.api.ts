@@ -248,7 +248,9 @@ export async function withArweaveFallback<T>(
   for (const tryUrl of uniqueToTry) {
     console.log(`Downloading from URL: ${tryUrl}`);
     try {
-      return await fetchFn(tryUrl);
+      const resp = await fetchFn(tryUrl);
+      lastErr = undefined;
+      return resp;
     } catch (err) {
       lastErr = err;
       console.error(
@@ -588,6 +590,10 @@ export class SeizeApi {
     try {
       response = await this.http.getResponse<string>({
         endpoint,
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+          Accept: '*/*',
+        },
         requestConfig: {
           responseType: 'text',
           transformResponse: [(data) => data],

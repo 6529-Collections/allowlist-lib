@@ -87,6 +87,7 @@ export class AllowlistCreator {
    * @param alchemy Alchemy SDK instance. This is only mandatory if you won't provide Alchemy API key via property `alchemyApiKey`.
    * @param seizeApiPath Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
    * @param seizeApiKey Needed for some operations which fetch data from Seize API. Leave empty if you don't use those operations.
+   * @param ofacCheckEnabled Whether to screen token-pool owners against the OFAC sanctions list. Defaults to true.
    * @param storage The storage implementations to use.
    * @param loggerFactory Logger implementation to use. If not provided, it will use the default console logger.
    * @param onBeforeOperation function which will be invoked before each operation (optional).
@@ -98,11 +99,15 @@ export class AllowlistCreator {
     etherscanApiKey,
     alchemyApiKey,
     alchemy,
+    ofacCheckEnabled = true,
     storage,
     loggerFactory,
     onBeforeOperation,
     onAfterOperation,
   }: AllowlistCreatorConfig): AllowlistCreator {
+    if (typeof ofacCheckEnabled !== 'boolean') {
+      throw new Error('ofacCheckEnabled must be a boolean.');
+    }
     if (!alchemyApiKey && !alchemy) {
       throw new Error(
         'You must provide either an Alchemy API key or an Alchemy instance.',
@@ -153,6 +158,7 @@ export class AllowlistCreator {
         etherscanService,
         seizeApi,
         new WalletScreener(new OfacApi(http)),
+        ofacCheckEnabled,
       ),
       CREATE_CUSTOM_TOKEN_POOL: new CreateCustomTokenPoolOperation(),
       CREATE_WALLET_POOL: new CreateWalletPoolOperation(loggerFactoryImpl),

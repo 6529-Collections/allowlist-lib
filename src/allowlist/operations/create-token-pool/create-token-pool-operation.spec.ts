@@ -313,6 +313,44 @@ describe('CreateTokenPoolOperation', () => {
     expect(state.tokenPools['tp-2'].tokens).toStrictEqual([]);
   });
 
+  it('skips the OFAC check when it is disabled', async () => {
+    const getProfilesForSanctionedWallets = jest.fn();
+    op = new CreateTokenPoolOperation(
+      defaultLogFactory,
+      new MockAlchemyService(undefined as Alchemy),
+      undefined as TransfersService,
+      {
+        getTokenPoolTokens: jest.fn().mockResolvedValue(null),
+      } as any,
+      {
+        getContractSchema: jest.fn().mockResolvedValue(ContractSchema.ERC721),
+      } as any,
+      {
+        getAllConsolidations: jest.fn().mockResolvedValue([]),
+      } as any,
+      {
+        getProfilesForSanctionedWallets,
+      } as any,
+      false,
+    );
+
+    await op.execute({
+      params: {
+        id: 'tp-2',
+        name: 'tp 2',
+        description: 'tp 2 description',
+        tokenIds: null,
+        contract: '0x123',
+        blockNo: 123,
+        consolidateBlockNo: null,
+      },
+      state,
+    });
+
+    expect(getProfilesForSanctionedWallets).not.toHaveBeenCalled();
+    expect(state.tokenPools['tp-2'].tokens).toHaveLength(3);
+  });
+
   it('wraps consolidate failures with token-pool context', async () => {
     op = new CreateTokenPoolOperation(
       defaultLogFactory,

@@ -15,6 +15,7 @@ import { TokenPoolService } from '../../../services/token-pool.service';
 import { SeizeApi } from '../../../services/seize/seize.api';
 import { WalletScreener } from '../../../services/screening/wallet.screener';
 import { toStepError } from '../../../errors/step-error';
+import { SanctionedWallet } from '../../../services/screening/sanctioned-wallet';
 
 export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
   private logger: Logger;
@@ -27,6 +28,7 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
     private readonly etherscan: EtherscanService,
     private readonly seizeApi: SeizeApi,
     private readonly walletScreener: WalletScreener,
+    private readonly ofacCheckEnabled = true,
   ) {
     this.logger = loggerFactory.create(CreateTokenPoolOperation.name);
   }
@@ -146,15 +148,24 @@ export class CreateTokenPoolOperation implements AllowlistOperationExecutor {
         !['0x0000000000000000000000000000000000000000'].includes(token.owner),
     );
     const allOwners = allTokens.map((token) => token.owner);
-    this.logger.info(`Doing sanctions check for owners`);
-    const sanctionedProfiles =
-      await this.walletScreener.getProfilesForSanctionedWallets({
-        walletsToScreen: allOwners,
-      });
+    let sanctionedProfiles: Record<string, SanctionedWallet> = {};
+    if (this.ofacCheckEnabled) {
+      this.logger.info(`Doing sanctions check for owners`);
+      sanctionedProfiles =
+        await this.walletScreener.getProfilesForSanctionedWallets({
+          walletsToScreen: allOwners,
+        });
+      this.logger.info(
+        `Sanctions check done for owners. Found ${
+          Object.keys(sanctionedProfiles).length
+        } wallets which will be eliminated based on sanctions`,
+      );
+    } else {
+      this.logger.warn(
+        `OFAC sanctions check is disabled. Skipping sanctions screening for ${allOwners.length} token owners`,
+      );
+    }
     const sanctionedWallets = Object.keys(sanctionedProfiles);
-    this.logger.info(
-      `Sanctions check done for owners. Found ${sanctionedWallets.length} wallets which will be eliminated based on sanctions`,
-    );
     const tokens = allTokens.filter((token) => {
       const isSanctioned = sanctionedWallets.includes(token.owner);
       if (isSanctioned) {

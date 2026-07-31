@@ -17,6 +17,11 @@ export interface AllowlistCreatorConfig {
   readonly alchemy?: Alchemy;
   readonly seizeApiPath: string;
   readonly seizeApiKey?: string;
+  /**
+   * Whether token-pool owners should be screened against the OFAC sanctions
+   * list. Defaults to true. Set to false only as an explicit emergency bypass.
+   */
+  readonly ofacCheckEnabled?: boolean;
   readonly storage?: StorageImplementations;
   readonly loggerFactory?: LoggerFactory;
   readonly onBeforeOperation?: (

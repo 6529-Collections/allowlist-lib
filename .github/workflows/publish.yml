@@ -50,7 +50,10 @@ jobs:
         run: node scripts/ci-release.cjs prepare
       - name: Install dependencies
         if: steps.release.outputs.published != 'true'
-        run: npm ci
+        run: |
+          npm ci
+          # npm rewrites yarn.lock on Linux even during ci; keep the committed Yarn lock.
+          git restore --worktree -- yarn.lock
       - name: Audit, test, and verify package
         if: steps.release.outputs.published != 'true'
         run: |

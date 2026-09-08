@@ -41,8 +41,9 @@ function checkVersionFiles(cwd, version) {
 }
 
 function requireClean(cwd) {
-  if (git(cwd, 'status', '--porcelain')) {
-    throw new Error('Release checkout must be clean');
+  const status = git(cwd, 'status', '--porcelain');
+  if (status) {
+    throw new Error(`Release checkout must be clean:\n${status}`);
   }
 }
 
@@ -134,12 +135,12 @@ function commit({ cwd, runId, version, retry }) {
     return git(cwd, 'rev-parse', 'HEAD');
   }
   const changed = git(cwd, 'diff', '--name-only', 'HEAD').split('\n').sort();
-  if (
-    changed.join(',') !== 'package-lock.json,package.json' ||
-    git(cwd, 'ls-files', '--others', '--exclude-standard')
-  ) {
+  const untracked = git(cwd, 'ls-files', '--others', '--exclude-standard');
+  if (changed.join(',') !== 'package-lock.json,package.json' || untracked) {
     throw new Error(
-      'Release checks changed files other than the version files',
+      `Release checks changed files other than the version files.\nTracked changes: ${
+        changed.join(', ') || '(none)'
+      }\nUntracked files: ${untracked || '(none)'}`,
     );
   }
   git(cwd, 'add', 'package.json', 'package-lock.json');

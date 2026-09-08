@@ -182,7 +182,18 @@ test('unexpected changes from validation prevent a release commit', async (t) =>
   writeFileSync(join(f.cwd, 'README.md'), 'Unexpected test change\n');
   assert.throws(
     () => commit({ ...f, ...result }),
-    /other than the version files/,
+    /Tracked changes:.*README\.md/,
+  );
+  assert.equal(remoteVersion(f.remote), '0.0.135');
+});
+
+test('unexpected generated files are named and block the release commit', async (t) => {
+  const f = fixture(t);
+  const result = await prepare(f);
+  writeFileSync(join(f.cwd, 'unexpected.txt'), 'Generated during checks\n');
+  assert.throws(
+    () => commit({ ...f, ...result }),
+    /Untracked files: unexpected\.txt/,
   );
   assert.equal(remoteVersion(f.remote), '0.0.135');
 });

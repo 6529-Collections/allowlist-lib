@@ -2,6 +2,16 @@ name: Publish to npm
 
 on:
   workflow_dispatch:
+    inputs:
+      release_type:
+        description: Version increment
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 concurrency:
   group: npm-publish
@@ -17,13 +27,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - name: Checkout release source
         uses: actions/checkout@v6
         with:
-          persist-credentials: false
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: true
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
@@ -31,7 +43,27 @@ jobs:
           package-manager-cache: false
       - name: Set up npm with trusted publishing support
         run: npm install --global npm@11
+      - name: Prepare or resume release version
+        id: release
+        env:
+          RELEASE_TYPE: ${{ inputs.release_type }}
+        run: node scripts/ci-release.cjs prepare
       - name: Install dependencies
+        if: steps.release.outputs.published != 'true'
         run: npm ci
-      - name: Audit, test, verify package, and publish
-        run: sh publish.sh --access=public --registry=https://registry.npmjs.org/
+      - name: Audit, test, and verify package
+        if: steps.release.outputs.published != 'true'
+        run: |
+          node --test scripts/ci-release.test.cjs
+          npm run audit
+          npm test -- --runInBand
+          npm run test:package
+      - name: Commit release version to main
+        if: steps.release.outputs.published != 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_RETRY: ${{ steps.release.outputs.retry }}
+        run: node scripts/ci-release.cjs commit
+      - name: Publish to npm
+        if: steps.release.outputs.published != 'true'
+        run: npm publish --access=public --registry=https://registry.npmjs.org/

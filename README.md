@@ -118,29 +118,40 @@ excluded.
 Releases use the manually triggered **Publish to npm** GitHub Actions workflow
 in `.github/workflows/publish.yml`. To release:
 
-1. On your development branch, set the next version with
-   `npm version patch --no-git-tag-version` (or choose an explicit version).
-2. Commit `package.json` and `package-lock.json` with the release changes and
-   merge them into `main`.
-3. In GitHub, open **Actions → Publish to npm → Run workflow** and select `main`.
+1. Merge the changes you want to release into `main`.
+2. In GitHub, open **Actions → Publish to npm → Run workflow** and select `main`.
+3. Choose **patch** (the default), **minor**, or **major**, and run the workflow.
 
-The workflow only publishes from `main`. It installs dependencies, then runs
-`publish.sh`, which audits dependencies, runs unit tests, and verifies the
-package before publishing to the public npm registry. Releases are serialized.
-Neither the workflow nor the script bumps the version automatically; each
-release needs a version that has not already been published.
+The workflow starts from the selected `main` commit and updates `package.json`
+and `package-lock.json` automatically. From `0.0.135`, patch produces `0.0.136`,
+minor produces `0.1.0`, and major produces `1.0.0`. It installs dependencies,
+audits them, runs tests, and verifies the package. Only after those checks pass
+does it commit and push the version to `main`, then publish that version to npm.
+Releases are serialized. If `main` advances before preparation or during
+validation, the release stops before publishing instead of overwriting changes.
+Start a new workflow run to release the updated `main`.
+
+If publishing fails after the version commit, use **Re-run failed jobs** on the
+same workflow run. The run ID recorded in the commit lets the retry reuse its
+version and source. A retry skips publishing if that version is already on npm,
+and refuses to publish an unpublished version superseded by a newer release.
+Starting a new workflow run requests a new version increment.
 
 Authentication uses npm trusted publishing with GitHub OIDC. The package's npm
 trusted publisher must match organization `6529-Collections`, repository
 `allowlist-lib`, and workflow filename `publish.yml`, with direct `npm publish`
 permission enabled and no environment restriction. The workflow uses a
 GitHub-hosted runner, Node 24, and npm 11. No npm token secret or interactive
-login is needed in CI. See the
-[npm trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
+login is needed in CI. Its `GITHUB_TOKEN` needs `contents: write` and permission
+to push to `main`. GitHub does not start another push-triggered CI run for commits
+made with `GITHUB_TOKEN`, so the release workflow runs the checks itself. See
+[GitHub's workflow trigger documentation](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)
+and the [npm trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
 
 For a local release, sign into an npm account with access to the
-`6529-collections` organization and run `sh publish.sh`. The same release checks
-run before publishing.
+`6529-collections` organization, choose and commit a new version yourself, and
+run `sh publish.sh`. The script runs the release checks but does not bump the
+version automatically.
 
 Publishing the library does not update existing applications. Consumers moving
 from GitHub Packages must update their registry configuration and lockfile

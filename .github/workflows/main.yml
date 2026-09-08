@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -44,6 +44,8 @@ jobs:
         run: npm run audit
       - name: Run unit tests
         run: npm test -- --runInBand
+      - name: Verify release automation
+        run: node --test scripts/ci-release.test.cjs
       - name: Verify npm package
         run: npm run test:package
       - name: Run e2e tests

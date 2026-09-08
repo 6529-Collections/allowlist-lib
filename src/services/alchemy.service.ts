@@ -1,11 +1,8 @@
-import {
-  Alchemy,
-  GetOwnersForContractWithTokenBalancesOptions,
-} from 'alchemy-sdk';
+import { AlchemyClient, AlchemyOwnersOptions } from './alchemy-client';
 import { CollectionOwner } from './collection-owner';
 
 export class AlchemyService {
-  constructor(private readonly alchemy: Alchemy) {}
+  constructor(private readonly alchemy: AlchemyClient) {}
 
   async getCollectionOwnersInBlock({
     contract,
@@ -14,7 +11,7 @@ export class AlchemyService {
     contract: string;
     block?: number;
   }): Promise<CollectionOwner[]> {
-    const opts: GetOwnersForContractWithTokenBalancesOptions = {
+    const opts: AlchemyOwnersOptions = {
       withTokenBalances: true,
     };
     if (block) {

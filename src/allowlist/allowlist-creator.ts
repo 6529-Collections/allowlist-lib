@@ -42,7 +42,7 @@ import { ComponentSelectRandomWalletsOperation } from './operations/component-se
 import { ItemSortWalletsByMemesTdhOperation } from './operations/item-sort-wallets-by-memes-tdh/item-sort-wallets-by-memes-tdh-operation';
 import { TransferPoolConsolidateWalletsOperation } from './operations/transfer-pool-consolidate-wallets/transfer-pool-consolidate-wallets-operation';
 import { AlchemyService } from '../services/alchemy.service';
-import { Alchemy, Network } from 'alchemy-sdk';
+import { AlchemyHttpClient } from '../services/alchemy-client';
 import { CreateTokenPoolOperation } from './operations/create-token-pool/create-token-pool-operation';
 import { ComponentSelectRandomPercentageWalletsOperation } from './operations/component-select-random-percentage-wallets/component-select-random-percentage-wallets-operation';
 import { TokenPoolConsolidateWalletsOperation } from './operations/token-pool-consolidate-wallets/token-pool-consolidate-wallets-operation';
@@ -113,12 +113,7 @@ export class AllowlistCreator {
         'You must provide either an Alchemy API key or an Alchemy instance.',
       );
     }
-    const alchemyInstance =
-      alchemy ||
-      new Alchemy({
-        apiKey: alchemyApiKey,
-        network: Network.ETH_MAINNET,
-      });
+    const alchemyInstance = alchemy || new AlchemyHttpClient(alchemyApiKey);
     const alchemyService = new AlchemyService(alchemyInstance);
     const loggerFactoryImpl = loggerFactory || defaultLogFactory;
     const http = new Http(loggerFactoryImpl);

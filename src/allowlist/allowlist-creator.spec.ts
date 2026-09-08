@@ -1,4 +1,4 @@
-import { Alchemy } from 'alchemy-sdk';
+import { AlchemyClient } from '../services/alchemy-client';
 import { AllowlistCreator } from './allowlist-creator';
 import { AllowlistCreatorConfig } from './allowlist-creator.config';
 import { AllowlistOperationCode } from './allowlist-operation-code';
@@ -6,7 +6,7 @@ import { OfacApi } from '../services/screening/listproviders/ofac/ofac.api';
 
 const getBaseConfig = (): AllowlistCreatorConfig => ({
   etherscanApiKey: 'test-etherscan-key',
-  alchemy: {} as Alchemy,
+  alchemy: {} as AlchemyClient,
   seizeApiPath: 'https://example.com',
   storage: {
     transfersStorage: {} as any,

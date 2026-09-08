@@ -2,7 +2,7 @@ import { TransfersStorage } from '../services/transfers.storage';
 import { JsonFilesTransfersStorage } from '../services/json-files-transfers-storage';
 import { LoggerFactory } from '../logging/logging-emitter';
 import { AllowlistOperation } from './allowlist-operation';
-import { Alchemy } from 'alchemy-sdk';
+import { AlchemyClient } from '../services/alchemy-client';
 import { TokenPoolStorage } from '../services/token-pool.storage';
 import { JsonFilesTokenPoolStorage } from '../services/json-files-token-pool.storage';
 
@@ -14,7 +14,7 @@ export interface StorageImplementations {
 export interface AllowlistCreatorConfig {
   readonly etherscanApiKey: string;
   readonly alchemyApiKey?: string;
-  readonly alchemy?: Alchemy;
+  readonly alchemy?: AlchemyClient;
   readonly seizeApiPath: string;
   readonly seizeApiKey?: string;
   /**

@@ -1,3 +1,137 @@
+# Allowlist Lib
+
+Build reproducible NFT allowlists and distribution plans using Janus operations.
+The library runs in Node.js and includes TypeScript declarations.
+
+## Install
+
+```sh
+npm install @6529-collections/allowlist-lib
+```
+
+Requires Node.js 18 or newer. Use a maintained Node.js LTS release for new
+applications. The package uses CommonJS, supports named imports from Node.js
+ES modules, and uses Node's filesystem APIs for its default storage.
+
+## Quick start
+
+```js
+const {
+  AllowlistCreator,
+  AllowlistOperationCode,
+} = require('@6529-collections/allowlist-lib');
+
+async function main() {
+  const creator = AllowlistCreator.getInstance({
+    alchemyApiKey: process.env.ALCHEMY_API_KEY || 'offline-example',
+    etherscanApiKey: process.env.ETHERSCAN_API_KEY || '',
+    seizeApiPath: '',
+  });
+
+  const state = await creator.execute([
+    {
+      code: AllowlistOperationCode.CREATE_ALLOWLIST,
+      params: {
+        id: 'example-allowlist',
+        name: 'Example allowlist',
+        description: 'An empty distribution plan ready for more operations.',
+      },
+    },
+  ]);
+
+  console.log(state.allowlist);
+}
+
+main().catch(console.error);
+```
+
+This example creates an empty plan without making API requests. The factory
+requires an Alchemy key or SDK instance even for local operations, so this
+example supplies an offline placeholder. Use a real key for operations that
+fetch blockchain data. The default storage creates a `transfers-data/`
+directory in the current working directory.
+
+The package also includes the runnable example:
+
+```sh
+node node_modules/@6529-collections/allowlist-lib/examples/basic.cjs
+```
+
+For TypeScript or ES modules, use:
+
+```ts
+import {
+  AllowlistCreator,
+  AllowlistOperationCode,
+  type AllowlistCreatorConfig,
+  type AllowlistOperation,
+  type AllowlistState,
+} from '@6529-collections/allowlist-lib';
+```
+
+Existing subpath imports, such as
+`@6529-collections/allowlist-lib/allowlist/allowlist-creator`, remain available.
+
+## Configuration
+
+| Option | Purpose |
+| --- | --- |
+| `alchemyApiKey` / `alchemy` | Supply an Alchemy API key or an `AlchemyClient` implementation, including an existing Alchemy SDK v2 instance. The default client uses Ethereum mainnet. |
+| `etherscanApiKey` | API key for operations that read Etherscan data; use an empty string for local-only operations. |
+| `seizeApiPath` | Seize API base URL for TDH, consolidation, delegation, and other Seize-backed operations. Use an empty string when those operations are not needed. |
+| `seizeApiKey` | Optional authentication key for the configured Seize API. |
+| `storage` | Implement `StorageImplementations` to supply transfer and token-pool storage, or use `LocalFileSystemStorageImplementations` to configure the transfer directory. |
+| `loggerFactory` | Optional `LoggerFactory`; defaults to console logging. |
+| `onBeforeOperation` / `onAfterOperation` | Optional synchronous or asynchronous callbacks around each operation. |
+| `ofacCheckEnabled` | Token-pool sanctions screening, enabled by default. |
+
+API credentials belong in the consuming application's configuration. API
+availability and access requirements depend on the operations you execute.
+Operations execute in order and the first must be `CREATE_ALLOWLIST`.
+
+The default client calls Alchemy's NFT API directly and uses ethers v6 for ENS
+lookups. It preserves the v2 NFT endpoint used for historical ownership
+snapshots. The library does not depend on the archived Alchemy SDK. Applications
+that inject their own SDK instance continue to own that instance's dependencies.
+
+## Development and release
+
+```sh
+npm ci
+npm run audit
+npm test -- --runInBand
+npm run test:package
+```
+
+`test:package` builds and packs the library, checks the file list, installs the
+tarball into a temporary project, audits its runtime dependencies, runs the example, and checks CommonJS, ES
+module, TypeScript, and existing subpath imports. It needs network access to
+install public dependencies, but no blockchain API keys. The separate legacy
+E2E suite currently contains only skipped tests.
+
+`npm run build` cleans `dist/` and compiles runtime sources and declarations.
+`npm pack` and `npm publish` run that build automatically through `prepack`.
+Published files contain compiled JavaScript, declarations, this README, the
+MIT license, and the example. Tests, fixtures, source maps, and local files are
+excluded.
+
+For an authorized release, choose the version explicitly with `npm version`,
+sign into an npm account with access to the `6529-collections` organization,
+and run `sh publish.sh`. It runs the audit, unit tests, and package checks before publishing to
+the public npm registry. The script does not bump the version automatically.
+
+Publishing the library does not update existing applications. Consumers moving
+from GitHub Packages must update their registry configuration and lockfile
+after the new version is available. In particular, a scope mapping such as
+`@6529-collections:registry=https://npm.pkg.github.com/` still directs installs
+to GitHub Packages even when the default registry is npm.
+
+## License
+
+[MIT](LICENSE).
+
+## Operation reference
+
 - [Introduction to Janus: The Embedded DSL for NFT Distribution Plans](#introduction-to-janus-the-embedded-dsl-for-nft-distribution-plans)
   - [What is a DSL?](#what-is-a-dsl)
   - [Introducing Janus Operations](#introducing-janus-operations)

@@ -1,6 +1,7 @@
-set -e
-yarn bump
-yarn build
-cp package.json ./dist/src
-cd ./dist/src
-npm publish
+#!/usr/bin/env sh
+set -eu
+cd "$(dirname "$0")"
+npm run audit
+npm test -- --runInBand
+npm run test:package
+npm publish "$@"

@@ -4,7 +4,7 @@ import { defaultLogFactory } from '../../../logging/logging-emitter';
 import { AlchemyService } from '../../../services/alchemy.service';
 import { CollectionOwner } from '../../../services/collection-owner';
 import { CreateTokenPoolOperation } from './create-token-pool-operation';
-import { Alchemy } from 'alchemy-sdk';
+import { AlchemyClient } from '../../../services/alchemy-client';
 import { TransfersService } from '../../../services/transfers.service';
 import { ContractSchema } from '../../../app-types';
 
@@ -31,7 +31,7 @@ describe('CreateTokenPoolOperation', () => {
   function getCreateTokenPoolOperation(sanctionedWallet: string) {
     return new CreateTokenPoolOperation(
       defaultLogFactory,
-      new MockAlchemyService(undefined as Alchemy),
+      new MockAlchemyService(undefined as AlchemyClient),
       undefined as TransfersService,
       {
         getTokenPoolTokens: jest.fn().mockResolvedValue(null),
@@ -317,7 +317,7 @@ describe('CreateTokenPoolOperation', () => {
     const getProfilesForSanctionedWallets = jest.fn();
     op = new CreateTokenPoolOperation(
       defaultLogFactory,
-      new MockAlchemyService(undefined as Alchemy),
+      new MockAlchemyService(undefined as AlchemyClient),
       undefined as TransfersService,
       {
         getTokenPoolTokens: jest.fn().mockResolvedValue(null),
@@ -354,7 +354,7 @@ describe('CreateTokenPoolOperation', () => {
   it('wraps consolidate failures with token-pool context', async () => {
     op = new CreateTokenPoolOperation(
       defaultLogFactory,
-      new MockAlchemyService(undefined as Alchemy),
+      new MockAlchemyService(undefined as AlchemyClient),
       undefined as TransfersService,
       {
         getTokenPoolTokens: jest.fn().mockResolvedValue(null),

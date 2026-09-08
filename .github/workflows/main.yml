@@ -10,6 +10,21 @@ env:
   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
 
 jobs:
+  package-node18:
+    name: Package compatibility (Node 18)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+      - name: Verify npm package
+        run: npm run test:package
+
   build-and-test:
     name: Build & test
     runs-on: ubuntu-latest
@@ -17,14 +32,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Install dependencies
-        run: yarn install
+        run: npm ci
       - name: Build
-        run: yarn build
+        run: npm run build
+      - name: Audit dependencies
+        run: npm run audit
       - name: Run unit tests
-        run: yarn test
+        run: npm test -- --runInBand
+      - name: Verify npm package
+        run: npm run test:package
       - name: Run e2e tests
-        run: yarn test:e2e
+        run: npm run test:e2e -- --runInBand
       - name: Notify about failure
         uses: sarisia/actions-status-discord@v1
         if: failure()

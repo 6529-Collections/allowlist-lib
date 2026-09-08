@@ -115,10 +115,32 @@ Published files contain compiled JavaScript, declarations, this README, the
 MIT license, and the example. Tests, fixtures, source maps, and local files are
 excluded.
 
-For an authorized release, choose the version explicitly with `npm version`,
-sign into an npm account with access to the `6529-collections` organization,
-and run `sh publish.sh`. It runs the audit, unit tests, and package checks before publishing to
-the public npm registry. The script does not bump the version automatically.
+Releases use the manually triggered **Publish to npm** GitHub Actions workflow
+in `.github/workflows/publish.yml`. To release:
+
+1. On your development branch, set the next version with
+   `npm version patch --no-git-tag-version` (or choose an explicit version).
+2. Commit `package.json` and `package-lock.json` with the release changes and
+   merge them into `main`.
+3. In GitHub, open **Actions → Publish to npm → Run workflow** and select `main`.
+
+The workflow only publishes from `main`. It installs dependencies, then runs
+`publish.sh`, which audits dependencies, runs unit tests, and verifies the
+package before publishing to the public npm registry. Releases are serialized.
+Neither the workflow nor the script bumps the version automatically; each
+release needs a version that has not already been published.
+
+Authentication uses npm trusted publishing with GitHub OIDC. The package's npm
+trusted publisher must match organization `6529-Collections`, repository
+`allowlist-lib`, and workflow filename `publish.yml`, with direct `npm publish`
+permission enabled and no environment restriction. The workflow uses a
+GitHub-hosted runner, Node 24, and npm 11. No npm token secret or interactive
+login is needed in CI. See the
+[npm trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
+
+For a local release, sign into an npm account with access to the
+`6529-collections` organization and run `sh publish.sh`. The same release checks
+run before publishing.
 
 Publishing the library does not update existing applications. Consumers moving
 from GitHub Packages must update their registry configuration and lockfile

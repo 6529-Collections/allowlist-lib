@@ -1,0 +1,37 @@
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Validate and publish
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Set up npm with trusted publishing support
+        run: npm install --global npm@11
+      - name: Install dependencies
+        run: npm ci
+      - name: Audit, test, verify package, and publish
+        run: sh publish.sh --access=public --registry=https://registry.npmjs.org/

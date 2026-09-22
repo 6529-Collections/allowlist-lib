@@ -49,7 +49,9 @@ export function formatStepErrorMetadata(
     return '';
   }
 
-  const entries = Object.entries(metadata).filter(([, value]) => value !== undefined);
+  const entries = Object.entries(metadata).filter(
+    ([, value]) => value !== undefined,
+  );
   if (!entries.length) {
     return '';
   }

@@ -1,4 +1,3 @@
-
 export interface CommonTdhInfo {
   readonly consolidation_key: string;
   readonly consolidation_display: string;

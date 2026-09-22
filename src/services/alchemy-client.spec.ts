@@ -40,7 +40,7 @@ describe('Alchemy HTTP client', () => {
           ownerAddresses: [
             {
               ownerAddress: '0xowner1',
-              tokenBalances: [{ tokenId: '0x0a', balance: '2' }],
+              tokenBalances: [{ tokenId: '10', balance: '2' }],
             },
           ],
           pageKey: 'next-page',

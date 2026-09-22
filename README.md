@@ -94,6 +94,11 @@ lookups. It preserves the v2 NFT endpoint used for historical ownership
 snapshots. The library does not depend on the archived Alchemy SDK. Applications
 that inject their own SDK instance continue to own that instance's dependencies.
 
+Historical owner token IDs accept decimal strings and explicitly `0x`-prefixed
+hexadecimal strings. Both normalize to exact decimal uint256 IDs without using
+JavaScript numbers. Malformed or out-of-range IDs fail instead of being silently
+reinterpreted or truncated.
+
 ## Development and release
 
 ```sh

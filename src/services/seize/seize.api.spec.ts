@@ -216,8 +216,12 @@ describe('Seize API Uploads', () => {
   });
 
   it('should retry upload download across gateway priority list with normal urls', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const logSpy = jest
+      .spyOn(console, 'log')
+      .mockImplementation(() => undefined);
+    const errorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
 
     try {
       const tdhInfos = await seizeApi.getUploadsForBlock(17531454);
@@ -264,7 +268,9 @@ describe('Seize API Uploads', () => {
   });
 
   it('should normalize raw upload urls back to normal gateway urls', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const logSpy = jest
+      .spyOn(console, 'log')
+      .mockImplementation(() => undefined);
 
     try {
       const tdhInfos = await seizeApi.getUploadsForBlock(17531455);

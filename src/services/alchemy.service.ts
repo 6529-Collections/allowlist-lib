@@ -4,6 +4,21 @@ import { CollectionOwner } from './collection-owner';
 export class AlchemyService {
   constructor(private readonly alchemy: AlchemyClient) {}
 
+  private normalizeTokenId(tokenId: string): string {
+    if (
+      typeof tokenId !== 'string' ||
+      !/^(?:\d+|0x[0-9a-f]+)$/i.test(tokenId)
+    ) {
+      throw new Error('Invalid Alchemy token ID');
+    }
+    // REST responses may use decimal IDs; only an explicit 0x prefix means hex.
+    const value = BigInt(tokenId);
+    if (value >= BigInt(2) ** BigInt(256)) {
+      throw new Error('Invalid Alchemy token ID');
+    }
+    return value.toString();
+  }
+
   async getCollectionOwnersInBlock({
     contract,
     block,
@@ -31,9 +46,7 @@ export class AlchemyService {
         (owner) => ({
           ownerAddress: owner.ownerAddress,
           tokens: owner.tokenBalances.map((token) => ({
-            tokenId: BigInt(
-              `0x${token.tokenId.replace('0x', '').substring(0, 64)}`,
-            ).toString(),
+            tokenId: this.normalizeTokenId(token.tokenId),
             balance: +token.balance,
           })),
         }),

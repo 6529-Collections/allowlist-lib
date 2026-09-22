@@ -1,10 +1,12 @@
 import { AlchemyClient, AlchemyOwnersOptions } from './alchemy-client';
 import { CollectionOwner } from './collection-owner';
 
+const UINT256_LIMIT = BigInt(2) ** BigInt(256);
+
 export class AlchemyService {
   constructor(private readonly alchemy: AlchemyClient) {}
 
-  private normalizeTokenId(tokenId: string): string {
+  private normalizeTokenId(tokenId: unknown): string {
     if (
       typeof tokenId !== 'string' ||
       !/^(?:\d+|0x[0-9a-f]+)$/i.test(tokenId)
@@ -13,7 +15,7 @@ export class AlchemyService {
     }
     // REST responses may use decimal IDs; only an explicit 0x prefix means hex.
     const value = BigInt(tokenId);
-    if (value >= BigInt(2) ** BigInt(256)) {
+    if (value >= UINT256_LIMIT) {
       throw new Error('Invalid Alchemy token ID');
     }
     return value.toString();

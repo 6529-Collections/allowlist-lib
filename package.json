@@ -1,6 +1,6 @@
 {
   "name": "@6529-collections/allowlist-lib",
-  "version": "0.0.136",
+  "version": "0.0.137",
   "description": "Build reproducible NFT allowlists and distribution plans with the Janus operation DSL.",
   "author": "6529 Collections",
   "license": "MIT",
